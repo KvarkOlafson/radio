@@ -121,9 +121,8 @@ select, input { font-family:inherit; }
   box-shadow:0 0 10px var(--accent-soft);
 }
 .swatches { display:flex; gap:5px; margin-left:2px; }
-/* фирменные скины держат свой акцент: палитра прячется, пока такой скин активен */
-html[data-accentlock="1"] body[data-page="receiver"] .swatches,
-html[data-accentlock="1"] body[data-page="receiver"] #customColor { visibility:hidden; }
+/* выбор акцента — только у «Веги»: у остальных приборов фирменный цвет несъёмный */
+html:not([data-skin="vega"]) #accentRow { display:none; }
 .swatch {
   width:17px; height:17px; border-radius:50%; border:2px solid transparent; padding:0;
   transition:transform .15s;
@@ -215,9 +214,12 @@ body:not([data-page="launcher"]) #gate { display:none !important; }
 body.tray-open .rec-main { max-width:none; }
 .tray {
   display:none; flex:0 0 360px; width:360px; position:sticky; top:74px;
-  background:linear-gradient(180deg,#1d1d24,#141419);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 8%, transparent), transparent 24%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 1px, transparent 1px 4px),
+    linear-gradient(180deg,#1b1b22,#0f0f14);
   border:1px solid var(--border); border-radius:14px; padding:14px;
-  box-shadow:0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
+  box-shadow:0 18px 40px rgba(0,0,0,.5), inset 0 12px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
   max-height:calc(100vh - 96px); overflow-y:auto;
 }
 html[data-theme="light"] .tray { background:linear-gradient(180deg,#efece4,#e0dcd0); }
@@ -234,8 +236,13 @@ body.tray-open .tray { display:block; }
   transition:border-color .2s, box-shadow .2s;
 }
 .tray-item:hover { border-color:var(--accent); }
-.tray-item.playing { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent-soft); }
-.tray-item .tislot { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:3px; zoom:1.12; }
+.tray-item.playing { border-color:var(--accent); box-shadow:inset 3px 0 0 var(--accent), 0 0 0 1px var(--accent-soft); }
+.tray-item .tislot { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:3px; zoom:1.2; position:relative; transition:transform .2s; }
+.tray-item .tislot::after {
+  content:""; position:absolute; top:54px; left:50%; width:46px; height:7px; margin-left:-23px;
+  border-radius:50%; background:radial-gradient(ellipse, rgba(0,0,0,.5), transparent 72%);
+}
+.tray-item:hover .tislot { transform:translateY(-2px); }
 .tray-item .tislot small { font-family:var(--mono); font-size:8px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
 .tray-item .ti-info { flex:1; min-width:0; }
 .tray-item .ti-info b { display:block; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -279,8 +286,8 @@ body[data-page="list"] .tray-fab, body[data-page="launcher"] .tray-fab { display
   box-shadow: inset 0 0 0 2.5px #8a6a3a, 0 1px 3px rgba(0,0,0,.7);
 }
 .carrier-reel::before { left:3px; } .carrier-reel::after { right:3px; }
-.tray-item.playing .carrier-reel, .deck.live .carrier-reel::before { animation:spin 1.8s linear infinite; }
-.tray-item.playing .carrier-reel, .deck.live .carrier-reel::after { animation:spin 2.6s linear infinite; }
+.tray-item.playing .carrier-reel::before, .deck.live .carrier-reel::before { animation:spin 1.8s linear infinite; }
+.tray-item.playing .carrier-reel::after, .deck.live .carrier-reel::after { animation:spin 2.6s linear infinite; }
 /* компакт-кассета (Teac): светлая этикетка сверху, тёмное окно с двумя лентопротяжными валами */
 .carrier-cassette { border-radius:5px; border:1px solid #14161a;
   background:linear-gradient(180deg,#565c66 0%, #464c56 30%, #23262b 31%, #191c21 100%); }
@@ -308,7 +315,7 @@ body[data-page="list"] .tray-fab, body[data-page="launcher"] .tray-fab { display
 .carrier-md::after { content:""; position:absolute; left:4px; top:7px; width:17px; height:42px; border-radius:2px;
   background:linear-gradient(180deg,#d0d4de,#8a8e9a 45%, #c0c4ce 55%, #7a7e8a);
   box-shadow:inset 0 0 0 1px #4a4e5a; }
-.tray-item.playing .carrier-md, .deck.live .carrier-md::before { animation:spin 1.8s linear infinite; }
+.tray-item.playing .carrier-md::before, .deck.live .carrier-md::before { animation:spin 1.8s linear infinite; }
 /* шард данных (Neon-77): кристалл с гранями, циан → маджента */
 .carrier-shard {
   background:
@@ -327,7 +334,7 @@ body[data-page="list"] .tray-fab, body[data-page="launcher"] .tray-fab { display
   box-shadow:inset 0 0 0 1px #6a7060; }
 .carrier-usb::after { content:""; position:absolute; right:6px; top:7px; width:5px; height:5px; border-radius:50%;
   background:#7dff6a; box-shadow:0 0 6px #7dff6a; }
-.tray-item.playing .carrier-usb, .deck.live .carrier-usb::after { animation:blinkled .5s steps(2) infinite; }
+.tray-item.playing .carrier-usb::after, .deck.live .carrier-usb::after { animation:blinkled .5s steps(2) infinite; }
 /* VHS (Miami-84): чёрная кассета с наклейкой сверху и двумя окнами бобин */
 .carrier-vhs { border-radius:4px; background:linear-gradient(180deg,#26262e,#101014); border:1px solid #000; }
 .carrier-vhs::before { content:""; position:absolute; left:5px; right:5px; top:5px; height:13px; border-radius:2px;
@@ -335,7 +342,7 @@ body[data-page="list"] .tray-fab, body[data-page="launcher"] .tray-fab { display
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.35); }
 .carrier-vhs::after { content:""; position:absolute; left:10px; top:27px; width:11px; height:11px; border-radius:50%;
   background:radial-gradient(circle, #c8ccd4 0 2px, #0a0a0e 2px); box-shadow:26px 0 0 #c8ccd4; }
-.tray-item.playing .carrier-vhs, .deck.live .carrier-vhs::after { animation:spintiny 2.2s linear infinite; }
+.tray-item.playing .carrier-vhs::after, .deck.live .carrier-vhs::after { animation:spintiny 2.2s linear infinite; }
 /* 8-см сингл (Sakura): пастельный конверт с диском по центру */
 .carrier-mini8 { border-radius:5px; background:linear-gradient(160deg,#fff5f8,#f3dfe8); border:1px solid #d8a8b8; }
 .carrier-mini8::before { content:""; position:absolute; left:50%; top:50%; width:34px; height:34px; margin:-17px 0 0 -17px; border-radius:50%;
@@ -345,7 +352,7 @@ body[data-page="list"] .tray-fab, body[data-page="launcher"] .tray-fab { display
   border:1px solid #e8c0d0; }
 .carrier-mini8::after { content:""; position:absolute; left:50%; top:50%; width:6px; height:6px; margin:-3px 0 0 -3px; border-radius:50%;
   background:#fff; box-shadow:0 0 0 1.5px #d8a8b8; }
-.tray-item.playing .carrier-mini8, .deck.live .carrier-mini8::before { animation:spin 1.7s linear infinite; }
+.tray-item.playing .carrier-mini8::before, .deck.live .carrier-mini8::before { animation:spin 1.7s linear infinite; }
 /* патефонная пластинка (Радиола): бороздки, фиолетовая этикетка со шпилем */
 .carrier-vinyl { border-radius:50%; border:1px solid #000;
   background:repeating-radial-gradient(circle at 50% 50%, #141414 0 2px, #1f1f1f 2px 3.5px);
@@ -366,7 +373,7 @@ body[data-page="list"] .tray-fab, body[data-page="launcher"] .tray-fab { display
   background:linear-gradient(180deg,#eef2f8 0 60%, #d8dce6 60%); box-shadow:inset 0 0 0 1px #c0c4ce; }
 .carrier-cart::after { content:""; position:absolute; left:8px; right:8px; bottom:4px; height:7px; border-radius:3px;
   background:repeating-linear-gradient(90deg,#3a3e48 0 3px, transparent 3px 6px); }
-.tray-item.playing .carrier-cart, .deck.live .carrier-cart::before { animation:blinkled 1s steps(2) infinite; }
+.tray-item.playing .carrier-cart::before, .deck.live .carrier-cart::before { animation:blinkled 1s steps(2) infinite; }
 /* безымянная кассета (Сеанс-0): линованная наклейка и розовые валы */
 .carrier-cassette0 { border-radius:6px; background:linear-gradient(180deg,#2c242a,#181218); border:1px solid #000; }
 .carrier-cassette0::before { content:""; position:absolute; left:6px; right:6px; top:13px; height:26px; border-radius:3px;
@@ -389,33 +396,6 @@ body[data-page="list"] .tray-fab, body[data-page="launcher"] .tray-fab { display
 /* ============ РЕЖИМ СПИСКА ============ */
 main { max-width:1160px; margin:0 auto; padding:18px 16px 70px; }
 
-/* эфирная лента со сканирующей стрелкой */
-.dialband {
-  position:relative; height:130px; border-radius:13px; overflow:hidden;
-  margin:0 0 16px;
-  border:1px solid var(--border);
-  background:
-    radial-gradient(420px 120px at 30% 0%, var(--accent-soft), transparent 70%),
-    linear-gradient(180deg, var(--panel2), var(--panel));
-  box-shadow:inset 0 2px 8px rgba(0,0,0,.22), 0 4px 14px rgba(0,0,0,.18);
-}
-#listScaleC { display:block; width:100%; height:92px; margin-top:32px; cursor:grab; touch-action:none; }
-.openrec {
-  position:absolute; top:8px; right:10px;
-  background:var(--panel2); color:var(--fg); border:1px solid var(--border);
-  border-radius:8px; padding:5px 10px; font-size:11.5px; font-weight:600;
-}
-.openrec:hover { border-color:var(--accent); color:var(--accent); }
-.dialband-label {
-  position:absolute; top:9px; left:14px;
-  font-family:var(--mono); font-size:12.5px; font-weight:700; letter-spacing:2.5px;
-  color:var(--accent); text-shadow:0 0 12px var(--accent-soft);
-}
-.dialband-sub {
-  position:absolute; top:28px; left:14px;
-  font-family:var(--mono); font-size:9.5px; letter-spacing:1.8px;
-  text-transform:uppercase; color:var(--muted);
-}
 
 .filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:4px 0 16px; }
 .chipf {
@@ -1070,6 +1050,41 @@ html[data-skin="dedsec"] .unit::before {
 }
 html[data-skin="dedsec"] .plate { color:#7dff6a; text-shadow:0 0 12px rgba(125,255,106,.4); }
 html[data-skin="dedsec"] .lcd { font-family:var(--mono); border-radius:6px; }
+/* DedSec: приёмник = горизонтальный смартфон; всё управление — на экране, флешка вставляется сбоку */
+html[data-skin="dedsec"] .unit {
+  border-radius:26px; padding:14px 18px 16px;
+  border:3px solid #05070a;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(125,255,106,.06), transparent 55%),
+    linear-gradient(180deg,#101410,#080b08);
+  box-shadow:0 24px 48px rgba(0,0,0,.65), inset 0 0 0 2px #1a221a, inset 0 0 34px rgba(125,255,106,.05);
+}
+html[data-skin="dedsec"] .scale-frame { border-radius:12px; background:linear-gradient(180deg,#0a140c,#060a07); border-color:#1c2a1c; }
+html[data-skin="dedsec"] .lcd { border-radius:10px; border-color:#16241a; box-shadow:inset 0 0 26px rgba(125,255,106,.08); }
+html[data-skin="dedsec"] .knob {
+  background:#0b0f0b; border:1px solid #223022;
+  box-shadow:inset 0 0 0 2px rgba(125,255,106,.14), 0 0 12px rgba(125,255,106,.08);
+}
+html[data-skin="dedsec"] .knob::before { background:radial-gradient(circle at 38% 30%, #182018, #060a06 75%); box-shadow:none; }
+html[data-skin="dedsec"] .knob .face::after { background:linear-gradient(180deg,#dfffe0,#7dff6a); box-shadow:0 0 8px rgba(125,255,106,.8); }
+html[data-skin="dedsec"] .tg { background:#0b0f0b; border:1px solid #223022; border-radius:16px; }
+html[data-skin="dedsec"] .tg .sw { background:#060a06; border-color:#223022; }
+html[data-skin="dedsec"] .tg.on .sw::after { background:linear-gradient(180deg,#dfffe0,#7dff6a); }
+html[data-skin="dedsec"] .fine button, html[data-skin="dedsec"] .tbtn {
+  background:rgba(125,255,106,.08); color:#b8ffb0; border:1px solid rgba(125,255,106,.3);
+  border-radius:14px; box-shadow:none;
+}
+html[data-skin="dedsec"] .preset {
+  background:rgba(125,255,106,.06); border:1px solid rgba(125,255,106,.25);
+  border-radius:10px; color:#b8ffb0; box-shadow:none;
+}
+html[data-skin="dedsec"] .preset.written { color:#dfffe0; }
+html[data-skin="dedsec"] .preset.active { background:rgba(125,255,106,.16); box-shadow:inset 0 0 0 1px #7dff6a; }
+/* боковой USB-порт: флешка лежит горизонтально, торчит из торца */
+html[data-skin="dedsec"] .deckrow { margin-top:12px; }
+html[data-skin="dedsec"] .deck { width:118px; height:38px; border-radius:19px; }
+html[data-skin="dedsec"] .deck .carrier { transform:rotate(-90deg) scale(.72); }
+html[data-skin="dedsec"] .deck-cap { color:#5c6a5c; }
 /* фон сайта под DedSec: зелёный скан ctOS */
 html[data-skin="dedsec"] body {
   background:
@@ -1447,9 +1462,6 @@ html[data-skin="vega"] .chipf.active { background:#8a2f1e !important; color:#f4e
 html[data-skin="vega"] .addstation { background:#33220f !important; border-color:#5a4022; }
 html[data-skin="vega"] .addstation input { background:#efe4c4; color:#2c2416; border-color:#c9b88a; }
 html[data-skin="vega"] .addbtn { background:linear-gradient(180deg,#9a3622,#5f1f12) !important; color:#f4ecd2 !important; border-radius:4px; }
-html[data-skin="vega"] .dialband { background:linear-gradient(180deg,#e8dbb0,#d3c092) !important; border-color:#8a744a; }
-html[data-skin="vega"] .dialband-label { color:#5a3a12; text-shadow:none; font-family:Georgia,serif; }
-html[data-skin="vega"] .dialband-sub { color:#6a5a3a; }
 html[data-skin="vega"] .footnote { color:#b3a88e; }
 
 /* --- TEAC: алюминиевая стойка 80-х: металл, а не сплошная краска --- */
@@ -1500,9 +1512,6 @@ html[data-skin="teac"] .chipf {
 html[data-skin="teac"] .chipf.active { background:linear-gradient(180deg,#e05545,#a93422) !important; color:#fff !important; border-color:transparent; }
 html[data-skin="teac"] .addstation { background:#262a30 !important; border-color:#4a5158; }
 html[data-skin="teac"] .addbtn { background:linear-gradient(180deg,#e05545,#a93422) !important; color:#fff !important; }
-html[data-skin="teac"] .dialband { background:linear-gradient(180deg,#cdd2d8,#9aa1ab) !important; border-color:#5f656e; }
-html[data-skin="teac"] .dialband-label { color:#7c2416; text-shadow:none; }
-html[data-skin="teac"] .dialband-sub { color:#4a5158; }
 html[data-skin="teac"] .footnote { color:#9aa1ab; }
 
 /* --- SPECTRA RX-99: чёрный глянец 90-х с золотом --- */
@@ -1534,8 +1543,6 @@ html[data-skin="vfd"] .playbtn {
   border:1px solid rgba(212,175,55,.55); border-radius:8px;
 }
 html[data-skin="vfd"] .addbtn { background:linear-gradient(180deg,#2e2e34,#101013) !important; color:#d4af37 !important; border:1px solid rgba(212,175,55,.55); }
-html[data-skin="vfd"] .dialband { background:linear-gradient(180deg,#14181a,#0a0c0d) !important; border-color:#233; }
-html[data-skin="vfd"] .dialband-label { color:#52ffa8; }
 
 /* ============ v14: БОЛЬШОЙ ПЛЕЕР СПИСКА ============ */
 .bigplayer {
@@ -1623,7 +1630,6 @@ html[data-listskin="gazeta"] .bigplayer .bp-play { background:#2a2620; color:#f7
 html[data-listskin="gazeta"] .bigplayer .bp-info b { font-family:Georgia,"Times New Roman",serif; }
 html[data-listskin="gazeta"] .addstation { background:#f3eddd; border-color:#c9bfa5; border-radius:3px; box-shadow:none; }
 html[data-listskin="gazeta"] .dialsec { background:#f3eddd; border-color:#c9bfa5; border-radius:3px; }
-html[data-listskin="gazeta"] .dialband { background:linear-gradient(180deg,#f3eddd,#e8dfc8); }
 html[data-listskin="gazeta"] .histchip { background:#f7f2e6; border-color:#c9bfa5; border-radius:3px; color:#4a4438; }
 html[data-listskin="gazeta"] .footnote { color:#6a6250; }
 
@@ -1639,7 +1645,6 @@ html[data-listskin="tvguide"] .search { background:#16244a; color:#e8eefc; borde
 html[data-listskin="tvguide"] .bigplayer { background:linear-gradient(165deg,#1b2a52,#122046); border-color:#2c4a8f; }
 html[data-listskin="tvguide"] .bigplayer .bp-play { background:#ffe37a; color:#122046; box-shadow:none; }
 html[data-listskin="tvguide"] .dialsec { background:#16244a; border-color:#2c4a8f; }
-html[data-listskin="tvguide"] .dialband { background:linear-gradient(180deg,#16244a,#101a33); }
 html[data-listskin="tvguide"] .histchip { background:#16244a; border-color:#2c4a8f; color:#8fa8d8; }
 html[data-listskin="tvguide"] .addstation { background:#16244a; border-color:#2c4a8f; }
 
@@ -1659,10 +1664,45 @@ html[data-listskin="terminal"] .bigplayer { background:#081408; border:1px dashe
 html[data-listskin="terminal"] .bigplayer .bp-play { background:#0e2913; color:#52ffa8; border:1px solid #1f6b2f; border-radius:0; box-shadow:none; }
 html[data-listskin="terminal"] .bigplayer .bp-info b { font-family:var(--mono); font-size:16px; color:#52ffa8; }
 html[data-listskin="terminal"] .dialsec { background:#081408; border:1px dashed #1f6b2f; border-radius:0; }
-html[data-listskin="terminal"] .dialband { background:#081408; border-radius:0; }
 html[data-listskin="terminal"] .histchip { background:#081408; border:1px dashed #1f6b2f; border-radius:0; color:#2f8f4f; font-family:var(--mono); }
 html[data-listskin="terminal"] .addstation { background:#081408; border:1px dashed #1f6b2f; border-radius:0; }
 html[data-listskin="terminal"] .footnote { color:#2f8f4f; }
+
+/* Neon-77: лоток = меню радио Night City (как в игре: строки, жёлтая плашка у играющей) */
+html[data-skin="neon"] .tray { background:linear-gradient(180deg,#15150e,#0a0a06); border-color:#3c3a14; box-shadow:0 18px 40px rgba(0,0,0,.6), inset 0 12px 24px rgba(0,0,0,.45); }
+html[data-skin="neon"] .tray-head b { color:#fcee0a; }
+html[data-skin="neon"] .tray-item { background:transparent; border:0; border-bottom:1px solid rgba(252,238,10,.14); border-radius:0; box-shadow:none; }
+html[data-skin="neon"] .tray-item:hover { background:rgba(252,238,10,.06); border-color:transparent; border-bottom-color:rgba(252,238,10,.14); }
+html[data-skin="neon"] .tray-item.playing { background:rgba(252,238,10,.12); box-shadow:inset 3px 0 0 #fcee0a; }
+html[data-skin="neon"] .tray-item .ti-info b { text-transform:uppercase; letter-spacing:1.2px; color:#f2f0e2; }
+html[data-skin="neon"] .tray-item .ti-info span { color:#b0a648; }
+
+/* ============ ШАПКА И МИНИ-ПЛЕЕР: подстраиваются под прибор ============ */
+html[data-skin="vega"] .topbar { background:linear-gradient(180deg,#2c2114,#191007) !important; border-bottom-color:#5a4224; }
+html[data-skin="vega"] .miniplayer { background:linear-gradient(180deg,#2c2114,#191007); border-color:#5a4224; }
+html[data-skin="teac"] .topbar { background:linear-gradient(180deg,#252a30,#13161a) !important; border-bottom-color:#8a919a; }
+html[data-skin="teac"] .miniplayer { background:linear-gradient(180deg,#252a30,#13161a); border-color:#8a919a; }
+html[data-skin="drx"] .topbar { background:linear-gradient(180deg,#101318,#07090c) !important; border-bottom-color:#1f2a28; }
+html[data-skin="drx"] .miniplayer { background:linear-gradient(180deg,#101318,#07090c); border-color:#1f2a28; }
+html[data-skin="vfd"] .miniplayer { background:linear-gradient(180deg,#1c1c20,#0c0c0e); border-color:rgba(212,175,55,.35); }
+html[data-skin="radiola"] .topbar { background:linear-gradient(180deg,#2c1c0e,#1a1008) !important; border-bottom-color:#6a4a24; }
+html[data-skin="radiola"] .miniplayer { background:linear-gradient(180deg,#2c1c0e,#1a1008); border-color:#6a4a24; }
+html[data-skin="geiger"] .topbar { background:linear-gradient(180deg,#141a10,#0a0e08) !important; border-bottom-color:#2c4a1c; }
+html[data-skin="geiger"] .miniplayer { background:linear-gradient(180deg,#141a10,#0a0e08); border-color:#2c4a1c; }
+html[data-skin="miami"] .topbar { background:linear-gradient(180deg,#241428,#120a18) !important; border-bottom-color:#5a2a6a; }
+html[data-skin="miami"] .miniplayer { background:linear-gradient(180deg,#241428,#120a18); border-color:#5a2a6a; }
+html[data-skin="neon"] .topbar { background:linear-gradient(180deg,#1c1c14,#0d0d08) !important; border-bottom-color:#4a4414; }
+html[data-skin="neon"] .miniplayer { background:linear-gradient(180deg,#1c1c14,#0d0d08); border-color:#4a4414; }
+html[data-skin="dedsec"] .topbar { background:linear-gradient(180deg,#101410,#080a08) !important; border-bottom-color:#1f2a1f; }
+html[data-skin="dedsec"] .miniplayer { background:linear-gradient(180deg,#101410,#080a08); border-color:#1f2a1f; }
+html[data-skin="cart8"] .topbar { background:linear-gradient(180deg,#22252c,#101216) !important; border-bottom-color:#3e4148; }
+html[data-skin="cart8"] .miniplayer { background:linear-gradient(180deg,#22252c,#101216); border-color:#3e4148; }
+html[data-skin="sakura"] .topbar { background:linear-gradient(180deg,#2a1c22,#180f14) !important; border-bottom-color:#8a5a6e; }
+html[data-skin="sakura"] .miniplayer { background:linear-gradient(180deg,#2a1c22,#180f14); border-color:#8a5a6e; }
+html[data-skin="seance0"] .topbar { background:linear-gradient(180deg,#1a1216,#0c080a) !important; border-bottom-color:#3a2028; }
+html[data-skin="seance0"] .miniplayer { background:linear-gradient(180deg,#1a1216,#0c080a); border-color:#3a2028; }
+/* мини-плеер в приёмнике не нужен: у прибора свои органы управления */
+body[data-page="receiver"] .miniplayer { display:none; }
 
 /* ============ АДАПТИВ ============ */
 @media (max-width: 760px) {
@@ -1672,7 +1712,6 @@ html[data-listskin="terminal"] .footnote { color:#2f8f4f; }
   .kcol { flex-direction:row; gap:14px; align-items:center; }
   .meters-row { justify-content:center; }
   .brand-notes { display:none; }
-  .dialband-sub { display:none; }
 }
 /* ============ v11: БУМАЖКИ ПАМЯТИ (М1–М4) И СЛЕПАЯ ЗОНА ============ */
 /* слепая зона: экран дёргается, прибор ручке не подчиняется */
@@ -1866,7 +1905,7 @@ body[data-mode="list"] .set-row.rec-only { display:none; }
     <option value="tvguide">ТВ-гид (плашки, 90-е)</option>
     <option value="terminal">Терминал (BBS, зелёный)</option>
   </select></div>
-  <div class="set-row"><span>Акцент</span><span class="btns"><span class="swatches" id="swatches"></span><input type="color" id="customColor" title="Свой акцент"></span></div>
+  <div class="set-row" id="accentRow"><span>Акцент</span><span class="btns"><span class="swatches" id="swatches"></span><input type="color" id="customColor" title="Свой акцент"></span></div>
   <div class="set-row rec-only"><span>Фоновый шум<small>подсветка пустых частот</small></span><span class="btns"><input type="range" id="noiseBedR" min="0" max="100" step="1"><b id="noiseBedVal">35</b></span></div>
   <div class="set-row rec-only"><span>Спокойный режим<small>без ночных вторжений призрака</small></span><button type="button" class="tg" id="calmTg" role="switch" aria-checked="false"><span class="sw" aria-hidden="true"></span></button></div>
   <div class="set-row btns"><button class="iconbtn" id="expBtn" title="Скачать все настройки в файл">⬇ настройки</button><button class="iconbtn" id="impBtn" title="Загрузить настройки из файла">⬆ импорт</button></div>
@@ -1896,13 +1935,6 @@ body[data-mode="list"] .set-row.rec-only { display:none; }
     </div>
     <div class="addnote" id="usNote">Подойдёт любая прямая ссылка на аудиопоток: http(s)://…/stream.mp3 или /live.aac. Станция появится в списке («📡 Мои») и будет ловиться на своей частоте; если укажете частоту — сразу получит отметину на шкале. Хранится только в вашем браузере.</div>
   </details>
-
-  <div class="dialband">
-    <canvas id="listScaleC" height="96" role="img" aria-label="Живая шкала эфира FM 87.5–108 МГц: отметины станций, игла — текущая частота. Потяните, чтобы настроить."></canvas>
-    <div class="dialband-label">∿ ЭФИР · FM 87.5 — 108.0 МГц</div>
-    <div class="dialband-sub">потяните шкалу — настройка · клик по отметине — к станции<span id="ghostHint"></span></div>
-    <button class="openrec" id="openRec" title="Открыть приёмник на этой волне">📼 к приёмнику</button>
-  </div>
 
   <div class="filters">
     <button class="chipf active" data-cat="all">Все</button>
@@ -3171,6 +3203,7 @@ function hexSoft(c){
   return 'rgba('+r+','+g+','+b+',.18)';
 }
 function setAccent(c, silent){
+  if(SKIN_ACCENT[state.skin]) return;
   if(!/^#[0-9a-fA-F]{6}$/.test(String(c))) return;
   if(state.mode==='receiver') state.accentRec = c; else state.accent = c;
   const rs = document.documentElement.style;
@@ -3235,19 +3268,31 @@ $('#impFile').addEventListener('change', e=>{
 });
 
 /* ================= АППАРАТ: ШАССИ И РЕЖИМЫ ================= */
+/* фирменный цвет прибора: у скинов со своим характером акцент несъёмный */
+const SKIN_ACCENT = {
+  teac:'#e05545', drx:'#39ffd0', vfd:'#52ffa8', radiola:'#d9a05a', geiger:'#8aff5e',
+  miami:'#ff71ce', neon:'#fcee0a', dedsec:'#7dff6a', cart8:'#9eff6a', sakura:'#ff9ec2', seance0:'#ff5e8a'
+};
+function accentNow(){ return SKIN_ACCENT[state.skin] || state.accent; }
+function applySkinAccent(){
+  const rs = document.documentElement.style;
+  const c = accentNow();
+  rs.setProperty('--accent', c);
+  rs.setProperty('--accent-soft', hexSoft(c));
+}
 const SKIN_INFO = {
   vega:{plate:'Вега-312', sub:'стереофонический приёмник · made in USSR', labP:'POWER', labT:'TUNING', labV:'VOL', labX:'СВЕТ', bm:'ВЕГА-312 СТЕРЕО', bl:'31 2 12 41 · FM 87.5–108 МГц'},
   teac:{plate:'TEAC R-770', sub:'stereo receiver · japan, 1984', labP:'POWER', labT:'TUNING', labV:'VOL', labX:'LIGHT', bm:'TEAC R-770 STEREO', bl:'DOLBY NR · FM/MW/SW · 1984'},
-  drx:{plate:'DRX-9', sub:'digital reference tuner', labP:'STANDBY', labT:'TUNE', labV:'LEVEL', labX:'DIM', bm:'DRX-9 REFERENCE TUNER', bl:'RDS · SNR 92 dB · SYNTHESIZED', accent:'#39ffd0'},
-  vfd:{plate:'Spectra RX-99', sub:'quartz synthesized receiver · 1993', labP:'POWER', labT:'TUNING', labV:'VOLUME', labX:'LIGHT', bm:'SPECTRA RX-99', bl:'QUARTZ SYNTH · 6-CH PRESET · 1993', accent:'#52ffa8'},
+  drx:{plate:'DRX-9', sub:'digital reference tuner', labP:'STANDBY', labT:'TUNE', labV:'LEVEL', labX:'DIM', bm:'DRX-9 REFERENCE TUNER', bl:'RDS · SNR 92 dB · SYNTHESIZED'},
+  vfd:{plate:'Spectra RX-99', sub:'quartz synthesized receiver · 1993', labP:'POWER', labT:'TUNING', labV:'VOLUME', labX:'LIGHT', bm:'SPECTRA RX-99', bl:'QUARTZ SYNTH · 6-CH PRESET · 1993'},
   radiola:{plate:'Радиола-58', sub:'ламповое радио · СССР, 1958', labP:'СЕТЬ', labT:'НАСТРОЙКА', labV:'ГРОМК.', labX:'СВЕТ', bm:'РАДИОЛА-58', bl:'ДВ · СВ · КВ · УКВ · 1958'},
   geiger:{plate:'Гейгер-FM', sub:'полевой измеритель эфира', labP:'ПИТ.', labT:'ПОИСК', labV:'УСИЛЕНИЕ', labX:'ПОДСВ.', bm:'ГЕЙГЕР-FM · ЭЭ-1', bl:'ФОН 0.11 мЗв/ч · ФОРМАЦИИ'},
   miami:{plate:'Miami-84', sub:'chrome stereo · sunset coast, 1984', labP:'POWER', labT:'TUNE', labV:'VOL', labX:'GLOW', bm:'MIAMI-84 CHROME', bl:'FM STEREO · CHROME EDITION'},
-  neon:{plate:'Neon-77', sub:'night city pirate tuner', labP:'PWR', labT:'SCAN', labV:'GAIN', labX:'NEON', bm:'NEON-77 PIRATE TUNER', bl:'ENCRYPTED · NC-NET · 2077', accent:'#fcee0a'},
-  dedsec:{plate:'DedSec CRS', sub:'community pirate radio · ctOS link', labP:'JAILBRK', labT:'SWEEP', labV:'GAIN', labX:'NEON', bm:'DEDSEC COMMUNITY RADIO', bl:'ctOS HACKED · BONUS STREAM LIVE', accent:'#7dff6a'},
+  neon:{plate:'Neon-77', sub:'night city pirate tuner', labP:'PWR', labT:'SCAN', labV:'GAIN', labX:'NEON', bm:'NEON-77 PIRATE TUNER', bl:'ENCRYPTED · NC-NET · 2077'},
+  dedsec:{plate:'DedSec CRS', sub:'community pirate radio · ctOS link', labP:'JAILBRK', labT:'SWEEP', labV:'GAIN', labX:'NEON', bm:'DEDSEC COMMUNITY RADIO', bl:'ctOS HACKED · BONUS STREAM LIVE'},
   cart8:{plate:'Картридж-8', sub:'автомагнитола · 8-track, 1975', labP:'ПИТАНИЕ', labT:'ПРОГРАММА', labV:'ГРОМКОСТЬ', labX:'СВЕТ', bm:'КАРТРИДЖ-8 AUTO-8', bl:'8-TRACK · 4 ПРОГРАММЫ · 1975'},
   sakura:{plate:'Sakura-FM', sub:'pastel receiver · harajuku, 1996', labP:'ON', labT:'TUNE', labV:'VOL', labX:'LIGHT', bm:'SAKURA-FM ♥', bl:'FM 87.5-108 · PASTEL EDITION'},
-  seance0:{plate:'СЕАНС-0', sub:'не инвентаризировано · 19??', labP:'СЕТЬ?', labT:'НАСТР.', labV:'ГРОМК.', labX:'СВЕТ', bm:'СЕАНС-0', bl:'— — — · НЕ ОТВЕЧАЙТЕ', accent:'#ff5e8a'}
+  seance0:{plate:'СЕАНС-0', sub:'не инвентаризировано · 19??', labP:'СЕТЬ?', labT:'НАСТР.', labV:'ГРОМК.', labX:'СВЕТ', bm:'СЕАНС-0', bl:'— — — · НЕ ОТВЕЧАЙТЕ'}
 };
 function applyTheme(){
   const choice = state.mode==='receiver' ? (state.themeRecChoice||'auto') : (state.themeChoice||'auto');
@@ -3279,8 +3324,7 @@ function setSkin(id){
   $('#bnLine').textContent = i.bl;
   $('#skinSel').value = id;
   applyTheme();
-  document.documentElement.dataset.accentlock = i.accent ? '1' : '0';
-  if(i.accent && state.mode==='receiver') setAccent(i.accent, true);
+  applySkinAccent();
   renderTray(); renderPresets(); renderDeck();
   save(); syncKnobs(); drawScaleNow(); refreshLcdFg();
 }
@@ -3289,7 +3333,7 @@ function setMode(m){
   state.mode = m;
   document.body.dataset.mode = m;
   document.body.dataset.page = m;
-  const acc = (m==='receiver') ? (SKIN_INFO[state.skin].accent || state.accentRec || state.accent) : state.accent;
+  const acc = SKIN_ACCENT[state.skin] || ((m==='receiver') ? (state.accentRec||state.accent) : state.accent);
   $('#customColor').value = acc;
   setAccent(acc, true);
   applyTheme();
@@ -3311,7 +3355,6 @@ function setMode(m){
     $('#unit').classList.remove('haunt');
     updateNpOnCards();
     renderDialSec();
-    drawListScale();
   }
   save();
 }
@@ -3415,7 +3458,6 @@ function renderCards(){
   });
   updateNpOnCards();
   renderHistory();
-  drawListScale();
   renderDialSec();
   renderTray();
 }
@@ -3554,7 +3596,7 @@ themeSel.value = state.themeChoice||'auto';
 themeSel.addEventListener('change', ()=>{
   if(state.mode==='receiver') state.themeRecChoice = themeSel.value; else state.themeChoice = themeSel.value;
   applyTheme(); save();
-  drawScaleNow(); drawListScale();
+  drawScaleNow();
   award('colorist');
 });
 const noiseBedR = $('#noiseBedR');
@@ -3582,95 +3624,6 @@ $('#recHintOk').addEventListener('click', ()=>{
   state.seenHint = true; save();
   $('#recHint').hidden = true;
 });
-
-/* ================= UI v12: ЖИВАЯ ШКАЛА В СПИСКЕ ================= */
-const listScaleC = $('#listScaleC');
-const lsctx = listScaleC.getContext('2d');
-function drawListScale(){
-  const dpr = window.devicePixelRatio||1;
-  const w = listScaleC.clientWidth||600, h = parseInt(listScaleC.getAttribute('height'))||92;
-  if(listScaleC.width !== Math.round(w*dpr)){ listScaleC.width = Math.round(w*dpr); listScaleC.height = Math.round(h*dpr); }
-  lsctx.setTransform(dpr,0,0,dpr,0,0);
-  const F0=87.5, F1=108, pad=10, iw=w-pad*2;
-  const fx = f => pad + (f-F0)/(F1-F0)*iw;
-  const dark = state.theme==='dark';
-  const base = dark ? '#9a97a6' : '#3a3630';
-  lsctx.clearRect(0,0,w,h);
-  const grad = lsctx.createLinearGradient(0,0,0,h);
-  if(dark){ grad.addColorStop(0,'#1c1c24'); grad.addColorStop(1,'#121218'); }
-  else { grad.addColorStop(0,'#f6ecd2'); grad.addColorStop(1,'#e7d9b4'); }
-  lsctx.fillStyle = grad; lsctx.fillRect(0,0,w,h);
-  const stations = markedStations();
-  stations.forEach(st=>{
-    const f = freqOf(st); if(f==null) return;
-    lsctx.fillStyle = state.fav[st.id] ? (state.accent+'30') : (dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)');
-    lsctx.fillRect(fx(f-0.12), 20, fx(f+0.12)-fx(f-0.12), h-26);
-  });
-  lsctx.strokeStyle = dark ? 'rgba(140,150,190,.22)' : 'rgba(90,80,50,.35)';
-  for(let f=F0; f<=F1+0.001; f+=0.5){
-    const major = Math.abs(f%1)<0.001;
-    lsctx.beginPath(); lsctx.moveTo(fx(f), 24); lsctx.lineTo(fx(f), h-12);
-    lsctx.lineWidth = major?1.2:0.6; lsctx.stroke();
-    if(major && (f-Math.floor(f))<0.5){
-      lsctx.font='bold 9px sans-serif'; lsctx.textAlign='center';
-      lsctx.fillStyle = base;
-      lsctx.fillText(f.toFixed(0), fx(f), h-1);
-    }
-  }
-  lsctx.textAlign='center';
-  stations.forEach(st=>{
-    const f = freqOf(st); if(f==null) return;
-    const fav = !!state.fav[st.id];
-    lsctx.fillStyle = fav ? state.accent : base;
-    lsctx.beginPath(); lsctx.arc(fx(f), 14, fav?3.2:2.4, 0, Math.PI*2); lsctx.fill();
-    if(fav){
-      lsctx.font='bold 9px sans-serif';
-      lsctx.fillStyle = state.accent;
-      lsctx.fillText((st.short||st.name).slice(0,10), fx(f), 10);
-    }
-  });
-  const nx = fx(state.freq);
-  lsctx.fillStyle = state.accent;
-  lsctx.shadowColor = state.accent; lsctx.shadowBlur = 8;
-  lsctx.fillRect(nx-1.2, 4, 2.4, h-8);
-  lsctx.shadowBlur = 0;
-}
-(()=>{
-  let downX=0, downF=0, moved=false, down=false;
-  listScaleC.addEventListener('pointerdown', e=>{
-    down=true; moved=false; downX=e.clientX; downF=state.freq;
-    listScaleC.setPointerCapture(e.pointerId);
-  });
-  listScaleC.addEventListener('pointermove', e=>{
-    if(!down) return;
-    if(Math.abs(e.clientX-downX)>4) moved=true;
-    if(!moved) return;
-    const px = listScaleC.clientWidth||600;
-    tune(((e.clientX-downX)/px)*20.5 + downF - state.freq);
-  });
-  listScaleC.addEventListener('pointerup', e=>{
-    if(down && !moved){
-      const r = listScaleC.getBoundingClientRect();
-      const pad=10, iw=(listScaleC.clientWidth||600)-pad*2;
-      const f = 87.5 + (e.clientX-r.left-pad)/iw*20.5;
-      let best=null;
-      markedStations().forEach(st=>{
-        const sf = freqOf(st); if(sf==null) return;
-        const d = Math.abs(sf-f);
-        if(d<=0.18 && (!best || d<best.d)) best={st, d};
-      });
-      if(best){
-        state.freq = Math.round(freqOf(best.st)*100)/100;
-        syncKnobs(); drawListScale();
-        showToastOnly('∿ '+best.st.name+' · '+freqOf(best.st).toFixed(1)+' МГц');
-        setMode('receiver');
-      }
-    }
-    down=false;
-  });
-  listScaleC.addEventListener('pointercancel', ()=>{ down=false; });
-})();
-$('#openRec').addEventListener('click', ()=>setMode('receiver'));
 
 /* ---- форма «своя станция» ---- */
 $('#usAdd').addEventListener('click', ()=>{
@@ -3886,7 +3839,6 @@ function tune(d){
   if(state.freqMinSeen<=87.5+0.001 && state.freqMaxSeen>=108-0.001) award('scout');
   syncKnobs();
   if(state.mode==='receiver' && state.powered) dialUpdate();
-  if(state.mode==='list') drawListScale();
 }
 function setVolume(v){
   state.volume = Math.round(clamp(v,0,100));
@@ -4124,8 +4076,8 @@ function drawScale(){
     }
     /* игла */
     const nx = fx(state.freq);
-    sctx.fillStyle = state.accent;
-    sctx.shadowColor = state.accent; sctx.shadowBlur = 8;
+    sctx.fillStyle = accentNow();
+    sctx.shadowColor = accentNow(); sctx.shadowBlur = 8;
     sctx.fillRect(nx-1.2, 2, 2.4, h-8);
     sctx.shadowBlur = 0;
     /* треснувшее стекло шкалы Веги: время не пощадило даже её */
@@ -4238,7 +4190,7 @@ function drawSig(sig){
     if(state.skin==='teac') col = on ? (i>=9?'#ff3b28': i>=7?'#ffb400':'#59ff7a') : '#b9c0c8';
     else if(state.skin==='vfd') col = on ? (i>=10?'#ff8f5a':'#39ffa8') : '#173229';
     else if(state.skin==='neon') col = on ? (i>=9?'#fcee0a':'#c8bc28') : '#26240e';
-    else col = on ? (i>=9?'#ff5340': i>=7?state.accent:'#39ffd0') : '#22222c';
+    else col = on ? (i>=9?'#ff5340': i>=7?accentNow():'#39ffd0') : '#22222c';
     gctx.fillStyle = col;
     if(dark && on){ gctx.shadowColor = col; gctx.shadowBlur = 6; }
     gctx.fillRect(x, 10, bw, 48*( (i+1)/bars )*0.6+22);
@@ -4650,7 +4602,7 @@ applyLight();
 syncKnobs();
 setTray(false);
 loop();
-window.addEventListener('resize', ()=>{ drawScaleNow(); drawListScale(); });
+window.addEventListener('resize', ()=>{ drawScaleNow(); });
 window.addEventListener('scroll', ()=>{
   document.body.classList.toggle('scrolled', window.scrollY > 120);
 }, {passive:true});
