@@ -288,14 +288,20 @@ body[data-page="list"] .tray-fab, body[data-page="launcher"] .tray-fab { display
 .carrier-reel::before { left:3px; } .carrier-reel::after { right:3px; }
 .tray-item.playing .carrier-reel::before, .deck.live .carrier-reel::before { animation:spin 1.8s linear infinite; }
 .tray-item.playing .carrier-reel::after, .deck.live .carrier-reel::after { animation:spin 2.6s linear infinite; }
-/* компакт-кассета (Teac): светлая этикетка сверху, тёмное окно с двумя лентопротяжными валами */
-.carrier-cassette { border-radius:5px; border:1px solid #14161a;
-  background:linear-gradient(180deg,#565c66 0%, #464c56 30%, #23262b 31%, #191c21 100%); }
-.carrier-cassette::before { content:""; position:absolute; left:8px; right:8px; top:19px; height:20px; border-radius:10px;
-  background:#101216; box-shadow:inset 0 2px 5px rgba(0,0,0,.9), inset 0 -1px 0 rgba(255,255,255,.07); }
-.carrier-cassette::after { content:""; position:absolute; left:14px; top:23px; width:8px; height:8px; border-radius:50%;
-  background:radial-gradient(circle, #e8ecf4 0 2.5px, #565c66 2.5px);
-  box-shadow:22px 0 0 #e8ecf4, 0 0 0 1.5px #101216, 22px 0 0 1.5px #101216; }
+/* компакт-кассета (Teac): крупная светлая этикетка с полосой, тёмный корпус, окно с двумя белыми бобинами */
+.carrier-cassette { border-radius:5px; border:1px solid #101216;
+  background:linear-gradient(180deg,#4a505a 0%, #2a2e36 55%, #1a1d22 100%); }
+.carrier-cassette::before { content:""; position:absolute; left:4px; right:4px; top:4px; height:30px; border-radius:3px;
+  background:
+    linear-gradient(180deg, transparent 0 20px, #c0392b 20px 24px, transparent 24px),
+    linear-gradient(180deg,#f2ecd8,#ddd4ba);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.3), inset 0 -6px 0 rgba(0,0,0,.12); }
+.carrier-cassette::after { content:""; position:absolute; left:11px; right:11px; top:37px; height:16px; border-radius:8px;
+  background:
+    radial-gradient(circle at 8px 50%, #e8ecf4 0 3.2px, #0c0e12 3.2px 4.6px, transparent 4.6px),
+    radial-gradient(circle at calc(100% - 8px) 50%, #e8ecf4 0 3.2px, #0c0e12 3.2px 4.6px, transparent 4.6px),
+    linear-gradient(180deg,#14171c,#0a0c10);
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.85), inset 0 -1px 0 rgba(255,255,255,.06); }
 .tray-item.playing .carrier-cassette, .deck.live .carrier-cassette { animation:wiggle 1.4s ease-in-out infinite; }
 /* CD (Spectra): радужный отлив и прозрачный центр */
 .carrier-cd { border-radius:50%; border:1px solid #9aa0aa;
@@ -1083,8 +1089,19 @@ html[data-skin="dedsec"] .preset.active { background:rgba(125,255,106,.16); box-
 /* боковой USB-порт: флешка лежит горизонтально, торчит из торца */
 html[data-skin="dedsec"] .deckrow { margin-top:12px; }
 html[data-skin="dedsec"] .deck { width:118px; height:38px; border-radius:19px; }
-html[data-skin="dedsec"] .deck .carrier { transform:rotate(-90deg) scale(.72); }
+html[data-skin="dedsec"] .deck .carrier { transform:rotate(-90deg) scale(.8); zoom:1; }
 html[data-skin="dedsec"] .deck-cap { color:#5c6a5c; }
+/* экран вместо «приёмника»: без винтов и аналоговых приборов — только стекло с развёрткой */
+html[data-skin="dedsec"] .unit { max-width:760px; }
+html[data-skin="dedsec"] .screw { display:none; }
+html[data-skin="dedsec"] .meters-row { display:none; }
+html[data-skin="dedsec"] .unit-head { margin-bottom:10px; }
+html[data-skin="dedsec"] .scale-frame { border:0; background:transparent; box-shadow:none; padding:0 0 4px; }
+html[data-skin="dedsec"] .unit::after {
+  display:block; border-radius:22px;
+  background:repeating-linear-gradient(0deg, rgba(125,255,106,.025) 0 1px, transparent 1px 3px);
+  box-shadow:inset 0 0 46px rgba(125,255,106,.07), inset 0 1px 0 rgba(125,255,106,.14);
+}
 /* фон сайта под DedSec: зелёный скан ctOS */
 html[data-skin="dedsec"] body {
   background:
@@ -1304,7 +1321,7 @@ html[data-skin="vfd"] .scale-frame { border-radius:9px; box-shadow: inset 0 2px 
 /* дека: отсек носителя на корпусе — устройство видно и вне лотка */
 .deckrow { display:flex; align-items:center; gap:12px; margin-top:14px; justify-content:center; }
 .deck {
-  width:78px; height:78px; border-radius:9px; position:relative; flex:0 0 auto;
+  width:96px; height:96px; border-radius:10px; position:relative; flex:0 0 auto;
   background:var(--face-bg, var(--panel2));
   border:1px solid var(--face-border, var(--border));
   box-shadow: inset 0 2px 8px rgba(0,0,0,.45), inset 0 -1px 0 var(--case-hi, rgba(255,255,255,.08));
@@ -1315,7 +1332,7 @@ html[data-skin="vfd"] .scale-frame { border-radius:9px; box-shadow: inset 0 2px 
   content:""; position:absolute; inset:5px; border-radius:6px; pointer-events:none;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), inset 0 4px 10px rgba(0,0,0,.35);
 }
-.deck .carrier { opacity:.45; filter:saturate(.4); }
+.deck .carrier { opacity:.45; filter:saturate(.4); zoom:1.32; }
 .deck.live .carrier { opacity:1; filter:none; }
 .deck.live {
   border-color:color-mix(in srgb, var(--accent) 45%, var(--face-border, var(--border)));
@@ -1480,40 +1497,6 @@ html[data-skin="teac"] .topbar::after { background:linear-gradient(90deg, transp
 html[data-skin="teac"] .brand, html[data-skin="teac"] .tbctl { color:#20242a; }
 html[data-skin="teac"] .brand .accentdot { background:#c0392b; color:#fff; }
 html[data-skin="teac"] .mode-switch { background:#8f959e; border-color:#5f656e; }
-html[data-skin="teac"] .mode-switch button { color:#33373d; }
-html[data-skin="teac"] .mode-switch button.active { background:linear-gradient(180deg,#e05545,#a93422) !important; color:#fff !important; }
-html[data-skin="teac"] .tbctl select, html[data-skin="teac"] .search {
-  background:#e8ebee; color:#20242a; border-color:#8f96a0;
-}
-html[data-skin="teac"] .iconbtn { background:#e8ebee; border-color:#8f96a0; color:#20242a; }
-html[data-skin="teac"] .badge { background:#c0392b; color:#fff; }
-html[data-skin="teac"] .card {
-  background:linear-gradient(178deg,#f0f2f4,#c9ced4) !important;
-  color:#20242a; border:1px solid #9aa1ab; border-radius:6px;
-  box-shadow:0 3px 8px rgba(0,0,0,.4), inset 0 1px 0 #fff;
-}
-html[data-skin="teac"] .card h3 { color:#1b2530; letter-spacing:.4px; }
-html[data-skin="teac"] .card .genre, html[data-skin="teac"] .card .np { color:#53606e; }
-html[data-skin="teac"] .card .np.on { color:#b03a2e; }
-html[data-skin="teac"] .card .cat { color:#b03a2e; }
-html[data-skin="teac"] .card .freq { background:#3a4148; color:#fff; box-shadow:none; }
-html[data-skin="teac"] .card .minibtn { border-color:#9aa1ab; color:#53606e; }
-html[data-skin="teac"] .card .minibtn:hover { color:#b03a2e; border-color:#b03a2e; }
-html[data-skin="teac"] .card.playing { border-color:#b03a2e; box-shadow:0 0 0 1px #b03a2e, 0 8px 26px rgba(0,0,0,.45); }
-html[data-skin="teac"] .playbtn {
-  background:linear-gradient(180deg,#e05545,#a93422) !important; color:#fff !important;
-  border-radius:5px; box-shadow:0 2px 0 #7c2416, inset 0 1px 0 rgba(255,255,255,.35);
-}
-html[data-skin="teac"] .playbtn:active { transform:translateY(1px); box-shadow:0 1px 0 #7c2416; }
-html[data-skin="teac"] .chipf {
-  background:linear-gradient(180deg,#e8ebee,#c4c9cf); color:#2b3540; border-color:#8f96a0; border-radius:5px;
-  box-shadow:0 2px 4px rgba(0,0,0,.3), inset 0 1px 0 #fff;
-}
-html[data-skin="teac"] .chipf.active { background:linear-gradient(180deg,#e05545,#a93422) !important; color:#fff !important; border-color:transparent; }
-html[data-skin="teac"] .addstation { background:#262a30 !important; border-color:#4a5158; }
-html[data-skin="teac"] .addbtn { background:linear-gradient(180deg,#e05545,#a93422) !important; color:#fff !important; }
-html[data-skin="teac"] .footnote { color:#9aa1ab; }
-
 /* --- SPECTRA RX-99: чёрный глянец 90-х с золотом --- */
 html[data-skin="vfd"] body {
   background:
@@ -1527,23 +1510,6 @@ html[data-skin="vfd"] body::before {
   background:
     repeating-linear-gradient(0deg, rgba(82,255,168,.018) 0 2px, transparent 2px 5px) !important;
 }
-html[data-skin="vfd"] .topbar {
-  background:linear-gradient(180deg,#1c1c20,#0c0c0e) !important;
-  border-bottom:1px solid rgba(212,175,55,.35);
-}
-html[data-skin="vfd"] .topbar::after { background:linear-gradient(90deg, transparent 4%, #d4af37 30%, #d4af37 70%, transparent 96%); }
-html[data-skin="vfd"] .brand .accentdot { background:#d4af37; color:#111; }
-html[data-skin="vfd"] .card { background:linear-gradient(178deg,#1a1a1f,#101013) !important; border:1px solid #2c2c33; }
-html[data-skin="vfd"] .card h3 { color:#efe9d8; }
-html[data-skin="vfd"] .card.playing { border-color:#d4af37; box-shadow:0 0 0 1px #d4af37, 0 8px 28px rgba(212,175,55,.14); }
-html[data-skin="vfd"] .chipf { background:#16161a; border-color:#2c2c33; }
-html[data-skin="vfd"] .chipf.active { background:linear-gradient(180deg,#d4af37,#a8842c) !important; color:#111 !important; }
-html[data-skin="vfd"] .playbtn {
-  background:linear-gradient(180deg,#2e2e34,#101013) !important; color:#d4af37 !important;
-  border:1px solid rgba(212,175,55,.55); border-radius:8px;
-}
-html[data-skin="vfd"] .addbtn { background:linear-gradient(180deg,#2e2e34,#101013) !important; color:#d4af37 !important; border:1px solid rgba(212,175,55,.55); }
-
 /* ============ v14: БОЛЬШОЙ ПЛЕЕР СПИСКА ============ */
 .bigplayer {
   display:flex; align-items:center; gap:14px; padding:16px 18px; margin-bottom:16px;
@@ -1604,70 +1570,6 @@ body[data-page="launcher"] .miniplayer { display:none; }
   color:#161616; font-weight:700; border-color:transparent;
 }
 
-/* ============ v14: ОФОРМЛЕНИЕ СПИСКА (не синхронизируется с приёмником) ============ */
-.set-row.list-only { display:none; }
-body[data-mode="list"] .set-row.list-only { display:flex; }
-
-/* ---- «Газета» (1970-е): бумага, засечки, колонки ---- */
-html[data-listskin="gazeta"] body[data-page="list"] {
-  --fg:#26221a; --muted:#6a6250; --border:#c9bfa5;
-  --card:#f7f2e6; --card-hover:#efe8d6;
-  --panel:#f3eddd; --panel2:#e8dfc8;
-  --accent-soft:rgba(138,43,30,.14);
-  background:linear-gradient(180deg,#efe9db,#e0d8c4);
-}
-html[data-listskin="gazeta"] .card { background:#f7f2e6; border:1px solid #c9bfa5; border-radius:3px; box-shadow:2px 3px 0 rgba(60,50,30,.18); }
-html[data-listskin="gazeta"] .card::before { display:none; }
-html[data-listskin="gazeta"] .card h3 { font-family:Georgia,"Times New Roman",serif; }
-html[data-listskin="gazeta"] .card .cat { color:#8a2b1e; }
-html[data-listskin="gazeta"] .card .genre, html[data-listskin="gazeta"] .card .np { color:#6a6250; }
-html[data-listskin="gazeta"] .card .freq { background:#e8dfc8; color:#8a2b1e; box-shadow:none; }
-html[data-listskin="gazeta"] .chipf { background:#f7f2e6; color:#4a4438; border-color:#c9bfa5; border-radius:3px; box-shadow:none; }
-html[data-listskin="gazeta"] .chipf.active { background:#2a2620; color:#f7f2e6; box-shadow:none; }
-html[data-listskin="gazeta"] .search { background:#f7f2e6; color:#2a2620; border-color:#c9bfa5; border-radius:3px; box-shadow:none; }
-html[data-listskin="gazeta"] .bigplayer { background:#f7f2e6; border-color:#c9bfa5; border-radius:3px; box-shadow:2px 3px 0 rgba(60,50,30,.18); }
-html[data-listskin="gazeta"] .bigplayer .bp-play { background:#2a2620; color:#f7f2e6; box-shadow:none; }
-html[data-listskin="gazeta"] .bigplayer .bp-info b { font-family:Georgia,"Times New Roman",serif; }
-html[data-listskin="gazeta"] .addstation { background:#f3eddd; border-color:#c9bfa5; border-radius:3px; box-shadow:none; }
-html[data-listskin="gazeta"] .dialsec { background:#f3eddd; border-color:#c9bfa5; border-radius:3px; }
-html[data-listskin="gazeta"] .histchip { background:#f7f2e6; border-color:#c9bfa5; border-radius:3px; color:#4a4438; }
-html[data-listskin="gazeta"] .footnote { color:#6a6250; }
-
-/* ---- «Телегид» (1990-е): яркие плашки, теле-гайд ---- */
-html[data-listskin="tvguide"] body[data-page="list"] { background:linear-gradient(180deg,#101a33,#0a1024); }
-html[data-listskin="tvguide"] .card { background:linear-gradient(165deg,#1b2a52,#122046); border:1px solid #2c4a8f; border-radius:10px; }
-html[data-listskin="tvguide"] .card h3 { color:#ffe37a; }
-html[data-listskin="tvguide"] .card .cat { color:#7fb2ff; }
-html[data-listskin="tvguide"] .card .genre, html[data-listskin="tvguide"] .card .np { color:#8fa8d8; }
-html[data-listskin="tvguide"] .chipf { background:#16244a; color:#8fa8d8; border-color:#2c4a8f; }
-html[data-listskin="tvguide"] .chipf.active { background:#ffe37a; color:#122046; box-shadow:none; }
-html[data-listskin="tvguide"] .search { background:#16244a; color:#e8eefc; border-color:#2c4a8f; }
-html[data-listskin="tvguide"] .bigplayer { background:linear-gradient(165deg,#1b2a52,#122046); border-color:#2c4a8f; }
-html[data-listskin="tvguide"] .bigplayer .bp-play { background:#ffe37a; color:#122046; box-shadow:none; }
-html[data-listskin="tvguide"] .dialsec { background:#16244a; border-color:#2c4a8f; }
-html[data-listskin="tvguide"] .histchip { background:#16244a; border-color:#2c4a8f; color:#8fa8d8; }
-html[data-listskin="tvguide"] .addstation { background:#16244a; border-color:#2c4a8f; }
-
-/* ---- «Терминал» (BBS/DOS): монохром, псевдографика ---- */
-html[data-listskin="terminal"] body[data-page="list"] { background:#050a06; }
-html[data-listskin="terminal"] .card { background:#081408; border:1px dashed #1f6b2f; border-radius:0; box-shadow:none; }
-html[data-listskin="terminal"] .card::before { display:none; }
-html[data-listskin="terminal"] .card h3 { font-family:var(--mono); color:#52ffa8; font-size:14px; }
-html[data-listskin="terminal"] .card .cat { color:#2f8f4f; }
-html[data-listskin="terminal"] .card .genre, html[data-listskin="terminal"] .card .np { color:#2f8f4f; }
-html[data-listskin="terminal"] .card .freq { background:transparent; color:#52ffa8; border:1px dashed #1f6b2f; border-radius:0; box-shadow:none; }
-html[data-listskin="terminal"] .chipf { background:#081408; color:#2f8f4f; border:1px dashed #1f6b2f; border-radius:0; box-shadow:none; font-family:var(--mono); }
-html[data-listskin="terminal"] .chipf.active { background:#52ffa8; color:#050a06; box-shadow:none; }
-html[data-listskin="terminal"] .search { background:#081408; color:#52ffa8; border:1px dashed #1f6b2f; border-radius:0; box-shadow:none; }
-html[data-listskin="terminal"] .playbtn { background:#0e2913; color:#52ffa8; border:1px solid #1f6b2f; border-radius:0; box-shadow:none; font-family:var(--mono); }
-html[data-listskin="terminal"] .bigplayer { background:#081408; border:1px dashed #1f6b2f; border-radius:0; box-shadow:none; }
-html[data-listskin="terminal"] .bigplayer .bp-play { background:#0e2913; color:#52ffa8; border:1px solid #1f6b2f; border-radius:0; box-shadow:none; }
-html[data-listskin="terminal"] .bigplayer .bp-info b { font-family:var(--mono); font-size:16px; color:#52ffa8; }
-html[data-listskin="terminal"] .dialsec { background:#081408; border:1px dashed #1f6b2f; border-radius:0; }
-html[data-listskin="terminal"] .histchip { background:#081408; border:1px dashed #1f6b2f; border-radius:0; color:#2f8f4f; font-family:var(--mono); }
-html[data-listskin="terminal"] .addstation { background:#081408; border:1px dashed #1f6b2f; border-radius:0; }
-html[data-listskin="terminal"] .footnote { color:#2f8f4f; }
-
 /* Neon-77: лоток = меню радио Night City (как в игре: строки, жёлтая плашка у играющей) */
 html[data-skin="neon"] .tray { background:linear-gradient(180deg,#15150e,#0a0a06); border-color:#3c3a14; box-shadow:0 18px 40px rgba(0,0,0,.6), inset 0 12px 24px rgba(0,0,0,.45); }
 html[data-skin="neon"] .tray-head b { color:#fcee0a; }
@@ -1677,32 +1579,49 @@ html[data-skin="neon"] .tray-item.playing { background:rgba(252,238,10,.12); box
 html[data-skin="neon"] .tray-item .ti-info b { text-transform:uppercase; letter-spacing:1.2px; color:#f2f0e2; }
 html[data-skin="neon"] .tray-item .ti-info span { color:#b0a648; }
 
-/* ============ ШАПКА И МИНИ-ПЛЕЕР: подстраиваются под прибор ============ */
-html[data-skin="vega"] .topbar { background:linear-gradient(180deg,#2c2114,#191007) !important; border-bottom-color:#5a4224; }
-html[data-skin="vega"] .miniplayer { background:linear-gradient(180deg,#2c2114,#191007); border-color:#5a4224; }
-html[data-skin="teac"] .topbar { background:linear-gradient(180deg,#252a30,#13161a) !important; border-bottom-color:#8a919a; }
-html[data-skin="teac"] .miniplayer { background:linear-gradient(180deg,#252a30,#13161a); border-color:#8a919a; }
-html[data-skin="drx"] .topbar { background:linear-gradient(180deg,#101318,#07090c) !important; border-bottom-color:#1f2a28; }
-html[data-skin="drx"] .miniplayer { background:linear-gradient(180deg,#101318,#07090c); border-color:#1f2a28; }
-html[data-skin="vfd"] .miniplayer { background:linear-gradient(180deg,#1c1c20,#0c0c0e); border-color:rgba(212,175,55,.35); }
-html[data-skin="radiola"] .topbar { background:linear-gradient(180deg,#2c1c0e,#1a1008) !important; border-bottom-color:#6a4a24; }
-html[data-skin="radiola"] .miniplayer { background:linear-gradient(180deg,#2c1c0e,#1a1008); border-color:#6a4a24; }
-html[data-skin="geiger"] .topbar { background:linear-gradient(180deg,#141a10,#0a0e08) !important; border-bottom-color:#2c4a1c; }
-html[data-skin="geiger"] .miniplayer { background:linear-gradient(180deg,#141a10,#0a0e08); border-color:#2c4a1c; }
-html[data-skin="miami"] .topbar { background:linear-gradient(180deg,#241428,#120a18) !important; border-bottom-color:#5a2a6a; }
-html[data-skin="miami"] .miniplayer { background:linear-gradient(180deg,#241428,#120a18); border-color:#5a2a6a; }
-html[data-skin="neon"] .topbar { background:linear-gradient(180deg,#1c1c14,#0d0d08) !important; border-bottom-color:#4a4414; }
-html[data-skin="neon"] .miniplayer { background:linear-gradient(180deg,#1c1c14,#0d0d08); border-color:#4a4414; }
-html[data-skin="dedsec"] .topbar { background:linear-gradient(180deg,#101410,#080a08) !important; border-bottom-color:#1f2a1f; }
-html[data-skin="dedsec"] .miniplayer { background:linear-gradient(180deg,#101410,#080a08); border-color:#1f2a1f; }
-html[data-skin="cart8"] .topbar { background:linear-gradient(180deg,#22252c,#101216) !important; border-bottom-color:#3e4148; }
-html[data-skin="cart8"] .miniplayer { background:linear-gradient(180deg,#22252c,#101216); border-color:#3e4148; }
-html[data-skin="sakura"] .topbar { background:linear-gradient(180deg,#2a1c22,#180f14) !important; border-bottom-color:#8a5a6e; }
-html[data-skin="sakura"] .miniplayer { background:linear-gradient(180deg,#2a1c22,#180f14); border-color:#8a5a6e; }
-html[data-skin="seance0"] .topbar { background:linear-gradient(180deg,#1a1216,#0c080a) !important; border-bottom-color:#3a2028; }
-html[data-skin="seance0"] .miniplayer { background:linear-gradient(180deg,#1a1216,#0c080a); border-color:#3a2028; }
+/* ============ ХРОМ ПРИЛОЖЕНИЯ: шапка и оба плеера в цвете прибора ============ */
+html[data-skin="vega"] { --chrome-bg:linear-gradient(180deg,#2c2114,#191007); --chrome-border:#5a4224; }
+html[data-skin="teac"] { --chrome-bg:linear-gradient(180deg,#252a30,#13161a); --chrome-border:#8a919a; }
+html[data-skin="drx"] { --chrome-bg:linear-gradient(180deg,#101318,#07090c); --chrome-border:#1f2a28; }
+html[data-skin="vfd"] { --chrome-bg:linear-gradient(180deg,#1c1c20,#0c0c0e); --chrome-border:rgba(212,175,55,.35); }
+html[data-skin="radiola"] { --chrome-bg:linear-gradient(180deg,#2c1c0e,#1a1008); --chrome-border:#6a4a24; }
+html[data-skin="geiger"] { --chrome-bg:linear-gradient(180deg,#141a10,#0a0e08); --chrome-border:#2c4a1c; }
+html[data-skin="miami"] { --chrome-bg:linear-gradient(180deg,#241428,#120a18); --chrome-border:#5a2a6a; }
+html[data-skin="neon"] { --chrome-bg:linear-gradient(180deg,#1c1c14,#0d0d08); --chrome-border:#4a4414; }
+html[data-skin="dedsec"] { --chrome-bg:linear-gradient(180deg,#101410,#080a08); --chrome-border:#1f2a1f; }
+html[data-skin="cart8"] { --chrome-bg:linear-gradient(180deg,#22252c,#101216); --chrome-border:#3e4148; }
+html[data-skin="sakura"] { --chrome-bg:linear-gradient(180deg,#2a1c22,#180f14); --chrome-border:#8a5a6e; }
+html[data-skin="seance0"] { --chrome-bg:linear-gradient(180deg,#1a1216,#0c080a); --chrome-border:#3a2028; }
+/* хром всегда тёмный — текст и лого на нём всегда светлые */
+.topbar {
+  background:var(--chrome-bg, color-mix(in srgb, var(--panel) 84%, transparent));
+  border-bottom-color:var(--chrome-border, var(--border));
+  color:#f0eee8;
+}
+.topbar .mode-switch button { color:rgba(240,238,232,.62); }
+.topbar .mode-switch button:hover { color:#fff; }
+.topbar .tbctl { color:rgba(240,238,232,.55); }
+.topbar .iconbtn { color:#f0eee8; }
+.miniplayer { background:var(--chrome-bg, color-mix(in srgb, var(--panel) 92%, transparent)); border-color:var(--chrome-border, var(--border)); color:#f0eee8; }
+.miniplayer .mp-info span { color:rgba(240,238,232,.6); }
+.bigplayer { background:var(--chrome-bg, linear-gradient(165deg, var(--card), color-mix(in srgb, var(--card) 80%, #000 20%))); border-color:var(--chrome-border, var(--border)); color:#f0eee8; }
+.bigplayer .bp-cat { color:rgba(240,238,232,.55); }
+.bigplayer .bp-np { color:rgba(240,238,232,.6); }
 /* мини-плеер в приёмнике не нужен: у прибора свои органы управления */
 body[data-page="receiver"] .miniplayer { display:none; }
+
+/* ============ СПИСОК: страница живёт в цветах прибора ============ */
+html[data-skin="teac"] body[data-page="list"] { --page-bg:#dfe3e8; --page-bg2:#c9ced4; --panel:#eef1f4; --panel2:#e2e6ea; --fg:#20242a; --muted:#5a6470; --border:#a8afb8; --card:#f2f4f6; --card-hover:#fafbfc; }
+html[data-skin="drx"] body[data-page="list"] { --page-bg:#0b0d14; --page-bg2:#05060a; --panel:#14161c; --panel2:#1a1d24; --fg:#e2e8f0; --muted:#8a94a6; --border:#2a2f3a; --card:#13161c; --card-hover:#1a1e26; }
+html[data-skin="vfd"] body[data-page="list"] { --page-bg:#0d1009; --page-bg2:#040503; --panel:#16161a; --panel2:#1c1c21; --fg:#efe9d8; --muted:#9a9484; --border:#2c2c33; --card:#17171b; --card-hover:#1f1f25; }
+html[data-skin="radiola"] body[data-page="list"] { --page-bg:#171008; --page-bg2:#0d0804; --panel:#221709; --panel2:#2a1d0e; --fg:#f0e4cc; --muted:#a8906a; --border:#4a3820; --card:#201609; --card-hover:#2a1e10; }
+html[data-skin="geiger"] body[data-page="list"] { --page-bg:#0c110a; --page-bg2:#050805; --panel:#141a12; --panel2:#1a2218; --fg:#e4f0dc; --muted:#8ba080; --border:#2c3e26; --card:#131a11; --card-hover:#1a2418; }
+html[data-skin="miami"] body[data-page="list"] { --page-bg:#170d1c; --page-bg2:#0c0610; --panel:#221329; --panel2:#2a1832; --fg:#f5e6f2; --muted:#a888a8; --border:#4a2a56; --card:#20122a; --card-hover:#2a1a36; }
+html[data-skin="neon"] body[data-page="list"] { --page-bg:#12120c; --page-bg2:#060604; --panel:#1a1a12; --panel2:#22221a; --fg:#f2f0e2; --muted:#a8a084; --border:#3c3a20; --card:#191910; --card-hover:#22221a; }
+html[data-skin="dedsec"] body[data-page="list"] { --page-bg:#0c110c; --page-bg2:#050705; --panel:#121812; --panel2:#182018; --fg:#e0f0da; --muted:#84a07c; --border:#263e26; --card:#111811; --card-hover:#182218; }
+html[data-skin="cart8"] body[data-page="list"] { --page-bg:#14161c; --page-bg2:#0b0c10; --panel:#1e2128; --panel2:#262a32; --fg:#e8ecf4; --muted:#9298a8; --border:#3a3f4c; --card:#1c2028; --card-hover:#242a34; }
+html[data-skin="sakura"] body[data-page="list"] { --page-bg:#1c1218; --page-bg2:#100a0e; --panel:#281a22; --panel2:#312028; --fg:#f6e8f0; --muted:#b08ea0; --border:#4e3242; --card:#241820; --card-hover:#2e2028; }
+html[data-skin="seance0"] body[data-page="list"] { --page-bg:#120c0f; --page-bg2:#080506; --panel:#1a1216; --panel2:#221820; --fg:#f2e4ea; --muted:#a08494; --border:#3c2834; --card:#181016; --card-hover:#201820; }
 
 /* ============ АДАПТИВ ============ */
 @media (max-width: 760px) {
@@ -1898,12 +1817,6 @@ body[data-mode="list"] .set-row.rec-only { display:none; }
     <option value="auto">Авто (ночь/день)</option>
     <option value="dark">Тёмная</option>
     <option value="light">Светлая</option>
-  </select></div>
-  <div class="set-row list-only"><span>Оформление списка</span><select id="listSkinSel">
-    <option value="now">Сейчас (тёмная)</option>
-    <option value="gazeta">Газета (бумага, 70-е)</option>
-    <option value="tvguide">ТВ-гид (плашки, 90-е)</option>
-    <option value="terminal">Терминал (BBS, зелёный)</option>
   </select></div>
   <div class="set-row" id="accentRow"><span>Акцент</span><span class="btns"><span class="swatches" id="swatches"></span><input type="color" id="customColor" title="Свой акцент"></span></div>
   <div class="set-row rec-only"><span>Фоновый шум<small>подсветка пустых частот</small></span><span class="btns"><input type="range" id="noiseBedR" min="0" max="100" step="1"><b id="noiseBedVal">35</b></span></div>
@@ -2529,7 +2442,7 @@ const state = {
   /* v13: два продукта — стартовый выбор режима, набор волн приёмника (до 10),
      отдельные тема и акцент у режима приёмника */
   rememberMode:false, recInit:false, themeRecChoice:'auto', accentRec:'#e6a23c',
-  listSkin:'now', achMode:'rec', trayOpen:false, trayCarrier:'auto', bpMin:false, mints:{}
+  achMode:'rec', trayOpen:false, trayCarrier:'auto', bpMin:false, mints:{}
 };
 /* сохранение с троттлингом: состояние помечается «грязным», а пишется
    в localStorage раз в 3 секунды, при сворачивании вкладки и при выходе */
@@ -2558,7 +2471,7 @@ function flushSave(){
     themeChoice:state.themeChoice||'auto', calm:!!state.calm, seenHint:!!state.seenHint,
     mode:state.mode, recInit:!!state.recInit, rememberMode:!!state.rememberMode,
     themeRecChoice:state.themeRecChoice||'auto', accentRec:state.accentRec||state.accent,
-    listSkin:state.listSkin||'now', trayCarrier:state.trayCarrier||'auto'
+    trayCarrier:state.trayCarrier||'auto'
   })); }catch(e){}
 }
 window.addEventListener('beforeunload', flushSave);
@@ -2599,7 +2512,6 @@ function load(){
     state.accentRec = /^#[0-9a-fA-F]{6}$/.test(d.accentRec||'')
       ? d.accentRec
       : (/^#[0-9a-fA-F]{6}$/.test(d.accent||'') ? d.accent : '#e6a23c');
-    state.listSkin = ['now','gazeta','tvguide','terminal'].includes(d.listSkin) ? d.listSkin : 'now';
     state.trayCarrier = ['auto','reel','cassette','cd','md','shard','usb','vhs','mini8','vinyl','holo','cart'].includes(d.trayCarrier) ? d.trayCarrier : 'auto';
     state.mints = (d.mints && typeof d.mints==='object' && !Array.isArray(d.mints)) ? d.mints : {};
   }catch(e){}
@@ -3254,7 +3166,7 @@ $('#impFile').addEventListener('change', e=>{
   rd.onload = ()=>{
     try{
       const d = JSON.parse(String(rd.result));
-      const ALLOWED = ['theme','skin','accent','freq','lastStation','volume','toggles','knobs','ach','visited','catsPlayed','skinsSeen','customSeen','listenSec','freqOverrides','userStations','sharpSet','light','presets','crackN','visitN','ghostFreq','listenBy','onDial','fav','history','themeChoice','calm','seenHint','noiseBed','mode','recInit','rememberMode','themeRecChoice','accentRec','listSkin','trayCarrier','mints'];
+      const ALLOWED = ['theme','skin','accent','freq','lastStation','volume','toggles','knobs','ach','visited','catsPlayed','skinsSeen','customSeen','listenSec','freqOverrides','userStations','sharpSet','light','presets','crackN','visitN','ghostFreq','listenBy','onDial','fav','history','themeChoice','calm','seenHint','noiseBed','mode','recInit','rememberMode','themeRecChoice','accentRec','trayCarrier','mints'];
       const clean = {};
       ALLOWED.forEach(k=>{ if(d[k]!==undefined) clean[k]=d[k]; });
       localStorage.setItem(LSKEY, JSON.stringify(clean));
@@ -3360,11 +3272,6 @@ function setMode(m){
 }
 $('#modeList').addEventListener('click', ()=>setMode('list'));
 $('#modeReceiver').addEventListener('click', ()=>setMode('receiver'));
-const listSkinSel = $('#listSkinSel');
-if(listSkinSel){
-  listSkinSel.value = state.listSkin||'now';
-  listSkinSel.addEventListener('change', ()=>{ state.listSkin = listSkinSel.value; document.documentElement.dataset.listskin = state.listSkin; save(); });
-}
 $('#trayBtn').addEventListener('click', ()=>setTray(true));
 $('#trayClose').addEventListener('click', ()=>setTray(false));
 $('#trayBackdrop').addEventListener('click', ()=>setTray(false));
@@ -4581,7 +4488,6 @@ function initGate(){
 /* ================= СТАРТ ================= */
 initRecSet();
 if(state.mode==='receiver') state.mode = 'list';
-document.documentElement.dataset.listskin = state.listSkin||'now';
 applyTheme();
 setSkin(state.skin);
 buildSwatches();
