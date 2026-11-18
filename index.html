@@ -1075,7 +1075,7 @@ $('#resumeSlot').addEventListener('click', e => {
 const artCache = {};
 function artFor(st){
   const a = state.arts[st.id];
-  if(a && a.startsWith('data:image')) return a;
+  if(a && (a.startsWith('data:image') || /^https?:\/\//.test(a))) return a;
   if(st.art && /^(https?:\/\/|data:image)/.test(st.art)) return st.art;
   return genArt(st);
 }
@@ -1090,6 +1090,16 @@ function artTest(cands, i, cb){
   }
   cb('');
 }
+function wikiArt(name, cb){
+  fetch('https://ru.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch=' + encodeURIComponent(name + ' радиостанция') + '&gsrlimit=5&prop=pageimages&pithumbsize=256')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(j => {
+      const p = j && j.query && j.query.pages;
+      const th = p ? Object.keys(p).map(k => p[k]).map(x => x.thumbnail && x.thumbnail.source).filter(Boolean) : [];
+      cb(th[0] || '');
+    })
+    .catch(() => cb(''));
+}
 function artLookup(name, cb, url){
   const domC = [];
   const h = artHost(url || (findSt(state.current) || {}).url || (findSt(state.last) || {}).url || '');
@@ -1099,14 +1109,18 @@ function artLookup(name, cb, url){
       'https://icons.duckduckgo.com/ip3/' + encodeURIComponent(h) + '.ico'
     );
   }
+  const finish = extra => {
+    const uniq = []; (extra || []).concat(domC).forEach(u => { if(u && !uniq.includes(u)) uniq.push(u); });
+    artTest(uniq, 0, cb);
+  };
+  const wiki = () => wikiArt(name, th => finish(th ? [th] : []));
   fetch('https://de1.api.radio-browser.info/json/stations/byname/' + encodeURIComponent(name) + '?limit=10&hidebroken=true&order=votes&reverse=true')
     .then(r => r.ok ? r.json() : Promise.reject())
     .then(list => {
       const favs = (list || []).map(s => String(s.favicon || '')).filter(u => /^https?:\/\//.test(u));
-      const uniq = []; favs.concat(domC).forEach(u => { if(!uniq.includes(u)) uniq.push(u); });
-      artTest(uniq, 0, cb);
+      if(favs.length) finish(favs); else wiki();
     })
-    .catch(() => artTest(domC, 0, cb));
+    .catch(wiki);
 }
 function enrichArt(st){
   if(!st || st.art || state.arts[st.id]) return;
