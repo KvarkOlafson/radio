@@ -85,6 +85,14 @@ main { max-width:1240px; margin:0 auto; padding:18px 16px 110px; }
 .histchip { background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:5px 11px; font-size:12px; }
 .histchip:hover { border-color:var(--accent); }
 .histchip.active { border-color:var(--accent); color:var(--accent); }
+#topShelf { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 12px; align-items:center; }
+.rndbtn {
+  display:inline-block; margin:0 0 10px; cursor:pointer;
+  background:var(--accent-soft); color:var(--accent); border:1px solid var(--border);
+  border-radius:9px; padding:6px 14px; font-size:12.5px; font-weight:700; transition:border-color .18s, box-shadow .18s;
+}
+.rndbtn:hover { border-color:var(--accent); box-shadow:0 0 12px var(--accent-soft); }
+button.badge-dead { background:transparent; border:0; cursor:pointer; padding:2px 4px; font:inherit; }
 .filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:4px 0 16px; }
 .chipf {
   background:var(--panel2); color:var(--muted); border:1px solid var(--border);
@@ -349,8 +357,9 @@ html[data-cover] .swatches, html[data-cover] #customColor { display:none; }
   </section>
 
   <section id="viewList" class="shelf">
-    <div class="pagehead"><h1>Живой эфир</h1><p>38 волн из России, Европы, Японии и игровых сетей — плюс те, что добавите вы</p><span id="resumeSlot"></span></div>
+    <div class="pagehead"><button class="rndbtn" id="surpriseBtn" title="Случайная живая волна">🎲 Удиви меня</button><h1>Живой эфир</h1><p>38 волн из России, Европы, Японии и игровых сетей — плюс те, что добавите вы</p><span id="resumeSlot"></span></div>
     <div class="histwrap" id="histWrap"></div>
+    <div id="topShelf"></div>
     <div class="filters" id="filters"></div>
     <details class="addstation">
       <summary>＋ Своя станция — добавить поток</summary>
@@ -453,13 +462,13 @@ const freqOf = st => (typeof st.freq === 'number' && st.freq >= 87.5 && st.freq 
 /* ================= STORE ================= */
 const LSKEY = 'dipfm3';
 function freshState(){
-  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, side:'right', cover:'', fav:{}, hist:[], user:[] };
+  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{} };
 }
 function load(){
   let d = null;
   try { d = JSON.parse(localStorage.getItem(LSKEY) || 'null'); } catch(e){}
   const st = Object.assign(freshState(), d || {});
-  st.fav = st.fav || {}; st.hist = Array.isArray(st.hist) ? st.hist : []; st.user = Array.isArray(st.user) ? st.user : [];
+  st.fav = st.fav || {}; st.hist = Array.isArray(st.hist) ? st.hist : []; st.user = Array.isArray(st.user) ? st.user : []; st.listen = (st.listen && typeof st.listen === 'object' && !Array.isArray(st.listen)) ? st.listen : {};
   /* миграция из классической версии: забираем избранное, свои станции и недавние волны */
   if(!d){
     let old = null;
@@ -478,8 +487,8 @@ let saveT = 0;
 function save(){ clearTimeout(saveT); saveT = setTimeout(flushSave, 2000); }
 function flushSave(){
   clearTimeout(saveT);
-  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user} = state;
-  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user})); }catch(e){}
+  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen} = state;
+  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen})); }catch(e){}
 }
 window.addEventListener('beforeunload', flushSave);
 
@@ -658,6 +667,17 @@ function renderHist(){
       ids.map(id => { const s = findSt(id); return '<button class="histchip" data-h="' + id + '">' + esc(s.short || s.name) + '</button>'; }).join('') + '</span>'
     : '';
 }
+function renderTop(){
+  const rows = Object.keys(state.listen).map(id => ({ id: id, s: state.listen[id] }))
+    .filter(r => findSt(r.id) && r.s > 0).sort((a, b) => b.s - a.s).slice(0, 5);
+  $('#topShelf').innerHTML = rows.length
+    ? '<span class="histlabel">Полка · топ-5:</span>' + rows.map(r => {
+        const s = findSt(r.id), m = Math.max(1, Math.round(r.s / 60));
+        const t = m >= 60 ? Math.floor(m / 60) + 'ч' + (m % 60 ? ' ' + (m % 60) + 'м' : '') : m + 'м';
+        return '<button class="histchip" data-t="' + r.id + '">' + esc(s.short || s.name) + ' · ' + t + '</button>';
+      }).join('')
+    : '';
+}
 function renderCards(){
   const q = state.q.trim().toLowerCase();
   const list = allStations().filter(s => {
@@ -672,7 +692,7 @@ function renderCards(){
     const f = freqOf(s);
     return '<div class="card' + (s.cat === 'user' ? ' user-card' : '') + (state.playing && state.current === s.id ? ' playing' : '') + '" data-id="' + s.id + '" data-cat="' + s.cat + '">' +
       '<div class="ctop"><span class="covthumb" style="background-image:url(' + genArt(s) + ')"></span><span class="cat">' + (CATS[s.cat] || s.cat) + '</span>' +
-      (dead[s.id] ? '<span class="badge-dead" title="Проверка: поток не отвечает">без сигнала</span>' : '') +
+      (dead[s.id] ? '<button class="badge-dead" data-reprobe="' + s.id + '" title="Поток не ответил при проверке — нажмите, чтобы попробовать снова">не отвечает ↻</button>' : '') +
       '<span class="ctools">' + 
       '<button class="minibtn favb" data-fav="' + s.id + '" title="В избранное">' + (state.fav[s.id] ? '★' : '☆') + '</button>' +
       (s.cat === 'user' ? '<button class="minibtn delb" data-del="' + s.id + '" title="Удалить свою станцию">✕</button>' : '') +
@@ -811,10 +831,16 @@ $('#coverSwitch').addEventListener('click', e => {
   const b = e.target.closest('[data-cov]');
   if(b){ applyCover(b.dataset.cov); renderCoverSwitch(); }
 });
+$('#surpriseBtn').addEventListener('click', () => {
+  const pool = allStations().filter(s => !dead[s.id]);
+  if(!pool.length){ toast('Все волны не отвечают — эфир молчит'); return; }
+  playSt(pool[Math.floor(Math.random() * pool.length)]);
+});
 $('#sideBtn').addEventListener('click', () => applySide(state.side === 'right' ? 'left' : 'right'));
 $('#shareBtn').addEventListener('click', async () => {
   const st = curSt(); if(!st) return;
   const url = location.origin + location.pathname + '?st=' + encodeURIComponent(st.id);
+  if(navigator.share){ try{ await navigator.share({ title: st.name, url: url }); return; }catch(e){} }
   try { await navigator.clipboard.writeText(url); toast('⧉ Ссылка на «' + st.name + '» скопирована'); }
   catch(e){ toast('⧉ ' + url); }
 });
@@ -905,17 +931,20 @@ function collectCandidates(st){
   return cand;
 }
 function startProbes(){ allStations().forEach(st => { if(dead[st.id] === undefined) probeQ.push(st); }); pumpProbe(); }
+function reprobe(id){ const st = findSt(id); if(st){ probeQ.push({ st: st, force: true }); pumpProbe(); } }
 function pumpProbe(){
   if(probing || !probeQ.length) return;
   probing = true;
-  const st = probeQ.shift();
+  const job = probeQ.shift();
+  const st = job.st ? job.st : job;
+  const force = !!(job && job.force);
   const cand = collectCandidates(st);
   let i = 0, fin = false;
   const a = new Audio(); a.muted = true; a.preload = 'auto';
   const done = isDead => {
     clearTimeout(t);
     try{ a.pause(); a.removeAttribute('src'); }catch(e){}
-    if(dead[st.id] === undefined){ dead[st.id] = isDead; renderCards(); }
+    if(force || dead[st.id] === undefined){ dead[st.id] = isDead; renderCards(); renderTop(); }
     probing = false;
     setTimeout(pumpProbe, 150);
   };
@@ -941,7 +970,17 @@ $('#histWrap').addEventListener('click', e => {
   const b = e.target.closest('[data-h]');
   if(b){ const s = findSt(b.dataset.h); if(s) togglePlay(s); }
 });
+$('#topShelf').addEventListener('click', e => {
+  const t = e.target.closest('[data-t]');
+  if(t){ playSt(findSt(t.dataset.t)); }
+});
 $('#grid').addEventListener('click', e => {
+  const rp = e.target.closest('[data-reprobe]');
+  if(rp){
+    const st = findSt(rp.dataset.reprobe);
+    if(st){ reprobe(st.id); toast('↻ Проверяю «' + st.name + '»…'); }
+    return;
+  }
   const fav = e.target.closest('[data-fav]');
   if(fav){
     const id = fav.dataset.fav;
@@ -1015,9 +1054,19 @@ applyAccent(state.accent);
 $('#customColor').value = state.accent;
 renderFilters();
 renderHist();
+renderTop();
 renderCards();
 setVol(state.vol);
 setInterval(() => { if(state.playing && !document.hidden) pollMeta(); }, 12000);
+setInterval(() => {
+  if(!document.hidden){ Object.keys(dead).forEach(id => { if(dead[id] && findSt(id)) reprobe(id); }); }
+}, 21600000);
+setInterval(() => {
+  if(state.playing && state.current && !document.hidden){
+    state.listen[state.current] = (state.listen[state.current] || 0) + 5;
+    renderTop();
+  }
+}, 5000);
 </script>
 </body>
 </html>
