@@ -57,6 +57,7 @@ main, header.topbar { position:relative; z-index:1; }
 .brand::before { content:"∿"; color:var(--accent); font-size:19px; animation:sweep 3.2s ease-in-out infinite; }
 @keyframes sweep { 0%,100%{opacity:.55; transform:scaleY(.7)} 50%{opacity:1; transform:scaleY(1.15)} }
 .brand .accentdot { background:var(--accent); color:#161616; padding:1px 7px 2px; border-radius:6px; font-size:11px; letter-spacing:1px; }
+/* переключатель личности — стихийно рядом с акцентами */
 .topbar .spacer { flex:1; }
 .iconbtn {
   background:var(--panel2); border:1px solid var(--border); border-radius:10px;
@@ -70,7 +71,11 @@ main, header.topbar { position:relative; z-index:1; }
 input[type="color"] { width:27px; height:27px; border:1px solid var(--border); border-radius:8px; background:var(--panel2); padding:2px; cursor:pointer; }
 
 /* ============ СПИСОК ============ */
-main { max-width:1160px; margin:0 auto; padding:18px 16px 110px; }
+main { max-width:1240px; margin:0 auto; padding:18px 16px 110px; }
+#ws { display:flex; gap:18px; align-items:flex-start; }
+#ws .bigplayer { flex:0 0 320px; position:sticky; top:70px; }
+#ws[data-side="left"] #bigpanel { order:-1; }
+#ws .shelf { flex:1; min-width:0; }
 .pagehead h1 { font-size:24px; letter-spacing:.5px; margin-bottom:4px; }
 .pagehead p { color:var(--muted); font-size:13px; margin-bottom:14px; }
 .histwrap { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 14px; }
@@ -170,10 +175,7 @@ main { max-width:1160px; margin:0 auto; padding:18px 16px 110px; }
 .addnote { font-size:11.5px; color:var(--muted); margin-top:8px; }
 
 /* ============ КРУПНЫЙ ПЛЕЕР ============ */
-.backlink { background:none; border:0; color:var(--muted); font-size:13px; padding:4px 2px; }
-.backlink:hover { color:var(--accent); }
 .bigplayer {
-  max-width:640px; margin:24px auto 0;
   background:color-mix(in srgb, var(--panel) 92%, transparent);
   border:1px solid var(--border); border-radius:20px;
   padding:34px 30px 28px; text-align:center;
@@ -185,6 +187,7 @@ main { max-width:1160px; margin:0 auto; padding:18px 16px 110px; }
   font-size:64px; color:var(--accent);
   background:radial-gradient(circle at 35% 30%, var(--accent-soft), transparent 70%), var(--panel2);
   border:1px solid var(--border);
+  background-size:cover; background-position:center;
 }
 .playing .npart { animation:sweep 2.6s ease-in-out infinite; box-shadow:0 0 40px var(--accent-soft), inset 0 0 24px var(--accent-soft); }
 .bigplayer h2 { font-size:24px; letter-spacing:.4px; }
@@ -234,6 +237,33 @@ main { max-width:1160px; margin:0 auto; padding:18px 16px 110px; }
 .modal-box textarea { width:100%; height:160px; background:var(--panel2); border:1px solid var(--border); border-radius:10px; padding:10px; font-size:11.5px; font-family:var(--mono); outline:none; resize:vertical; }
 .modal-box .mrowbtn { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 .modal-box small { color:var(--muted); font-size:11px; line-height:1.5; }
+
+/* панель плеера: утилиты */
+.phead { display:flex; gap:8px; width:100%; justify-content:flex-end; margin-bottom:4px; }
+.phead .iconbtn { padding:5px 9px; font-size:13px; }
+.covthumb {
+  width:40px; height:40px; border-radius:9px; border:1px solid var(--border);
+  background-size:cover; background-position:center; flex:0 0 auto;
+}
+.badge-dead { font-size:10px; color:#ff7a6b; font-family:var(--mono); letter-spacing:.5px; align-self:center; white-space:nowrap; }
+.resume {
+  display:inline-block; margin-left:10px;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, #fff), var(--accent));
+  color:#161616; font-weight:700; border:0; border-radius:9px; padding:6px 14px; font-size:13px;
+}
+.mode-switch { display:flex; border:1px solid var(--border); border-radius:10px; overflow:hidden; background:var(--panel2); }
+.mode-switch button { background:transparent; color:var(--muted); border:0; padding:7px 10px; font-size:12px; font-weight:600; }
+.mode-switch button.active { background:var(--accent); color:#161616; }
+/* ЛИЧНОСТИ: обложка интерфейса поверх темы и акцента (не скины-аппараты) */
+html[data-cover="paper"] body { font-family:Georgia,"Times New Roman",serif; }
+html[data-cover="paper"] .card, html[data-cover="paper"] .bigplayer, html[data-cover="paper"] .addstation,
+html[data-cover="paper"] .miniplayer, html[data-cover="paper"] .chipf, html[data-cover="paper"] .histchip { border-radius:18px; }
+html[data-cover="term"] body, html[data-cover="term"] .card h3 { font-family:var(--mono); }
+html[data-cover="term"] .card, html[data-cover="term"] .bigplayer, html[data-cover="term"] .addstation,
+html[data-cover="term"] .miniplayer, html[data-cover="term"] .chipf, html[data-cover="term"] .histchip { border-radius:3px; }
+html[data-cover="neon"] .card, html[data-cover="neon"] .bigplayer { border-radius:4px; border-color:color-mix(in srgb, var(--accent) 55%, var(--border)); }
+html[data-cover="neon"] .brand, html[data-cover="neon"] .bigplayer h2 { text-shadow:0 0 14px var(--accent-soft); }
+html[data-cover="neon"] .card.playing { box-shadow:0 0 0 1px var(--accent), 0 0 26px var(--accent-soft), 0 0 64px var(--accent-soft); }
 .modal-back { margin-left:auto; }
 
 /* ============ ТОСТ ============ */
@@ -246,9 +276,13 @@ main { max-width:1160px; margin:0 auto; padding:18px 16px 110px; }
 }
 #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
+@media (max-width:900px){
+  #ws { flex-direction:column; }
+  #ws .bigplayer { position:static; flex:none; }
+  #ws:not(.player-open) #bigpanel { display:none; }
+}
 @media (max-width:720px){
   .grid { grid-template-columns:1fr; }
-  .bigplayer { padding:26px 18px 22px; }
   .search { width:100%; margin-left:0; }
 }
 </style>
@@ -260,13 +294,35 @@ main { max-width:1160px; margin:0 auto; padding:18px 16px 110px; }
   <div class="spacer"></div>
   <div class="swatches" id="swatches"></div>
   <input type="color" id="customColor" value="#e6a23c" title="Свой акцентный цвет">
+  <div class="mode-switch" id="coverSwitch" title="Личность интерфейса"></div>
   <button id="themeBtn" class="iconbtn" title="Светлая и тёмная тема">◐</button>
   <button id="ioBtn" class="iconbtn" title="Свои станции: импорт и экспорт">⇅</button>
 </header>
 
-<main>
-  <section id="viewList">
-    <div class="pagehead"><h1>Живой эфир</h1><p>38 волн из России, Европы, Японии и игровых сетей — плюс те, что добавите вы</p></div>
+<main id="ws" data-side="right">
+
+  <section id="bigpanel" class="bigplayer">
+    <div class="phead">
+      <button class="iconbtn" id="sideBtn" title="Плеер: слева или справа">⇄</button>
+      <button class="iconbtn" id="trackBtn" title="Найти текущий трек" hidden>⌕</button>
+      <button class="iconbtn" id="shareBtn" title="Скопировать ссылку на волну">⧉</button>
+      <button class="iconbtn" id="sleepBtn" title="Таймер сна: 30 минут">☾</button>
+    </div>
+    <div class="npart" id="pArt">∿</div>
+    <h2 id="pName">—</h2>
+    <div class="npgenre" id="pGenre"></div>
+    <div class="npbig" id="pNp"></div>
+    <div class="pctl">
+      <button id="pPrev" title="Предыдущая волна">⏮</button>
+      <button class="bigplay" id="pPlay">▶</button>
+      <button id="pNext" title="Следующая волна">⏭</button>
+      <button class="pfaved" id="pFav" title="В избранное">☆</button>
+    </div>
+    <div class="pvolrow"><span>ГРОМК</span><input type="range" id="pVol" min="0" max="100" value="70"><b id="pVolVal">70</b></div>
+  </section>
+
+  <section id="viewList" class="shelf">
+    <div class="pagehead"><h1>Живой эфир</h1><p>38 волн из России, Европы, Японии и игровых сетей — плюс те, что добавите вы</p><span id="resumeSlot"></span></div>
     <div class="histwrap" id="histWrap"></div>
     <div class="filters" id="filters"></div>
     <details class="addstation">
@@ -283,22 +339,6 @@ main { max-width:1160px; margin:0 auto; padding:18px 16px 110px; }
     <p class="footnote">Диапазон FM v3 · прямые эфиры принадлежат их вещателям · свои станции хранятся только у вас в браузере</p>
   </section>
 
-  <section id="viewPlayer" hidden>
-    <button class="backlink" id="backBtn">← К списку волн</button>
-    <div class="bigplayer" id="big">
-      <div class="npart">∿</div>
-      <h2 id="pName">—</h2>
-      <div class="npgenre" id="pGenre"></div>
-      <div class="npbig" id="pNp"></div>
-      <div class="pctl">
-        <button id="pPrev" title="Предыдущая волна">⏮</button>
-        <button class="bigplay" id="pPlay">▶</button>
-        <button id="pNext" title="Следующая волна">⏭</button>
-        <button class="pfaved" id="pFav" title="В избранное">☆</button>
-      </div>
-      <div class="pvolrow"><span>ГРОМК</span><input type="range" id="pVol" min="0" max="100" value="70"><b id="pVolVal">70</b></div>
-    </div>
-  </section>
 </main>
 
 <div class="miniplayer" id="mini" hidden>
@@ -394,7 +434,7 @@ const freqOf = st => (typeof st.freq === 'number' && st.freq >= 87.5 && st.freq 
 /* ================= STORE ================= */
 const LSKEY = 'dipfm3';
 function freshState(){
-  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, fav:{}, hist:[], user:[] };
+  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, side:'right', cover:'', fav:{}, hist:[], user:[] };
 }
 function load(){
   let d = null;
@@ -419,8 +459,8 @@ let saveT = 0;
 function save(){ clearTimeout(saveT); saveT = setTimeout(flushSave, 2000); }
 function flushSave(){
   clearTimeout(saveT);
-  const {v,vol,theme,accent,f,q,last,fav,hist,user} = state;
-  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,fav,hist,user})); }catch(e){}
+  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user} = state;
+  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user})); }catch(e){}
 }
 window.addEventListener('beforeunload', flushSave);
 
@@ -441,7 +481,7 @@ const engine = {
   },
   _next(tok){
     if(tok !== this.tok) return;
-    if(this.ci >= this.cand.length){ paintStatus('⚠ поток не отвечает — попробуйте позже'); return; }
+    if(this.ci >= this.cand.length){ paintStatus('⚠ поток не отвечает — попробуйте позже'); scheduleRetry(); return; }
     const a = this.a || (this.a = new Audio());
     a.src = this.cand[this.ci++];
     a.volume = clamp(state.vol/100, 0, 1);
@@ -472,16 +512,20 @@ function playSt(st){
   state.playing = true;
   state.hist = [st.id].concat(state.hist.filter(id => id !== st.id)).slice(0, 12);
   state.last = st.id;
+  retryN = 0; clearTimeout(retryT);
   save();
   engine.play(st);
   updateMediaSession(st, '');
+  try{ history.replaceState(null, '', '?st=' + encodeURIComponent(st.id)); }catch(e){}
   paintAll();
 }
 function togglePlay(st){
   if(state.playing && state.current === st.id){
     state.playing = false;
+    clearTimeout(retryT);
     engine.stop();
     paintStatus('');
+    paintAll();
   } else {
     playSt(st);
   }
@@ -537,15 +581,29 @@ async function fetchMeta(st){
   return null;
 }
 let metaBusy = false, npText = '';
+let retryT = 0, retryN = 0;
+function scheduleRetry(){
+  if(!state.playing || !state.current) return;
+  clearTimeout(retryT);
+  const wait = Math.min(30000, 5000*Math.pow(2, retryN++));
+  const name = (curSt() || {}).name || 'волна';
+  retryT = setTimeout(() => {
+    const st = curSt();
+    if(state.playing && st){ paintStatus('эфир · переподключение…'); engine.play(st); }
+  }, wait);
+  toast('⚠ «' + name + '» отозвалась — вернёмся через ' + Math.round(wait/1000) + ' с');
+}
+const trackBtnOk = () => !!(state.playing && npText && npText.indexOf('эфир') !== 0 && npText.indexOf('⚠') !== 0);
 function paintStatus(text){
   if(text !== undefined) npText = text;
   document.title = (state.playing && state.current)
     ? '▶ ' + ((curSt() || {}).name || '') + (npText && npText.indexOf('эфир') !== 0 && npText.indexOf('⚠') !== 0 ? ' — ' + npText : '')
     : 'Диапазон FM — интернет-радио';
   const show = state.playing ? (npText || '—') : '';
-  const pn = $('#pNp'), mn = $('#mpNp');
+  const pn = $('#pNp'), mn = $('#mpNp'), tb = $('#trackBtn');
   if(pn) pn.textContent = show;
   if(mn) mn.textContent = show;
+  if(tb) tb.hidden = !trackBtnOk();
   $$('.card .np').forEach(el => {
     if(el.dataset.for === state.current){ el.textContent = show; el.classList.toggle('on', !!show); }
   });
@@ -594,7 +652,9 @@ function renderCards(){
   g.innerHTML = list.map(s => {
     const f = freqOf(s);
     return '<div class="card' + (s.cat === 'user' ? ' user-card' : '') + (state.playing && state.current === s.id ? ' playing' : '') + '" data-id="' + s.id + '" data-cat="' + s.cat + '">' +
-      '<div class="ctop"><span class="cat">' + (CATS[s.cat] || s.cat) + '</span><span class="ctools">' +
+      '<div class="ctop"><span class="covthumb" style="background-image:url(' + genArt(s) + ')"></span><span class="cat">' + (CATS[s.cat] || s.cat) + '</span>' +
+      (dead[s.id] ? '<span class="badge-dead" title="Проверка: поток не отвечает">без сигнала</span>' : '') +
+      '<span class="ctools">' + 
       '<button class="minibtn favb" data-fav="' + s.id + '" title="В избранное">' + (state.fav[s.id] ? '★' : '☆') + '</button>' +
       (s.cat === 'user' ? '<button class="minibtn delb" data-del="' + s.id + '" title="Удалить свою станцию">✕</button>' : '') +
       '</span>' + (f ? '<span class="freq' + (s.cat === 'user' ? ' custom' : '') + '">' + f + '</span>' : '') + '</div>' +
@@ -613,8 +673,11 @@ function paintAll(){
   const st = curSt();
   renderCards(); renderHist();
   $('#mini').hidden = !(st && state.playing);
+  renderResume();
   if(st){
     $('#pName').textContent = st.name;
+    const art = genArt(st);
+    if(art){ $('#pArt').style.backgroundImage = 'url(' + art + ')'; $('#pArt').textContent = ''; }
     $('#pGenre').textContent = st.genre;
     const fv = !!state.fav[st.id];
     $('#pFav').textContent = fv ? '★' : '☆';
@@ -624,19 +687,12 @@ function paintAll(){
     $('#mpName').textContent = st.name;
     $('#pPlay').textContent = state.playing ? '⏸' : '▶';
     $('#mpPlay').textContent = state.playing ? '⏸' : '▶';
-    $('#big').classList.toggle('playing', !!state.playing);
+    $('#bigpanel').classList.toggle('playing', !!state.playing);
   }
 }
 function openPlayer(){
-  $('#viewPlayer').hidden = false;
-  $('#viewList').hidden = true;
-  $('#mini').hidden = true;
+  $('#ws').classList.add('player-open');
   window.scrollTo(0, 0);
-}
-function openList(){
-  $('#viewPlayer').hidden = true;
-  $('#viewList').hidden = false;
-  paintAll();
 }
 
 /* ================= РОУТЕР ТЕМЫ И АКЦЕНТА ================= */
@@ -719,6 +775,146 @@ function importStations(txt){
   return added ? '✓ Добавлено станций: ' + added : '⚠ Все станции из набора уже есть.';
 }
 
+/* ================= ЛИЧНОСТИ И ПАНЕЛЬ ПЛЕЕРА ================= */
+const COVERS = [['','Обычный'],['paper','Бумага'],['term','Терм'],['neon','Неон']];
+function applySide(s){
+  state.side = (s === 'left') ? 'left' : 'right';
+  $('#ws').dataset.side = state.side;
+  save();
+}
+function applyCover(c){
+  state.cover = COVERS.some(x => x[0] === c) ? c : '';
+  if(state.cover) document.documentElement.dataset.cover = state.cover;
+  else document.documentElement.removeAttribute('data-cover');
+  save();
+}
+function renderCoverSwitch(){
+  $('#coverSwitch').innerHTML = COVERS.map(x =>
+    '<button data-cov="' + x[0] + '"' + (state.cover === x[0] ? ' class="active"' : '') + '>' + x[1] + '</button>'
+  ).join('');
+}
+$('#coverSwitch').addEventListener('click', e => {
+  const b = e.target.closest('[data-cov]');
+  if(b){ applyCover(b.dataset.cov); renderCoverSwitch(); }
+});
+$('#sideBtn').addEventListener('click', () => applySide(state.side === 'right' ? 'left' : 'right'));
+$('#shareBtn').addEventListener('click', async () => {
+  const st = curSt(); if(!st) return;
+  const url = location.origin + location.pathname + '?st=' + encodeURIComponent(st.id);
+  try { await navigator.clipboard.writeText(url); toast('⧉ Ссылка на «' + st.name + '» скопирована'); }
+  catch(e){ toast('⧉ ' + url); }
+});
+$('#trackBtn').addEventListener('click', () => {
+  if(!trackBtnOk()) return;
+  window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(npText), '_blank', 'noopener');
+});
+
+/* ================= ТАЙМЕР СНА: 30 минут и плавное затухание ================= */
+let sleepIv = 0, sleepLeft = 0;
+function setSleep(min){
+  clearInterval(sleepIv);
+  if(!min){
+    sleepLeft = 0; $('#sleepBtn').textContent = '☾';
+    if(engine.a) engine.a.volume = clamp(state.vol/100, 0, 1);
+    toast('☾ Таймер сна выключен');
+    return;
+  }
+  sleepLeft = min*60;
+  sleepIv = setInterval(() => {
+    sleepLeft--;
+    $('#sleepBtn').textContent = '☾ ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0');
+    if(sleepLeft <= 10 && engine.a) engine.a.volume = clamp(state.vol/100 * Math.max(sleepLeft,0)/10, 0, 1);
+    if(sleepLeft <= 0){
+      clearInterval(sleepIv);
+      if(state.playing && curSt()) togglePlay(curSt());
+      $('#sleepBtn').textContent = '☾';
+      toast('☾ Таймер сна: эфир остановлен');
+    }
+  }, 1000);
+  toast('☾ Сон через ' + min + ' мин');
+}
+$('#sleepBtn').addEventListener('click', () => setSleep(sleepLeft > 0 ? 0 : 30));
+
+/* ================= «ПРОДОЛЖИТЬ» И DEEP-LINK ================= */
+function renderResume(){
+  const s = (state.last && !(state.playing && state.current === state.last)) ? findSt(state.last) : null;
+  $('#resumeSlot').innerHTML = s
+    ? '<button class="resume" data-resume="' + s.id + '">▸ Продолжить: ' + esc(s.short || s.name) + '</button>'
+    : '';
+}
+$('#resumeSlot').addEventListener('click', e => {
+  const b = e.target.closest('[data-resume]');
+  if(b){ const s = findSt(b.dataset.resume); if(s) togglePlay(s); }
+});
+
+/* ================= ОБЛОЖКИ СТАНЦИЙ: рисунок из имени, без внешних картинок ================= */
+const artCache = {};
+function genArt(st){
+  if(artCache[st.id]) return artCache[st.id];
+  try{
+  const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+  const x = c.getContext('2d');
+  if(!x) return '';
+  let h = 0; for(const ch of st.id) h = (h*31 + ch.charCodeAt(0)) | 0;
+  const base = ({ ru:'#ff5340', foreign:'#4d8bff', game:'#37c96c', anime:'#c65ef0', user: state.accent })[st.cat] || state.accent;
+  x.fillStyle = '#141419'; x.fillRect(0,0,128,128);
+  x.strokeStyle = base; x.lineCap = 'round';
+  for(let i=0;i<5;i++){
+    x.globalAlpha = 0.14 + ((h>>(i+2))&7)/36;
+    x.lineWidth = 2 + (i%3);
+    x.beginPath();
+    for(let px=0; px<=128; px+=6){
+      const y = 64 + Math.sin(px/15 + i*1.9 + (h&15)) * (14 + i*8) * (((h>>i)&1) ? 1 : -1);
+      px===0 ? x.moveTo(px,y) : x.lineTo(px,y);
+    }
+    x.stroke();
+  }
+  x.globalAlpha = 1;
+  x.font = 'bold 40px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillStyle = base;
+  x.fillText((st.short || st.name || '?').slice(0,1), 64, 68);
+  return artCache[st.id] = c.toDataURL('image/png');
+  }catch(e){ return ''; }
+}
+
+/* ================= ПРОВЕРКА ЖИВОСТИ ПОТОКОВ ================= */
+const dead = {};
+const probeQ = [];
+let probing = false;
+function collectCandidates(st){
+  let cand = Array.isArray(st.url) ? st.url.map(String) : [String(st.url)];
+  if(location.protocol === 'https:'){
+    const up = [];
+    cand.forEach(x => { if(x.indexOf('http://') === 0) up.push(x.replace('http://','https://')); up.push(x); });
+    cand = up;
+  }
+  return cand;
+}
+function startProbes(){ allStations().forEach(st => { if(dead[st.id] === undefined) probeQ.push(st); }); pumpProbe(); }
+function pumpProbe(){
+  if(probing || !probeQ.length) return;
+  probing = true;
+  const st = probeQ.shift();
+  const cand = collectCandidates(st);
+  let i = 0, fin = false;
+  const a = new Audio(); a.muted = true; a.preload = 'auto';
+  const done = isDead => {
+    clearTimeout(t);
+    try{ a.pause(); a.removeAttribute('src'); }catch(e){}
+    if(dead[st.id] === undefined){ dead[st.id] = isDead; renderCards(); }
+    probing = false;
+    setTimeout(pumpProbe, 150);
+  };
+  const t = setTimeout(() => { if(!fin){ fin = true; done(false); } }, 6000);
+  a.oncanplay = () => { if(!fin){ fin = true; done(false); } };
+  a.onerror = () => {
+    if(fin) return;
+    if(++i < cand.length){ a.src = cand[i]; }
+    else { fin = true; done(true); }
+  };
+  a.src = cand[0];
+}
+
 /* ================= СОБЫТИЯ ================= */
 $('#filters').addEventListener('click', e => {
   const b = e.target.closest('[data-f]');
@@ -729,7 +925,7 @@ $('#filters').addEventListener('input', e => {
 });
 $('#histWrap').addEventListener('click', e => {
   const b = e.target.closest('[data-h]');
-  if(b){ const s = findSt(b.dataset.h); if(s){ openPlayer(); togglePlay(s); } }
+  if(b){ const s = findSt(b.dataset.h); if(s) togglePlay(s); }
 });
 $('#grid').addEventListener('click', e => {
   const fav = e.target.closest('[data-fav]');
@@ -758,7 +954,6 @@ $('#swatches').addEventListener('click', e => {
   const b = e.target.closest('[data-c]');
   if(b){ applyAccent(b.dataset.c); $('#customColor').value = b.dataset.c; }
 });
-$('#backBtn').addEventListener('click', openList);
 $('#pPlay').addEventListener('click', () => { if(curSt()) togglePlay(curSt()); });
 $('#pPrev').addEventListener('click', () => step(-1));
 $('#pNext').addEventListener('click', () => step(1));
@@ -798,7 +993,13 @@ if('mediaSession' in navigator){
 }
 
 /* ================= СТАРТ ================= */
+const urlSt = new URLSearchParams(location.search).get('st');
+if(urlSt && findSt(urlSt)){ state.last = urlSt; state.hist = [urlSt].concat(state.hist.filter(x => x !== urlSt)).slice(0,12); }
 applyTheme(state.theme === 'light' ? 'light' : 'dark');
+applySide(state.side);
+renderCoverSwitch();
+applyCover(state.cover || '');
+setTimeout(startProbes, 3000);
 renderSwatches();
 applyAccent(state.accent);
 $('#customColor').value = state.accent;
