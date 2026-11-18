@@ -406,7 +406,11 @@ body[data-page="list"] .tray-fab, body[data-page="launcher"] .tray-fab { display
 /* узкие экраны: боковые решётки Веги/Miami снимаются, остаются органы управления */
 @media (max-width:720px){
   html[data-skin="vega"] .mid::before, html[data-skin="vega"] .mid::after,
-  html[data-skin="miami"] .mid::before, html[data-skin="miami"] .mid::after { display:none; }
+  html[data-skin="miami"] .mid::before, html[data-skin="miami"] .mid::after,
+  html[data-skin="radiola"] .mid::before, html[data-skin="radiola"] .mid::after,
+  html[data-skin="geiger"] .mid::before, html[data-skin="geiger"] .mid::after,
+  html[data-skin="cart8"] .mid::before, html[data-skin="cart8"] .mid::after,
+  html[data-skin="sakura"] .mid::before, html[data-skin="sakura"] .mid::after { display:none; }
 }
 /* мобильный лоток: шторка снизу */
 @media (max-width:1100px){
@@ -1086,6 +1090,45 @@ html[data-skin="miami"] .fine #btnSleep, html[data-skin="miami"] .fine #btnClr {
 html[data-skin="miami"] .deck { width:130px; height:130px; border-radius:12px; border-color:#7a3aa0; box-shadow: inset 0 2px 8px rgba(0,0,0,.6), 0 0 22px rgba(255,113,212,.22); }
 html[data-skin="miami"] .deck .carrier { zoom:1.6; opacity:1; filter:none; }
 html[data-skin="miami"] .deckrow { margin-top:16px; }
+/* Радиола-58: по бокам — полированное дерево с латунной инкрустацией */
+html[data-skin="radiola"] .mid { position:relative; gap:14px; }
+html[data-skin="radiola"] .mid::before, html[data-skin="radiola"] .mid::after {
+  content:""; flex:0 0 30px; align-self:stretch; border-radius:4px;
+  background: linear-gradient(90deg,#2c1a0c,#6a4a26 45%,#3a2412);
+  box-shadow: inset 0 0 0 1.5px #8a6a3a, inset 0 0 14px rgba(0,0,0,.5), 0 1px 0 rgba(255,220,170,.12);
+}
+/* Гейгер-FM: слева аварийная лента, справа — светящееся окно датчика */
+html[data-skin="geiger"] .mid { position:relative; gap:14px; }
+html[data-skin="geiger"] .mid::before {
+  content:""; flex:0 0 26px; align-self:stretch; border-radius:3px;
+  background: repeating-linear-gradient(45deg,#c8b42a 0 9px,#22260f 9px 18px);
+  box-shadow: inset 0 0 0 2px #141808, inset 0 0 10px rgba(0,0,0,.55);
+}
+html[data-skin="geiger"] .mid::after {
+  content:""; flex:0 0 34px; align-self:stretch; border-radius:3px;
+  background: radial-gradient(ellipse at 50% 34%, rgba(120,255,90,.5), rgba(20,30,10,.85) 70%), #10140a;
+  box-shadow: inset 0 0 0 2px #3c4428, inset 0 0 14px rgba(100,255,80,.3);
+}
+/* Картридж-8: фальш-орех 70-х по бокам автощитка */
+html[data-skin="cart8"] .mid { position:relative; gap:14px; }
+html[data-skin="cart8"] .mid::before, html[data-skin="cart8"] .mid::after {
+  content:""; flex:0 0 42px; align-self:stretch; border-radius:6px;
+  background: repeating-linear-gradient(84deg, rgba(60,34,14,.9) 0 3px, rgba(122,74,30,.95) 3px 9px, rgba(44,24,8,.95) 9px 14px, rgba(96,58,22,.9) 14px 20px);
+  box-shadow: inset 0 0 0 2px #2c1808, inset 0 0 16px rgba(0,0,0,.5), 0 1px 0 rgba(255,210,150,.15);
+}
+/* Sakura-FM: перфорация в мелкий горошек по бокам */
+html[data-skin="sakura"] .mid { position:relative; gap:14px; }
+html[data-skin="sakura"] .mid::before, html[data-skin="sakura"] .mid::after {
+  content:""; flex:0 0 56px; align-self:stretch; border-radius:28px;
+  background: radial-gradient(rgba(200,110,150,.55) 1.6px, transparent 2.4px) 0 0/9px 9px, linear-gradient(180deg,#fff6fa,#ffe4ec);
+  box-shadow: inset 0 0 0 2px #f0b8cf, inset 0 0 12px rgba(220,130,170,.25), 0 1px 0 rgba(255,255,255,.8);
+}
+/* эпоха диктует органы: у аналоговых приборов таймера сна и «протирки стёкол» не было */
+html[data-skin="radiola"] .fine #btnSleep, html[data-skin="radiola"] .fine #btnClr,
+html[data-skin="geiger"] .fine #btnSleep, html[data-skin="geiger"] .fine #btnClr,
+html[data-skin="cart8"] .fine #btnSleep, html[data-skin="cart8"] .fine #btnClr,
+html[data-skin="teac"] .fine #btnClr, html[data-skin="sakura"] .fine #btnClr,
+html[data-skin="seance0"] .fine #btnSleep, html[data-skin="seance0"] .fine #btnClr { display:none; }
 
 /* --- NEON-77: Cyberpunk 2077 — фирменный жёлтый терминал на графите,
        острые углы, сканлайны, красная строка угроз --- */
@@ -4563,6 +4606,32 @@ function drawSig(sig){
     gctx.beginPath(); gctx.moveTo(cx,cy); gctx.lineTo(cx+Math.cos(a)*(R-3), cy+Math.sin(a)*(R-3)); gctx.stroke();
     gctx.fillStyle='#1c1a16'; gctx.beginPath(); gctx.arc(cx,cy,3,0,Math.PI*2); gctx.fill();
     gctx.textAlign='left';
+    return;
+  }
+  if(state.skin==='teac'){
+    /* TEAC R-770: стрелочный VU-метр — японская классика 80-х вместо LED-полосок */
+    gctx.fillStyle='#efe9dc'; gctx.fillRect(0,0,150,66);
+    gctx.strokeStyle='#8a8578'; gctx.lineWidth=1;
+    gctx.beginPath(); gctx.arc(75,118,88,Math.PI*1.22,Math.PI*1.78); gctx.stroke();
+    gctx.strokeStyle='#c0392b'; gctx.lineWidth=2.4;
+    gctx.beginPath(); gctx.arc(75,118,90,Math.PI*(1.22+0.56*0.72),Math.PI*1.78); gctx.stroke();
+    gctx.lineWidth=1;
+    for(let i=0;i<=10;i++){
+      const t=i/10, a=Math.PI*(1.22+0.56*t);
+      gctx.strokeStyle = t>0.72 ? '#c0392b' : '#5a5548';
+      const r2 = i%2 ? 82 : 77;
+      gctx.beginPath();
+      gctx.moveTo(75+Math.cos(a)*88, 118+Math.sin(a)*88);
+      gctx.lineTo(75+Math.cos(a)*r2, 118+Math.sin(a)*r2);
+      gctx.stroke();
+    }
+    gctx.font='bold 7px monospace'; gctx.fillStyle='#6a6455'; gctx.textAlign='center';
+    gctx.fillText('VU', 12, 14); gctx.fillText('-20', 14, 44); gctx.fillText('0', 68, 14); gctx.fillText('+3', 136, 44);
+    const va = Math.PI*(1.22+0.56*clamp(sig,0,1));
+    gctx.strokeStyle='#1a140f'; gctx.lineWidth=2; gctx.lineCap='round';
+    gctx.beginPath(); gctx.moveTo(75,118); gctx.lineTo(75+Math.cos(va)*84, 118+Math.sin(va)*84); gctx.stroke();
+    gctx.fillStyle='#1a140f'; gctx.beginPath(); gctx.arc(75,118,4,0,Math.PI*2); gctx.fill();
+    gctx.textAlign='left'; gctx.lineWidth=1; gctx.lineCap='butt';
     return;
   }
   /* сегментные индикаторы: LED / неон / VFD */
