@@ -217,11 +217,15 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
   border:1px solid var(--border);
   background-size:cover; background-position:center; position:relative;
 }
-.npart.arted { font-size:0; background:repeating-radial-gradient(circle at 50% 50%, #101014 0 2px, #26262e 2px 4px); }
+.npart.arted { font-size:0; background:repeating-radial-gradient(circle at 50% 50%, #15151b 0 2px, #2e2e38 2px 4px); }
+.npart.arted::before {
+  content:""; position:absolute; left:50%; top:50%; width:12px; height:12px; margin:-6px; border-radius:50%;
+  background:#0b0b10; box-shadow:0 0 0 2px rgba(255,255,255,.35), 0 0 10px rgba(0,0,0,.8); z-index:2;
+}
 .npart.arted::after {
-  content:""; position:absolute; inset:31%; border-radius:50%;
+  content:""; position:absolute; inset:22%; border-radius:50%;
   background-image:var(--artl); background-size:cover; background-position:center;
-  box-shadow:0 0 0 5px #0c0c10, 0 0 0 6px rgba(255,255,255,.14);
+  box-shadow:0 0 0 4px #0a0a0e, 0 0 0 6px rgba(255,255,255,.3), inset 0 0 0 1px rgba(255,255,255,.2);
 }
 @keyframes spinslow { to { transform:rotate(360deg); } }
 .playing .npart { animation:spinslow 3.4s linear infinite; box-shadow:0 0 40px var(--accent-soft), inset 0 0 24px var(--accent-soft); }
@@ -389,6 +393,7 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
       <button class="iconbtn" id="shareBtn" title="Скопировать ссылку на волну">⧉</button>
       <button class="iconbtn" id="sleepBtn" title="Сон: 15/30/60 мин циклом">☾</button>
       <button class="iconbtn" id="nightBtn" title="Вечерний режим: плеер на весь экран">⛶</button>
+      <button class="iconbtn" id="pArtBtn2" title="Найти логотип станции в интернете">🔎</button>
       <button class="iconbtn" id="pArtBtn" title="Своё изображение волны (Shift+клик — вернуть сгенерированное)">🖼</button>
     </div>
     <div class="npart" id="pArt">∿</div>
@@ -582,7 +587,16 @@ function rbSearch(){
     });
 }
 $('#globBtn').addEventListener('click', () => { $('#rbModal').hidden = false; $('#rbQ').focus(); });
-$('#pArtBtn').addEventListener('click', e => {
+$('#pArtBtn2').addEventListener('click', () => {
+  const st = curSt();
+  if(!st) { toast('⚠ Сначала включите волну'); return; }
+  toast('🔎 Ищу логотип «' + st.name + '»…');
+  artLookup(st.name, u => {
+    if(u){ setArt(st, u); toast('🖼 Логотип найден — диск обновился'); }
+    else toast('🛰 Логотип не нашёлся — можно поставить свой файл через 🖼');
+  });
+});
+$('#artFile').addEventListener('change', () => {
   const st = curSt();
   if(!st) { toast('⚠ Сначала включите волну'); return; }
   if(state.arts[st.id] && e.shiftKey){ delete state.arts[st.id]; save(); paintAll(); toast('🖼 Своя обложка убрана — снова генерируется'); return; }
@@ -636,6 +650,7 @@ $('#rbModal').addEventListener('click', e => {
     e.stopPropagation();
     const s = rbLast[+add.dataset.rbadd];
     toast(importStations(JSON.stringify({ stations: [{ name: s.name, url: rbPick(s), genre: (s.tags || '').split(',')[0] || 'радио', art: s.favicon || '' }] })));
+    enrichArt(state.user.find(x => x.url === rbPick(s) || x.url === rbPick(s).replace('http://', 'https://')));
     return;
   }
   const hit = e.target.closest('.rb-hit');
@@ -644,6 +659,7 @@ $('#rbModal').addEventListener('click', e => {
     importStations(JSON.stringify({ stations: [{ name: s.name, url: rbPick(s), genre: (s.tags || '').split(',')[0] || 'радио', art: s.favicon || '' }] }));
     const imported = state.user.find(x => x.url === rbPick(s) || x.url === rbPick(s).replace('http://', 'https://'));
     $('#rbModal').hidden = true;
+    enrichArt(imported);
     if(imported) playSt(imported); else toast('⚠ Поток не добавился');
   }
 });
@@ -1059,6 +1075,27 @@ function artFor(st){
   if(a && a.startsWith('data:image')) return a;
   if(st.art && /^(https?:\/\/|data:image)/.test(st.art)) return st.art;
   return genArt(st);
+}
+function artLookup(name, cb){
+  fetch('https://de1.api.radio-browser.info/json/stations/byname/' + encodeURIComponent(name) + '?limit=10&hidebroken=true&order=votes&reverse=true')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(list => {
+      const u = (list || []).map(s => String(s.favicon || ''))
+        .find(u => /^https:\/\//.test(u) || (location.protocol === 'http:' && /^http:\/\//.test(u)));
+      cb(u || '');
+    })
+    .catch(() => cb(''));
+}
+function enrichArt(st){
+  if(!st || st.art || state.arts[st.id]) return;
+  artLookup(st.name, u => { if(u) setArt(st, u); });
+}
+function setArt(st, u){
+  if(!st || !u) return;
+  if(st.cat === 'user') st.art = u; else state.arts[st.id] = u;
+  save(); renderCards(); renderTop();
+  const c = curSt();
+  if(c && c.id === st.id) paintAll();
 }
 function genArt(st){
   if(artCache[st.id]) return artCache[st.id];
