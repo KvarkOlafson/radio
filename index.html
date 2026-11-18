@@ -4036,7 +4036,7 @@ function paintSleep(){
   c.addEventListener('pointercancel', ()=>{ swiping=false; });
 })();
 /* карта эфира (Neon-77/DedSec): тап по карте ведёт курсор частоты в место тапа */
-scaleC.addEventListener('pointerdown', e=>{
+document.getElementById('scaleC').addEventListener('pointerdown', e=>{
   if(state.skin!=='neon' && state.skin!=='dedsec') return;
   const r = scaleC.getBoundingClientRect();
   const f = 87.5 + ((e.clientX-r.left)-12)/(r.width-24)*(108-87.5);
