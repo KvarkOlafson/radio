@@ -210,15 +210,15 @@ body:not([data-page="launcher"]) #gate { display:none !important; }
 }
 
 /* ============ ЛОТОК v14: стойка с носителями рядом с приёмником ============ */
-.rec-layout { display:flex; gap:20px; align-items:flex-start; width:100%; justify-content:center; }
+.rec-layout { display:flex; gap:0; align-items:stretch; width:100%; justify-content:center; }
 .rec-main { flex:1 1 auto; min-width:0; display:flex; flex-direction:column; align-items:center; gap:8px; max-width:980px; }
-body.tray-open .rec-main { max-width:none; }
+body.tray-open .rec-main { max-width:70%; }
 .tray {
-  display:none; flex:0 0 360px; width:360px; position:sticky; top:74px;
+  display:none; flex:0 0 430px; width:430px; align-self:stretch;
   background:var(--case-bg, linear-gradient(180deg,#1b1b22,#0f0f14));
-  border:1px solid var(--case-border, var(--border)); border-radius:10px; padding:14px;
-  box-shadow:0 18px 40px rgba(0,0,0,.5), inset 0 1px 0 var(--case-hi, rgba(255,255,255,.06)), inset 0 -3px 8px var(--case-low, rgba(0,0,0,.35));
-  max-height:calc(100vh - 96px); overflow-y:auto;
+  border:1px solid var(--case-border, var(--border)); border-left:0; border-radius:0 16px 16px 0; padding:16px 16px 14px;
+  box-shadow:0 18px 40px rgba(0,0,0,.5), inset 0 1px 0 var(--case-hi, rgba(255,255,255,.06));
+  overflow-y:auto;
 }
 body.tray-open .tray { display:block; }
 .tray-head { display:flex; align-items:baseline; gap:8px; margin-bottom:12px; }
@@ -236,9 +236,16 @@ html[data-skin="teac"] .tray, html[data-skin="sakura"] .tray { color:#2b3138; }
 html[data-skin="teac"] .tray-item, html[data-skin="sakura"] .tray-item { background:rgba(255,255,255,.55); border-color:rgba(0,0,0,.2); }
 html[data-skin="teac"] .tray-item .ti-info span, html[data-skin="teac"] .tray-item .tislot small,
 html[data-skin="sakura"] .tray-item .ti-info span, html[data-skin="sakura"] .tray-item .tislot small { color:#6a7480; }
+/* тёмное на тёмном запрещено: на тёмных корпусах подписи лотка — светлая краска */
+html:not([data-skin="teac"]):not([data-skin="sakura"]) .tray-item { background:rgba(238,235,226,.09); border-color:rgba(238,235,226,.2); }
+html:not([data-skin="teac"]):not([data-skin="sakura"]) .tray-head span,
+html:not([data-skin="teac"]):not([data-skin="sakura"]) .tray-item .tislot small,
+html:not([data-skin="teac"]):not([data-skin="sakura"]) .tray-item .ti-info span { color:rgba(238,235,226,.85); }
+html:not([data-skin="teac"]):not([data-skin="sakura"]) .tray-item .ti-del { color:rgba(238,235,226,.7); }
+html:not([data-skin="teac"]):not([data-skin="sakura"]) .tray-empty { color:rgba(238,235,226,.7); }
 .tray-item:hover { border-color:var(--accent); }
 .tray-item.playing { border-color:var(--accent); box-shadow:inset 3px 0 0 var(--accent), 0 0 0 1px var(--accent-soft); }
-.tray-item .tislot { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:3px; zoom:1.2; position:relative; transition:transform .2s; }
+.tray-item .tislot { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:3px; zoom:1.45; position:relative; transition:transform .2s; }
 .tray-item .tislot::after {
   content:""; position:absolute; top:54px; left:50%; width:46px; height:7px; margin-left:-23px;
   border-radius:50%; background:radial-gradient(ellipse, rgba(0,0,0,.5), transparent 72%);
@@ -1040,7 +1047,9 @@ html[data-skin="neon"] .lcd::after {
 html[data-skin="neon"] .knob .face::after { background:linear-gradient(180deg,#fff,#fcee0a); box-shadow:0 0 10px rgba(252,238,10,.85); }
 html[data-skin="neon"] .scale-frame { border-radius:3px; }
 html[data-skin="neon"] .preset { border-radius:3px; }
-html[data-skin="neon"] .scale-frame { display:none; }
+html[data-skin="neon"] .scale-frame { background:linear-gradient(180deg,#0c0c16,#07070e); border-color:#3c3a14; }
+html[data-skin="neon"] #scaleC { height:150px; }
+html[data-skin="dedsec"] #scaleC { height:170px; }
 html[data-skin="neon"] .fine button, html[data-skin="neon"] .tbtn { border-radius:3px; }
 /* фон сайта под Neon-77: жёлтый терминал Night City на графите */
 html[data-skin="neon"] body {
@@ -1104,11 +1113,17 @@ html[data-skin="dedsec"] .preset.written { color:#f2f4f2; }
 html[data-skin="dedsec"] .preset.active { background:rgba(232,236,232,.16); box-shadow:inset 0 0 0 1px #e8ece8; }
 /* боковой USB-порт: флешка лежит горизонтально, торчит из торца */
 html[data-skin="dedsec"] .deckrow { margin-top:12px; }
-html[data-skin="dedsec"] .deck { width:118px; height:38px; border-radius:19px; }
+html[data-skin="dedsec"] .deck { width:170px; height:50px; border-radius:25px; }
+html[data-skin="dedsec"] .deck-name { font-size:13px; }
 html[data-skin="dedsec"] .deck .carrier { transform:rotate(-90deg) scale(.8); zoom:1; }
 html[data-skin="dedsec"] .deck-cap { color:#8a928a; }
 /* экран вместо «приёмника»: без винтов и аналоговых приборов — только стекло с развёрткой */
-html[data-skin="dedsec"] .unit { max-width:760px; }
+html[data-skin="dedsec"] .unit { max-width:980px; }
+html[data-skin="dedsec"] .lcd .mrow { font-size:16px; }
+html[data-skin="dedsec"] .lcd .l1 .led { font-size:9px; }
+html[data-skin="dedsec"] .mid { gap:20px; }
+html[data-skin="dedsec"] .toggle-row { gap:12px; }
+html[data-skin="dedsec"] .tg .tlab { font-size:10.5px; }
 html[data-skin="dedsec"] .screw { display:none; }
 html[data-skin="dedsec"] .meters-row { display:none; }
 html[data-skin="dedsec"] .unit-head { margin-bottom:10px; }
@@ -4020,6 +4035,13 @@ function paintSleep(){
   });
   c.addEventListener('pointercancel', ()=>{ swiping=false; });
 })();
+/* карта эфира (Neon-77/DedSec): тап по карте ведёт курсор частоты в место тапа */
+scaleC.addEventListener('pointerdown', e=>{
+  if(state.skin!=='neon' && state.skin!=='dedsec') return;
+  const r = scaleC.getBoundingClientRect();
+  const f = 87.5 + ((e.clientX-r.left)-12)/(r.width-24)*(108-87.5);
+  tune(Math.round(clamp(f,87.5,108)*100)/100 - state.freq);
+});
 function tune(d){
   if(blindActive()) return; /* слепая зона: настройка прибору не подчиняется */
   const nf = clamp(Math.round((state.freq+d)*100)/100, 87.5, 108.0);
@@ -4219,8 +4241,8 @@ let scaleDirty = true, scaleDrawnFreq = NaN, scaleDrawnKey = '';
 function drawScaleNow(){ scaleDirty = true; }
 function fitCanvas(c){
   const dpr = window.devicePixelRatio||1;
-  const w = c.clientWidth||600, h = parseInt(c.getAttribute('height'))||118;
-  if(c.width !== Math.round(w*dpr)){ c.width = Math.round(w*dpr); c.height = Math.round(h*dpr); }
+  const w = c.clientWidth||600, h = Math.round(c.clientHeight) || parseInt(c.getAttribute('height')) || 118;
+  if(c.width !== Math.round(w*dpr) || c.height !== Math.round(h*dpr)){ c.width = Math.round(w*dpr); c.height = Math.round(h*dpr); }
   return {w, h, dpr};
 }
 function drawCracks(w,h,dark){
@@ -4270,36 +4292,93 @@ function drawCracks(w,h,dark){
 }
 
 /* у старых приборов вместо прямой полосы — полукруглый циферблат со стрелкой */
+/* Neon-77 и DedSec: вместо полосы — «карта эфира»: узлы станций, связи и курсор частоты */
+function drawNetMap(w,h){
+  const F0=87.5, F1=108, pad=12;
+  const neon = state.skin==='neon';
+  const glow = neon ? '#fcee0a' : '#e8ece8';
+  const mid  = neon ? 'rgba(252,238,10,.55)' : 'rgba(232,236,232,.55)';
+  const dim  = neon ? 'rgba(252,238,10,.3)'  : 'rgba(232,236,232,.35)';
+  const line = neon ? 'rgba(252,238,10,.16)' : 'rgba(232,236,232,.15)';
+  sctx.clearRect(0,0,w,h);
+  /* фоновая сетка сети */
+  sctx.strokeStyle = neon ? 'rgba(60,58,20,.5)' : 'rgba(60,70,60,.4)'; sctx.lineWidth=1;
+  for(let gy=0.16; gy<1; gy+=0.17){
+    sctx.beginPath(); sctx.moveTo(4, h*gy); sctx.lineTo(w-4, h*gy); sctx.stroke();
+  }
+  const hash = s=>{ let x=2166136261; for(let i=0;i<s.length;i++){ x^=s.charCodeAt(i); x=Math.imul(x,16777619); } return ((x>>>0)%997)/997; };
+  const nx = f => pad + (f-F0)/(F1-F0)*(w-pad*2);
+  const waves = dialStations().slice().sort((a,b)=>freqOf(a)-freqOf(b));
+  const nodes = waves.map(st=>{ const f=freqOf(st); return {st, f, x:nx(f), y:h*0.24+hash(st.id)*h*0.5}; });
+  /* магистраль частот */
+  sctx.strokeStyle=line; sctx.lineWidth=1.2;
+  sctx.beginPath(); sctx.moveTo(pad,h-18); sctx.lineTo(w-pad,h-18); sctx.stroke();
+  /* связи: кольцо по частоте + перекрёстные линки */
+  for(let i=0;i<nodes.length-1;i++){
+    sctx.beginPath(); sctx.moveTo(nodes[i].x,nodes[i].y); sctx.lineTo(nodes[i+1].x,nodes[i+1].y); sctx.stroke();
+  }
+  for(let i=0;i+2<nodes.length;i+=3){
+    sctx.beginPath(); sctx.moveTo(nodes[i].x,nodes[i].y); sctx.lineTo(nodes[i+2].x,nodes[i+2].y); sctx.stroke();
+  }
+  sctx.font='8px monospace'; sctx.fillStyle=dim; sctx.textAlign='center';
+  sctx.fillText('87.5', nx(87.5), h-5); sctx.fillText('96', nx(97.75), h-5); sctx.fillText('108', nx(108), h-5);
+  nodes.forEach(nd=>{
+    const live = state.playing && state.powered && state.current===nd.st.id;
+    const near = Math.abs(nd.f-state.freq)<0.35;
+    /* отросток к магистрали */
+    sctx.strokeStyle=line; sctx.beginPath(); sctx.moveTo(nd.x,nd.y+4); sctx.lineTo(nd.x,h-18); sctx.stroke();
+    /* узел-«паук»: ромб у живой станции, точка у простой */
+    sctx.fillStyle = live ? glow : (near ? mid : dim);
+    if(live){ sctx.shadowColor=glow; sctx.shadowBlur=14; }
+    sctx.beginPath();
+    sctx.moveTo(nd.x, nd.y-(live?8:5)); sctx.lineTo(nd.x+(live?8:5), nd.y);
+    sctx.lineTo(nd.x, nd.y+(live?8:5)); sctx.lineTo(nd.x-(live?8:5), nd.y);
+    sctx.closePath(); sctx.fill();
+    sctx.shadowBlur=0;
+    sctx.font=(live?'bold ':'')+'8.5px monospace';
+    sctx.fillStyle = live ? glow : dim;
+    sctx.fillText((nd.st.short||nd.st.name).slice(0,12), nd.x, nd.y-11);
+    if(live){
+      sctx.fillStyle=dim; sctx.font='7.5px monospace';
+      sctx.fillText(nd.f.toFixed(1)+' МГц', nd.x, nd.y+15);
+    }
+  });
+  /* курсор частоты: вертикальная нить по карте */
+  const cur = nx(state.freq);
+  sctx.strokeStyle=glow; sctx.lineWidth=1.3; sctx.shadowColor=glow; sctx.shadowBlur=7;
+  sctx.beginPath(); sctx.moveTo(cur, h-18); sctx.lineTo(cur, h*0.1); sctx.stroke();
+  sctx.shadowBlur=0;
+  sctx.textAlign='left';
+  drawCracks(w,h,true);
+}
+
+/* у старых приборов вместо прямой полосы — полукруглый циферблат со стрелкой */
 function drawDial(w,h){
   const F0=87.5, F1=108;
-  const cx=w/2, cy=h*0.94, R=Math.min(w*0.46, h*0.9);
+  const cx=w/2, cy=h*0.99, rx=w*0.485, ry=h*0.95;
+  const pt=(f,r)=>{ const t=clamp((f-F0)/(F1-F0),0,1); const a=Math.PI*(1+t); return [cx+Math.cos(a)*rx*r, cy+Math.sin(a)*ry*r]; };
   sctx.clearRect(0,0,w,h);
   sctx.fillStyle = state.skin==='radiola' ? '#e8d9b4' : '#f2e6c2';
-  sctx.beginPath(); sctx.moveTo(cx,cy); sctx.arc(cx,cy,R,Math.PI,0); sctx.closePath(); sctx.fill();
-  sctx.strokeStyle='#4a3a1c'; sctx.lineWidth=2;
-  sctx.beginPath(); sctx.arc(cx,cy,R,Math.PI,0); sctx.stroke();
+  sctx.fillRect(0, 0, w, cy);
+  sctx.strokeStyle='#4a3a1c'; sctx.lineWidth=1.8;
+  sctx.beginPath(); sctx.ellipse(cx,cy,rx,ry,0,Math.PI,Math.PI*2); sctx.stroke();
   sctx.font='bold 8.5px sans-serif'; sctx.textAlign='center';
   for(let f=F0; f<=F1+0.001; f+=0.5){
-    const a = Math.PI*(1-(f-F0)/(F1-F0));
     const major = Math.abs(f%1)<0.001;
+    const [x1,y1]=pt(f,1), [x2,y2]=pt(f, major?0.86:0.93);
     sctx.strokeStyle = major ? '#4a3a1c' : '#8a744a';
     sctx.lineWidth = major ? 1.3 : 0.7;
-    sctx.beginPath();
-    sctx.moveTo(cx+Math.cos(a)*(R-2), cy+Math.sin(a)*(R-2));
-    sctx.lineTo(cx+Math.cos(a)*(R-(major?13:7)), cy+Math.sin(a)*(R-(major?13:7)));
-    sctx.stroke();
-    if(major){ sctx.fillStyle='#4a3a1c'; sctx.fillText(f.toFixed(0), cx+Math.cos(a)*(R-23), cy+Math.sin(a)*(R-23)+3); }
+    sctx.beginPath(); sctx.moveTo(x1,y1); sctx.lineTo(x2,y2); sctx.stroke();
+    if(major){ const [tx,ty]=pt(f,0.72); sctx.fillStyle='#4a3a1c'; sctx.fillText(f.toFixed(0), tx, ty+3); }
   }
   markedStations().forEach(st=>{
-    const a = Math.PI*(1-(freqOf(st)-F0)/(F1-F0));
+    const [dx,dy]=pt(freqOf(st),0.6);
     sctx.fillStyle='#8a2b1e';
-    sctx.beginPath(); sctx.arc(cx+Math.cos(a)*(R-16), cy+Math.sin(a)*(R-16), 2.2, 0, Math.PI*2); sctx.fill();
+    sctx.beginPath(); sctx.arc(dx,dy,2.4,0,Math.PI*2); sctx.fill();
   });
-  const a = Math.PI*(1-(clamp(state.freq,F0,F1)-F0)/(F1-F0));
+  const [nx2,ny2]=pt(state.freq,0.98);
   sctx.strokeStyle=state.accent; sctx.shadowColor=state.accent; sctx.shadowBlur=8; sctx.lineWidth=2;
-  sctx.beginPath(); sctx.moveTo(cx,cy);
-  sctx.lineTo(cx+Math.cos(a)*(R-6), cy+Math.sin(a)*(R-6));
-  sctx.stroke(); sctx.shadowBlur=0;
+  sctx.beginPath(); sctx.moveTo(cx,cy); sctx.lineTo(nx2,ny2); sctx.stroke(); sctx.shadowBlur=0;
   sctx.fillStyle='#33240e'; sctx.beginPath(); sctx.arc(cx,cy,5,0,Math.PI*2); sctx.fill();
   sctx.textAlign='left';
   drawCracks(w,h,false);
@@ -4310,8 +4389,9 @@ function drawScale(){
   x(()=>{
     const F0=87.5, F1=108, pad=8, iw=w-pad*2;
     const fx = f => pad + (f-F0)/(F1-F0)*iw;
-    const dskin = state.skin==='drx' || state.skin==='vfd' || state.skin==='neon';
     if(state.skin==='vega' || state.skin==='radiola'){ drawDial(w,h); return; }
+    if(state.skin==='neon' || state.skin==='dedsec'){ drawNetMap(w,h); return; }
+    const dskin = state.skin==='drx' || state.skin==='vfd';
     sctx.clearRect(0,0,w,h);
     /* фон шкалы */
     const grad = sctx.createLinearGradient(0,0,0,h);
@@ -4671,7 +4751,7 @@ function loop(){
     const entry = state.mode==='receiver' ? findDialEntry(state.freq) : null;
     const sig = entry ? entry.sig : 0;
     /* шкала перерисовывается только когда что-то изменилось, а не 60 раз в секунду */
-    const scaleKey = state.skin+'|'+(state.crackN||0)+'|'+Object.keys(state.onDial).length+'|'+state.theme;
+    const scaleKey = state.skin+'|'+(state.crackN||0)+'|'+Object.keys(state.onDial).length+'|'+state.theme+'|'+(state.current||'')+'|'+(state.playing?1:0);
     if(scaleDirty || state.freq!==scaleDrawnFreq || scaleKey!==scaleDrawnKey){
       drawScale();
       scaleDrawnFreq = state.freq; scaleDrawnKey = scaleKey; scaleDirty = false;
