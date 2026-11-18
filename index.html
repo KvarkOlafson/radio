@@ -319,6 +319,22 @@ html[data-cover="neon"] .card:hover { box-shadow:0 0 18px var(--accent-soft); }
 html[data-cover="neon"] .pagehead h1 { text-transform:uppercase; letter-spacing:2px; }
 html[data-cover] .swatches, html[data-cover] #customColor { display:none; }
 .modal-back { margin-left:auto; }
+.rbrow { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.rbrow input { flex:1; min-width:180px; background:var(--card2); color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; outline:none; }
+.rbrow input:focus { border-color:var(--accent); }
+.rblist { max-height:46vh; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
+.rb-hit { display:flex; align-items:center; gap:10px; border:1px solid var(--border); border-radius:9px; padding:8px 10px; cursor:pointer; transition:border-color .15s; }
+.rb-hit:hover { border-color:var(--accent); }
+.rb-hit .n { flex:1; min-width:0; }
+.rb-hit .n b { display:block; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rb-hit .n span { font-size:11px; color:var(--muted); }
+.nightclock { display:none; font-family:var(--mono); font-size:15px; color:var(--muted); letter-spacing:1px; }
+body.night .topbar, body.night #ws .shelf { display:none; }
+body.night #ws { justify-content:center; align-items:center; min-height:100vh; }
+body.night .bigplayer { position:static; width:min(640px, 92vw); }
+body.night .npart { width:280px; height:280px; font-size:110px; }
+body.night .bigplayer h2 { font-size:34px; }
+body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-align:center; }
 
 /* ============ ТОСТ ============ */
 #toast {
@@ -350,6 +366,7 @@ html[data-cover] .swatches, html[data-cover] #customColor { display:none; }
   <input type="color" id="customColor" value="#e6a23c" title="Свой акцентный цвет">
   <div class="mode-switch" id="coverSwitch" title="Личность интерфейса"></div>
   <button id="themeBtn" class="iconbtn" title="Светлая и тёмная тема">◐</button>
+  <button id="globBtn" class="iconbtn" title="Глобальный поиск станций (RadioBrowser)">🌐</button>
   <button id="ioBtn" class="iconbtn" title="Профиль: импорт и экспорт">⇅</button>
 </header>
 
@@ -360,12 +377,14 @@ html[data-cover] .swatches, html[data-cover] #customColor { display:none; }
       <button class="iconbtn" id="sideBtn" title="Плеер: слева или справа">⇄</button>
       <button class="iconbtn" id="trackBtn" title="Найти текущий трек" hidden>⌕</button>
       <button class="iconbtn" id="shareBtn" title="Скопировать ссылку на волну">⧉</button>
-      <button class="iconbtn" id="sleepBtn" title="Таймер сна: 30 минут">☾</button>
+      <button class="iconbtn" id="sleepBtn" title="Сон: 15/30/60 мин циклом">☾</button>
+      <button class="iconbtn" id="nightBtn" title="Вечерний режим: плеер на весь экран">⛶</button>
     </div>
     <div class="npart" id="pArt">∿</div>
     <h2 id="pName">—</h2>
     <div class="npgenre" id="pGenre"></div>
     <div class="npbig" id="pNp"></div>
+    <div class="nightclock" id="pClock"></div>
     <div class="pctl">
       <button id="pPrev" title="Предыдущая волна">⏮</button>
       <button class="bigplay" id="pPlay">▶</button>
@@ -406,6 +425,18 @@ html[data-cover] .swatches, html[data-cover] #customColor { display:none; }
       <button class="iconbtn modal-back" id="ioClose">Закрыть</button>
     </div>
     <small id="ioNote">Экспорт — весь профиль: свои станции, избранное, полка и настройки одним JSON (перенос между браузерами). Также принимается одельный массив станций ({name, url, genre, freq}), экспорт «Диапазона FM v3» и блок userStations классики (LSKEY «dipfm»).</small>
+  </div>
+</div>
+
+<div class="modal" id="rbModal" hidden>
+  <div class="modal-box">
+    <h3>🌐 Глобальный поиск · RadioBrowser</h3>
+    <div class="rbrow">
+      <input id="rbQ" placeholder="название станции…" spellcheck="false">
+      <button class="addbtn" id="rbGo">Искать</button>
+      <button class="iconbtn modal-back" id="rbClose">Закрыть</button>
+    </div>
+    <div id="rbList" class="rblist"><small class="addnote">Открытая база тысяч живых потоков. Клик по результату — добавить в «Мои» и включить; ＋ — только добавить.</small></div>
   </div>
 </div>
 
@@ -509,6 +540,54 @@ function flushSave(){
   try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen})); }catch(e){}
 }
 window.addEventListener('beforeunload', flushSave);
+
+/* ================= ГЛОБАЛЬНЫЙ ПОИСК: RadioBrowser ================= */
+let rbBusy = false, rbLast = [];
+function rbPick(s){ return String(s.url_resolved || s.url || ''); }
+function rbSearch(){
+  if(rbBusy) return;
+  const q = $('#rbQ').value.trim();
+  if(!q){ toast('🌐 Введите название станции'); return; }
+  rbBusy = true;
+  $('#rbList').innerHTML = '<small class="addnote">Ищу «' + esc(q) + '» в глобальной базе…</small>';
+  fetch('https://de1.api.radio-browser.info/json/stations/byname/' + encodeURIComponent(q) + '?limit=20&hidebroken=true&order=votes&reverse=true')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(list => {
+      rbBusy = false;
+      if(!Array.isArray(list) || !list.length){ $('#rbList').innerHTML = '<small class="addnote">Ничего не нашлось — попробуйте другое слово.</small>'; return; }
+      rbLast = list;
+      $('#rbList').innerHTML = list.map((s, i) =>
+        '<div class="rb-hit" data-rb="' + i + '"><div class="n"><b>' + esc(s.name) + '</b><span>' +
+        esc(s.country || '') + (s.tags ? ' · ' + esc(String(s.tags).split(',')[0]) : '') + (s.bitrate ? ' · ' + s.bitrate + ' kbps' : '') + '</span></div>' +
+        '<button class="minibtn" data-rbadd="' + i + '" title="Добавить в «Мои»">＋</button></div>'
+      ).join('');
+    })
+    .catch(() => {
+      rbBusy = false;
+      $('#rbList').innerHTML = '<small class="addnote">⚠ RadioBrowser не ответил — попробуйте ещё раз.</small>';
+    });
+}
+$('#globBtn').addEventListener('click', () => { $('#rbModal').hidden = false; $('#rbQ').focus(); });
+$('#rbQ').addEventListener('keydown', e => { if(e.key === 'Enter') rbSearch(); });
+$('#rbModal').addEventListener('click', e => {
+  if(e.target === $('#rbModal') || e.target.id === 'rbClose'){ $('#rbModal').hidden = true; return; }
+  if(e.target.id === 'rbGo'){ rbSearch(); return; }
+  const add = e.target.closest('[data-rbadd]');
+  if(add){
+    e.stopPropagation();
+    const s = rbLast[+add.dataset.rbadd];
+    toast(importStations(JSON.stringify({ stations: [{ name: s.name, url: rbPick(s), genre: (s.tags || '').split(',')[0] || 'радио' }] })));
+    return;
+  }
+  const hit = e.target.closest('.rb-hit');
+  if(hit){
+    const s = rbLast[+hit.dataset.rb];
+    importStations(JSON.stringify({ stations: [{ name: s.name, url: rbPick(s), genre: (s.tags || '').split(',')[0] || 'радио' }] }));
+    const imported = state.user.find(x => x.url === rbPick(s) || x.url === rbPick(s).replace('http://', 'https://'));
+    $('#rbModal').hidden = true;
+    if(imported) playSt(imported); else toast('⚠ Поток не добавился');
+  }
+});
 
 /* ================= ENGINE: ЭФИР ================= */
 const engine = {
@@ -891,7 +970,9 @@ function setSleep(min){
   }, 1000);
   toast('☾ Сон через ' + min + ' мин');
 }
-$('#sleepBtn').addEventListener('click', () => setSleep(sleepLeft > 0 ? 0 : 30));
+const SLEEP_STEPS = [0, 15, 30, 60];
+let sleepIdx = 0;
+$('#sleepBtn').addEventListener('click', () => { sleepIdx = (sleepIdx + 1) % SLEEP_STEPS.length; setSleep(SLEEP_STEPS[sleepIdx]); });
 
 /* ================= «ПРОДОЛЖИТЬ» И DEEP-LINK ================= */
 function renderResume(){
@@ -1030,6 +1111,22 @@ $('#pPrev').addEventListener('click', () => step(-1));
 $('#pNext').addEventListener('click', () => step(1));
 $('#pFav').addEventListener('click', () => { if(state.current){ if(state.fav[state.current]) delete state.fav[state.current]; else state.fav[state.current] = true; save(); paintAll(); } });
 $('#pVol').addEventListener('input', e => setVol(+e.target.value));
+$('#nightBtn').addEventListener('click', () => {
+  if(document.fullscreenElement){ document.exitFullscreen().catch(() => {}); return; }
+  const p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+  if(p && p.catch) p.catch(() => toast('⛶ Полный экран недоступен в этом браузере'));
+});
+document.addEventListener('fullscreenchange', () => {
+  const on = !!document.fullscreenElement;
+  document.body.classList.toggle('night', on);
+  if(on) tickClock();
+});
+function tickClock(){
+  const el = $('#pClock');
+  const now = new Date();
+  if(el) el.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ' · ' + ((curSt() || {}).name || 'Диапазон FM');
+}
+setInterval(() => { if(document.body.classList.contains('night')) tickClock(); }, 10000);
 $('#ioBtn').addEventListener('click', () => { $('#ioModal').hidden = false; });
 $('#ioClose').addEventListener('click', () => { $('#ioModal').hidden = true; });
 $('#ioModal').addEventListener('click', e => { if(e.target === $('#ioModal')) $('#ioModal').hidden = true; });
