@@ -93,6 +93,25 @@ main { max-width:1240px; margin:0 auto; padding:18px 16px 110px; }
 }
 .rndbtn:hover { border-color:var(--accent); box-shadow:0 0 12px var(--accent-soft); }
 button.badge-dead { background:transparent; border:0; cursor:pointer; padding:2px 4px; font:inherit; }
+html[data-cover="term"] .grid { display:flex; flex-direction:column; gap:0; }
+html[data-cover="term"] .card {
+  border-radius:0; border:0; border-bottom:1px solid #1c3b21;
+  flex-direction:row; flex-wrap:wrap; align-items:center; gap:10px; padding:12px 8px;
+}
+html[data-cover="term"] .card::before { width:2px; }
+html[data-cover="term"] .card .ctop { width:190px; flex:none; }
+html[data-cover="term"] .card h3 { flex:1; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:80px; }
+html[data-cover="term"] .card .np { flex-basis:100%; order:5; min-height:15px; }
+html[data-cover="term"] .card .cvu { display:none; }
+html[data-cover="term"] .card .playbtn { margin:0; padding:4px 14px; }
+html[data-cover="paper"] .grid { grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); }
+html[data-cover="paper"] .card { border:0; background:#fbf5e6; }
+html[data-cover="paper"] .card h3, html[data-cover="paper"] .card .genre { font-style:italic; }
+html[data-cover="paper"] .card::before { width:3px; opacity:.7; }
+html[data-cover="neon"] .grid { grid-template-columns:repeat(auto-fill, minmax(206px,1fr)); }
+html[data-cover="neon"] .card .ctop { flex-wrap:wrap; row-gap:8px; }
+html[data-cover="neon"] .card .covthumb { flex-basis:100%; width:auto; height:112px; border-radius:4px; border-color:color-mix(in srgb, var(--accent) 45%, var(--border)); }
+html[data-cover="neon"] .card h3 { font-size:16px; }
 .filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:4px 0 16px; }
 .chipf {
   background:var(--panel2); color:var(--muted); border:1px solid var(--border);
@@ -331,7 +350,7 @@ html[data-cover] .swatches, html[data-cover] #customColor { display:none; }
   <input type="color" id="customColor" value="#e6a23c" title="Свой акцентный цвет">
   <div class="mode-switch" id="coverSwitch" title="Личность интерфейса"></div>
   <button id="themeBtn" class="iconbtn" title="Светлая и тёмная тема">◐</button>
-  <button id="ioBtn" class="iconbtn" title="Свои станции: импорт и экспорт">⇅</button>
+  <button id="ioBtn" class="iconbtn" title="Профиль: импорт и экспорт">⇅</button>
 </header>
 
 <main id="ws" data-side="right">
@@ -379,15 +398,14 @@ html[data-cover] .swatches, html[data-cover] #customColor { display:none; }
 
 <div class="modal" id="ioModal" hidden>
   <div class="modal-box">
-    <h3>Свои станции · импорт и экспорт</h3>
+    <h3>Профиль · импорт и экспорт</h3>
     <textarea id="ioText" spellcheck="false" placeholder="Вставьте JSON со своими станциями и нажмите «Импортировать»"></textarea>
     <div class="mrowbtn">
       <button class="addbtn" id="ioImport">Импортировать</button>
       <button class="iconbtn" id="ioExport">Экспортировать</button>
       <button class="iconbtn modal-back" id="ioClose">Закрыть</button>
     </div>
-    <small id="ioNote">Принимается массив станций ({name, url, genre, freq}), экспорт «Диапазона FM v3»,
-      а также блок userStations из сохранений классической версии (LSKEY «dipfm») — бывшие волны переезжают без потерь.</small>
+    <small id="ioNote">Экспорт — весь профиль: свои станции, избранное, полка и настройки одним JSON (перенос между браузерами). Также принимается одельный массив станций ({name, url, genre, freq}), экспорт «Диапазона FM v3» и блок userStations классики (LSKEY «dipfm»).</small>
   </div>
 </div>
 
@@ -1016,14 +1034,31 @@ $('#ioBtn').addEventListener('click', () => { $('#ioModal').hidden = false; });
 $('#ioClose').addEventListener('click', () => { $('#ioModal').hidden = true; });
 $('#ioModal').addEventListener('click', e => { if(e.target === $('#ioModal')) $('#ioModal').hidden = true; });
 $('#ioExport').addEventListener('click', async () => {
-  const data = JSON.stringify({ app:'Диапазон FM', v:3, stations:state.user }, null, 1);
+  const data = JSON.stringify({ app:'Диапазон FM', v:3, profile:true, user:state.user, fav:state.fav, listen:state.listen, set:{ vol:state.vol, theme:state.theme, accent:state.accent, side:state.side, cover:state.cover } }, null, 1);
   $('#ioText').value = data;
-  try { await navigator.clipboard.writeText(data); toast('⇅ Экспортировано ' + state.user.length + ' станций — JSON в буфере обмена'); }
-  catch(e){ toast('⇅ JSON готов в поле ниже — скопируйте вручную'); }
+  try { await navigator.clipboard.writeText(data); toast('⇅ Профиль в буфере обмена — сохраните его в файл'); }
+  catch(e){ toast('⇅ JSON профиля готов в поле ниже'); }
 });
 $('#ioImport').addEventListener('click', () => {
-  const r = importStations($('#ioText').value);
-  toast(r);
+  let d = null;
+  try { d = JSON.parse($('#ioText').value || 'null'); } catch(e){}
+  if(d && d.profile){
+    if(Array.isArray(d.user)) state.user = d.user;
+    if(d.fav && typeof d.fav === 'object') state.fav = d.fav;
+    if(d.listen && typeof d.listen === 'object') state.listen = d.listen;
+    const s = d.set || {};
+    if(s.vol != null) state.vol = Math.round(Math.max(0, Math.min(100, s.vol)));
+    if(s.theme === 'light' || s.theme === 'dark') state.theme = s.theme;
+    if(s.accent) state.accent = s.accent;
+    flushSave(); applyTheme(state.theme === 'light' ? 'light' : 'dark'); applyAccent(state.accent);
+    $('#customColor').value = state.accent;
+    applySide(s.side || state.side); applyCover(s.cover || '');
+    renderCoverSwitch(); renderFilters(); renderHist(); renderTop(); renderCards(); setVol(state.vol); paintAll();
+    $('#ioModal').hidden = true;
+    toast('✔ Профиль восстановлен');
+    return;
+  }
+  toast(importStations($('#ioText').value));
 });
 window.addEventListener('keydown', e => {
   const tag = (e.target && e.target.tagName) || '';
