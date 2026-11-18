@@ -325,6 +325,9 @@ html[data-cover] .swatches, html[data-cover] #customColor { display:none; }
 .rblist { max-height:46vh; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
 .rb-hit { display:flex; align-items:center; gap:10px; border:1px solid var(--border); border-radius:9px; padding:8px 10px; cursor:pointer; transition:border-color .15s; }
 .rb-hit:hover { border-color:var(--accent); }
+.rblive { font-family:var(--mono); font-size:10px; letter-spacing:.4px; color:var(--muted); white-space:nowrap; }
+.rblive.ok { color:#3fca6b; }
+.rblive.bad { color:#ff7a6b; }
 .rb-hit .n { flex:1; min-width:0; }
 .rb-hit .n b { display:block; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .rb-hit .n span { font-size:11px; color:var(--muted); }
@@ -559,8 +562,10 @@ function rbSearch(){
       $('#rbList').innerHTML = list.map((s, i) =>
         '<div class="rb-hit" data-rb="' + i + '"><div class="n"><b>' + esc(s.name) + '</b><span>' +
         esc(s.country || '') + (s.tags ? ' · ' + esc(String(s.tags).split(',')[0]) : '') + (s.bitrate ? ' · ' + s.bitrate + ' kbps' : '') + '</span></div>' +
+        '<span class="rblive" data-rbl="' + i + '">проверяю…</span>' +
         '<button class="minibtn" data-rbadd="' + i + '" title="Добавить в «Мои»">＋</button></div>'
       ).join('');
+      rbProbeAll();
     })
     .catch(() => {
       rbBusy = false;
@@ -568,6 +573,23 @@ function rbSearch(){
     });
 }
 $('#globBtn').addEventListener('click', () => { $('#rbModal').hidden = false; $('#rbQ').focus(); });
+function rbMark(i, isDead){
+  const el = document.querySelector('[data-rbl="' + i + '"]');
+  if(el){ el.textContent = isDead ? 'не отвечает' : 'живая'; el.className = 'rblive ' + (isDead ? 'bad' : 'ok'); }
+}
+function rbProbeAll(){
+  let i = 0;
+  const next = () => {
+    while(i < rbLast.length){
+      const idx = i++, s = rbLast[idx], u = rbPick(s);
+      const known = state.user.find(x => x.url === u || x.url === u.replace('http://','https://'));
+      if(known && dead[known.id] !== undefined){ rbMark(idx, dead[known.id]); continue; }
+      probeUrl(u, d => { rbMark(idx, d); if(known){ dead[known.id] = d; renderCards(); } next(); });
+      return;
+    }
+  };
+  next();
+}
 $('#rbQ').addEventListener('keydown', e => { if(e.key === 'Enter') rbSearch(); });
 $('#rbModal').addEventListener('click', e => {
   if(e.target === $('#rbModal') || e.target.id === 'rbClose'){ $('#rbModal').hidden = true; return; }
@@ -639,6 +661,8 @@ function playSt(st){
   state.last = st.id;
   retryN = 0; clearTimeout(retryT);
   save();
+  if(dead[st.id] === undefined || dead[st.id]) probeQ.unshift({ st: st, force: true });
+  pumpProbe();
   engine.play(st);
   openPlayer();
   updateMediaSession(st, '');
@@ -1029,8 +1053,23 @@ function collectCandidates(st){
   }
   return cand;
 }
-function startProbes(){ allStations().forEach(st => { if(dead[st.id] === undefined) probeQ.push(st); }); pumpProbe(); }
+function startProbes(){
+  const cur = findSt(state.current) || findSt(state.last);
+  if(cur) probeQ.push(cur);
+  allStations().forEach(st => { if(dead[st.id] === undefined && st !== cur) probeQ.push(st); });
+  pumpProbe();
+}
 function reprobe(id){ const st = findSt(id); if(st){ probeQ.push({ st: st, force: true }); pumpProbe(); } }
+function probeUrl(u, cb){
+  const cand = collectCandidates({ url: u });
+  const a = new Audio(); a.muted = true; a.preload = 'auto';
+  let i = 0;
+  const done = d => { clearTimeout(t); try{ a.pause(); a.removeAttribute('src'); }catch(e){} cb(d); };
+  const t = setTimeout(() => done(false), 6000);
+  a.oncanplay = () => done(false);
+  a.onerror = () => { if(++i < cand.length) a.src = cand[i]; else done(true); };
+  a.src = cand[0];
+}
 function pumpProbe(){
   if(probing || !probeQ.length) return;
   probing = true;
@@ -1180,7 +1219,7 @@ applyTheme(state.theme === 'light' ? 'light' : 'dark');
 applySide(state.side);
 renderCoverSwitch();
 applyCover(state.cover || '');
-setTimeout(startProbes, 3000);
+setTimeout(startProbes, 600);
 renderSwatches();
 applyAccent(state.accent);
 $('#customColor').value = state.accent;
