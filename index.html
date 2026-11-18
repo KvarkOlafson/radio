@@ -1531,12 +1531,13 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
     });
   }
   function drawPaper(t){
-    const ink = 'rgba(122,90,40,';
-    for(let b = 0; b < 3; b++){
+    const ink = 'rgba(112,74,32,';
+    for(let b = 0; b < 4; b++){
       const ph = t*0.00003 + b*2.2;
       const x = W*(0.3 + 0.25*Math.sin(ph)), y = H*(0.35 + 0.22*Math.cos(ph*0.8));
-      const gr = g.createRadialGradient(x, y, 0, x, y, 190*(1 + pulse*0.5));
-      gr.addColorStop(0, ink + '0.05)');
+      const gr = g.createRadialGradient(x, y, 0, x, y, 270*(1 + pulse*0.4));
+      gr.addColorStop(0, ink + '0.15)');
+      gr.addColorStop(0.45, ink + '0.07)');
       gr.addColorStop(1, ink + '0)');
       g.fillStyle = gr; g.fillRect(0, 0, W, H);
     }
@@ -1688,8 +1689,8 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
       ems.forEach((e, i) => {
         const x = 0.5 + 0.36*Math.sin(t*e.s1 + e.p1), y = 0.5 + 0.33*Math.sin(t*e.s2 + e.p2);
         if(e.last){
-          const c = hueRGB(accentHue() + (i - 1)*55 + Math.sin(t*0.00006 + i*2)*25), g0 = neon ? 0.34 : 0.21;
-          splat(x, y, (x - e.last[0])*2400, (y - e.last[1])*2400, [c[0]*g0, c[1]*g0, c[2]*g0], neon ? 0.0032 : 0.0024);
+          const c = hueRGB(accentHue() + (i - 1)*55 + Math.sin(t*0.00006 + i*2)*25), g0 = neon ? 0.24 : 0.17;
+          splat(x, y, (x - e.last[0])*1300, (y - e.last[1])*1300, [c[0]*g0, c[1]*g0, c[2]*g0], neon ? 0.0026 : 0.002);
         }
         e.last = [x, y];
       });
@@ -1700,9 +1701,9 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
       const x = mx / Math.max(1, W), y = 1 - my / Math.max(1, H);
       if(plx >= 0){
         const dx = x - plx, dy = y - ply;
-        if(dx*dx + dy*dy > 0.000003){
+        if(dx*dx + dy*dy > 0.00002){
           const c = hueRGB(accentHue() + (Math.random()*2 - 1)*30);
-          splat(x, y, dx*3500, dy*3500, [c[0]*0.28, c[1]*0.28, c[2]*0.28], 0.002);
+          splat(x, y, dx*1600, dy*1600, [c[0]*0.2, c[1]*0.2, c[2]*0.2], 0.0016);
         }
       }
       plx = x; ply = y;
@@ -1719,7 +1720,7 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
       gl.uniform2f(U(P.vort, 'texelSize'), 1/simW, 1/simH);
       gl.uniform1i(U(P.vort, 'uVelocity'), vel.read.attach(0));
       gl.uniform1i(U(P.vort, 'uCurl'), crl.attach(1));
-      gl.uniform1f(U(P.vort, 'curl'), neon ? 30 : 16);
+      gl.uniform1f(U(P.vort, 'curl'), neon ? 18 : 12);
       gl.uniform1f(U(P.vort, 'dt'), dt);
       blit(vel.write); vel.swap();
       gl.useProgram(P.div);
@@ -1745,7 +1746,7 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
       gl.useProgram(P.adv);
       gl.uniform2f(U(P.adv, 'texelSize'), 1/simW, 1/simH);
       gl.uniform1f(U(P.adv, 'dt'), dt);
-      gl.uniform1f(U(P.adv, 'dissipation'), 0.3);
+      gl.uniform1f(U(P.adv, 'dissipation'), 0.5);
       gl.uniform1i(U(P.adv, 'uVelocity'), vel.read.attach(0));
       gl.uniform1i(U(P.adv, 'uSource'), vel.read.attach(0));
       blit(vel.write); vel.swap();
@@ -1760,7 +1761,7 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
     function burst(){
       for(let i = 0; i < 4; i++){
         const c = hueRGB(accentHue() + (Math.random()*2 - 1)*60);
-        splat(Math.random(), 0.25 + Math.random()*0.5, (Math.random()*2 - 1)*900, (Math.random()*2 - 1)*500, [c[0]*0.5, c[1]*0.5, c[2]*0.5], 0.004);
+        splat(Math.random(), 0.25 + Math.random()*0.5, (Math.random()*2 - 1)*500, (Math.random()*2 - 1)*300, [c[0]*0.35, c[1]*0.35, c[2]*0.35], 0.004);
       }
     }
     return {
