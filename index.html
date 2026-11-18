@@ -213,11 +213,18 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
 .npart {
   width:150px; height:150px; border-radius:50%; display:flex; align-items:center; justify-content:center;
   font-size:64px; color:var(--accent);
-  background:radial-gradient(circle at 35% 30%, var(--accent-soft), transparent 70%), var(--panel2);
+  background:repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.045) 0 2px, transparent 2px 4px), var(--panel2);
   border:1px solid var(--border);
-  background-size:cover; background-position:center;
+  background-size:cover; background-position:center; position:relative;
 }
-.playing .npart { animation:sweep 2.6s ease-in-out infinite; box-shadow:0 0 40px var(--accent-soft), inset 0 0 24px var(--accent-soft); }
+.npart.arted { font-size:0; background:repeating-radial-gradient(circle at 50% 50%, #101014 0 2px, #26262e 2px 4px); }
+.npart.arted::after {
+  content:""; position:absolute; inset:31%; border-radius:50%;
+  background-image:var(--artl); background-size:cover; background-position:center;
+  box-shadow:0 0 0 5px #0c0c10, 0 0 0 6px rgba(255,255,255,.14);
+}
+@keyframes spinslow { to { transform:rotate(360deg); } }
+.playing .npart { animation:spinslow 3.4s linear infinite; box-shadow:0 0 40px var(--accent-soft), inset 0 0 24px var(--accent-soft); }
 .bigplayer h2 { font-size:24px; letter-spacing:.4px; }
 .npgenre { color:var(--muted); font-size:13px; }
 .npbig { font-family:var(--mono); font-size:13px; color:var(--accent); min-height:18px; max-width:520px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -382,6 +389,7 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
       <button class="iconbtn" id="shareBtn" title="Скопировать ссылку на волну">⧉</button>
       <button class="iconbtn" id="sleepBtn" title="Сон: 15/30/60 мин циклом">☾</button>
       <button class="iconbtn" id="nightBtn" title="Вечерний режим: плеер на весь экран">⛶</button>
+      <button class="iconbtn" id="pArtBtn" title="Своё изображение волны (Shift+клик — вернуть сгенерированное)">🖼</button>
     </div>
     <div class="npart" id="pArt">∿</div>
     <h2 id="pName">—</h2>
@@ -443,6 +451,7 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
   </div>
 </div>
 
+<input type="file" id="artFile" accept="image/*" hidden>
 <div id="toast"></div>
 
 <script>
@@ -514,13 +523,13 @@ const freqOf = st => (typeof st.freq === 'number' && st.freq >= 87.5 && st.freq 
 /* ================= STORE ================= */
 const LSKEY = 'dipfm3';
 function freshState(){
-  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{} };
+  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{} };
 }
 function load(){
   let d = null;
   try { d = JSON.parse(localStorage.getItem(LSKEY) || 'null'); } catch(e){}
   const st = Object.assign(freshState(), d || {});
-  st.fav = st.fav || {}; st.hist = Array.isArray(st.hist) ? st.hist : []; st.user = Array.isArray(st.user) ? st.user : []; st.listen = (st.listen && typeof st.listen === 'object' && !Array.isArray(st.listen)) ? st.listen : {};
+  st.fav = st.fav || {}; st.hist = Array.isArray(st.hist) ? st.hist : []; st.user = Array.isArray(st.user) ? st.user : []; st.listen = (st.listen && typeof st.listen === 'object' && !Array.isArray(st.listen)) ? st.listen : {}; st.arts = (st.arts && typeof st.arts === 'object' && !Array.isArray(st.arts)) ? st.arts : {};
   /* миграция из классической версии: забираем избранное, свои станции и недавние волны */
   if(!d){
     let old = null;
@@ -539,8 +548,8 @@ let saveT = 0;
 function save(){ clearTimeout(saveT); saveT = setTimeout(flushSave, 2000); }
 function flushSave(){
   clearTimeout(saveT);
-  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen} = state;
-  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen})); }catch(e){}
+  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts} = state;
+  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts})); }catch(e){}
 }
 window.addEventListener('beforeunload', flushSave);
 
@@ -573,6 +582,34 @@ function rbSearch(){
     });
 }
 $('#globBtn').addEventListener('click', () => { $('#rbModal').hidden = false; $('#rbQ').focus(); });
+$('#pArtBtn').addEventListener('click', e => {
+  const st = curSt();
+  if(!st) { toast('⚠ Сначала включите волну'); return; }
+  if(state.arts[st.id] && e.shiftKey){ delete state.arts[st.id]; save(); paintAll(); toast('🖼 Своя обложка убрана — снова генерируется'); return; }
+  $('#artFile').value = '';
+  $('#artFile').click();
+});
+$('#artFile').addEventListener('change', () => {
+  const st = curSt(); const f = $('#artFile').files && $('#artFile').files[0];
+  if(!st || !f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      try{
+        const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+        const x = c.getContext('2d');
+        const m = Math.min(img.width, img.height);
+        x.drawImage(img, (img.width-m)/2, (img.height-m)/2, m, m, 0, 0, 128, 128);
+        state.arts[st.id] = c.toDataURL('image/jpeg', 0.82);
+        save(); paintAll(); toast('🖼 Своя обложка для «' + st.name + '» сохранена');
+      }catch(e){ toast('⚠ Не удалось обработать картинку'); }
+    };
+    img.onerror = () => toast('⚠ Это не изображение');
+    img.src = r.result;
+  };
+  r.readAsDataURL(f);
+});
 function rbMark(i, isDead){
   const el = document.querySelector('[data-rbl="' + i + '"]');
   if(el){ el.textContent = isDead ? 'не отвечает' : 'живая'; el.className = 'rblive ' + (isDead ? 'bad' : 'ok'); }
@@ -598,13 +635,13 @@ $('#rbModal').addEventListener('click', e => {
   if(add){
     e.stopPropagation();
     const s = rbLast[+add.dataset.rbadd];
-    toast(importStations(JSON.stringify({ stations: [{ name: s.name, url: rbPick(s), genre: (s.tags || '').split(',')[0] || 'радио' }] })));
+    toast(importStations(JSON.stringify({ stations: [{ name: s.name, url: rbPick(s), genre: (s.tags || '').split(',')[0] || 'радио', art: s.favicon || '' }] })));
     return;
   }
   const hit = e.target.closest('.rb-hit');
   if(hit){
     const s = rbLast[+hit.dataset.rb];
-    importStations(JSON.stringify({ stations: [{ name: s.name, url: rbPick(s), genre: (s.tags || '').split(',')[0] || 'радио' }] }));
+    importStations(JSON.stringify({ stations: [{ name: s.name, url: rbPick(s), genre: (s.tags || '').split(',')[0] || 'радио', art: s.favicon || '' }] }));
     const imported = state.user.find(x => x.url === rbPick(s) || x.url === rbPick(s).replace('http://', 'https://'));
     $('#rbModal').hidden = true;
     if(imported) playSt(imported); else toast('⚠ Поток не добавился');
@@ -812,7 +849,7 @@ function renderCards(){
   g.innerHTML = list.map(s => {
     const f = freqOf(s);
     return '<div class="card' + (s.cat === 'user' ? ' user-card' : '') + (state.playing && state.current === s.id ? ' playing' : '') + '" data-id="' + s.id + '" data-cat="' + s.cat + '">' +
-      '<div class="ctop"><span class="covthumb" style="background-image:url(' + genArt(s) + ')"></span><span class="cat">' + (CATS[s.cat] || s.cat) + '</span>' +
+      '<div class="ctop"><span class="covthumb" style="background-image:url(' + artFor(s) + ')"></span><span class="cat">' + (CATS[s.cat] || s.cat) + '</span>' +
       (dead[s.id] ? '<button class="badge-dead" data-reprobe="' + s.id + '" title="Поток не ответил при проверке — нажмите, чтобы попробовать снова">не отвечает ↻</button>' : '') +
       '<span class="ctools">' + 
       '<button class="minibtn favb" data-fav="' + s.id + '" title="В избранное">' + (state.fav[s.id] ? '★' : '☆') + '</button>' +
@@ -835,8 +872,9 @@ function paintAll(){
   renderResume();
   if(st){
     $('#pName').textContent = st.name;
-    const art = genArt(st);
-    if(art){ $('#pArt').style.backgroundImage = 'url(' + art + ')'; $('#pArt').textContent = ''; }
+    const art = artFor(st);
+    if(art){ $('#pArt').style.setProperty('--artl', 'url(' + art + ')'); $('#pArt').classList.add('arted'); $('#pArt').textContent = ''; }
+    else { $('#pArt').style.removeProperty('--artl'); $('#pArt').classList.remove('arted'); }
     $('#pGenre').textContent = st.genre;
     const fv = !!state.fav[st.id];
     $('#pFav').textContent = fv ? '★' : '☆';
@@ -854,8 +892,9 @@ function openPlayer(){
 const ACCENTS = ['#e6a23c','#ff5340','#37c96c','#4d8bff','#c65ef0','#39ffd0'];
 function applyAccent(v){
   state.accent = v;
-  document.documentElement.style.setProperty('--accent', v);
-  document.documentElement.style.setProperty('--accent-soft', v + '2e');
+  const r = document.documentElement.style;
+  if(state.cover){ r.removeProperty('--accent'); r.removeProperty('--accent-soft'); }
+  else { r.setProperty('--accent', v); r.setProperty('--accent-soft', v + '2e'); }
   $$('.swatch').forEach(b => b.classList.toggle('sel', b.dataset.c === v));
   save();
 }
@@ -915,6 +954,7 @@ function importStations(txt){
     const urlN = (location.protocol === 'https:') ? url.replace('http://', 'https://') : url;
     if(state.user.some(x => x.url === url || x.url === urlN)) return;
     const f = parseFloat(String(s.freq != null ? s.freq : '').replace(',', '.'));
+    const fav = String(s.art || s.favicon || '');
     state.user.push({
       id:'user-' + Date.now() + '-' + k,
       name:String(name).slice(0,60),
@@ -922,6 +962,7 @@ function importStations(txt){
       cat:'user',
       genre:s.genre || 'моя волна',
       url:String(url),
+      art:(/^https:\/\//.test(fav) || (location.protocol === 'http:' && /^http:\/\//.test(fav))) ? fav : null,
       freq:(!isNaN(f) && f >= 87.5 && f <= 108) ? Math.round(f*100)/100 : null
     });
     added++;
@@ -939,8 +980,9 @@ function applySide(s){
 }
 function applyCover(c){
   state.cover = COVERS.some(x => x[0] === c) ? c : '';
-  if(state.cover) document.documentElement.dataset.cover = state.cover;
-  else document.documentElement.removeAttribute('data-cover');
+  const r = document.documentElement.style;
+  if(state.cover){ document.documentElement.dataset.cover = state.cover; r.removeProperty('--accent'); r.removeProperty('--accent-soft'); }
+  else { document.documentElement.removeAttribute('data-cover'); r.setProperty('--accent', state.accent); r.setProperty('--accent-soft', state.accent + '2e'); }
   save();
 }
 function renderCoverSwitch(){
@@ -1012,6 +1054,12 @@ $('#resumeSlot').addEventListener('click', e => {
 
 /* ================= ОБЛОЖКИ СТАНЦИЙ: рисунок из имени, без внешних картинок ================= */
 const artCache = {};
+function artFor(st){
+  const a = state.arts[st.id];
+  if(a && a.startsWith('data:image')) return a;
+  if(st.art && /^(https?:\/\/|data:image)/.test(st.art)) return st.art;
+  return genArt(st);
+}
 function genArt(st){
   if(artCache[st.id]) return artCache[st.id];
   try{
@@ -1170,7 +1218,7 @@ $('#ioBtn').addEventListener('click', () => { $('#ioModal').hidden = false; });
 $('#ioClose').addEventListener('click', () => { $('#ioModal').hidden = true; });
 $('#ioModal').addEventListener('click', e => { if(e.target === $('#ioModal')) $('#ioModal').hidden = true; });
 $('#ioExport').addEventListener('click', async () => {
-  const data = JSON.stringify({ app:'Диапазон FM', v:3, profile:true, user:state.user, fav:state.fav, listen:state.listen, set:{ vol:state.vol, theme:state.theme, accent:state.accent, side:state.side, cover:state.cover } }, null, 1);
+  const data = JSON.stringify({ app:'Диапазон FM', v:3, profile:true, user:state.user, fav:state.fav, listen:state.listen, arts:state.arts, set:{ vol:state.vol, theme:state.theme, accent:state.accent, side:state.side, cover:state.cover } }, null, 1);
   $('#ioText').value = data;
   try { await navigator.clipboard.writeText(data); toast('⇅ Профиль в буфере обмена — сохраните его в файл'); }
   catch(e){ toast('⇅ JSON профиля готов в поле ниже'); }
@@ -1182,6 +1230,7 @@ $('#ioImport').addEventListener('click', () => {
     if(Array.isArray(d.user)) state.user = d.user;
     if(d.fav && typeof d.fav === 'object') state.fav = d.fav;
     if(d.listen && typeof d.listen === 'object') state.listen = d.listen;
+    if(d.arts && typeof d.arts === 'object' && !Array.isArray(d.arts)) state.arts = d.arts;
     const s = d.set || {};
     if(s.vol != null) state.vol = Math.round(Math.max(0, Math.min(100, s.vol)));
     if(s.theme === 'light' || s.theme === 'dark') state.theme = s.theme;
