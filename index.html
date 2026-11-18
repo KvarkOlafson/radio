@@ -403,6 +403,11 @@ body[data-page="list"] .tray-fab, body[data-page="launcher"] .tray-fab { display
 .carrier-cassette0::after { content:""; position:absolute; left:13px; top:22px; width:9px; height:9px; border-radius:50%;
   background:#ff5e8a; box-shadow:22px 0 0 #ff5e8a, 0 0 0 1.5px #0a060a, 22px 0 0 1.5px #0a060a; }
 .tray-item.playing .carrier-cassette0, .deck.live .carrier-cassette0 { animation:wiggle 2.8s ease-in-out infinite; }
+/* узкие экраны: боковые решётки Веги/Miami снимаются, остаются органы управления */
+@media (max-width:720px){
+  html[data-skin="vega"] .mid::before, html[data-skin="vega"] .mid::after,
+  html[data-skin="miami"] .mid::before, html[data-skin="miami"] .mid::after { display:none; }
+}
 /* мобильный лоток: шторка снизу */
 @media (max-width:1100px){
   .tray {
@@ -808,6 +813,26 @@ html[data-skin="vega"] .preset:active, html[data-skin="vega"] .preset.active {
   transform:translateY(2px); box-shadow:0 1px 0 #1a1610, inset 0 1px 0 rgba(255,235,190,.2);
 }
 html[data-skin="vega"] .scale-frame { border-radius:12px; }
+/* Вега: анатомия настоящего приёмника 70-х — тканевые решётки колонок по бокам панели */
+html[data-skin="vega"] .mid { position:relative; gap:14px; }
+html[data-skin="vega"] .mid::before, html[data-skin="vega"] .mid::after {
+  content:""; flex:0 0 64px; align-self:stretch; border-radius:5px;
+  background:
+    repeating-linear-gradient(90deg, rgba(214,190,138,.8) 0 1.4px, rgba(40,30,14,.92) 1.4px 3px),
+    repeating-linear-gradient(0deg, rgba(214,190,138,.55) 0 1.4px, rgba(40,30,14,.92) 1.4px 3px);
+  box-shadow:
+    inset 0 0 0 3px #8a6a3a, inset 0 0 0 4.5px #3c2c12,
+    inset 0 0 26px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,228,180,.2),
+    0 1px 0 var(--case-hi);
+}
+/* у Веги нет «SLEEP/CLEAR»: клавиши той эпохи их не знали */
+html[data-skin="vega"] .fine #btnSleep, html[data-skin="vega"] .fine #btnClr { display:none; }
+/* главная ручка: крупнее, латунный концентр — как две ручки на одной оси */
+html[data-skin="vega"] .kcol:first-child .knob-wrap.big { width:148px; height:148px; }
+html[data-skin="vega"] .kcol:first-child .knob-wrap.big .knob::before { inset:16%; }
+html[data-skin="vega"] .kcol:first-child .knob-wrap.big .knob {
+  box-shadow: 0 8px 16px rgba(0,0,0,.65), inset 0 0 0 2px #f0e2c2, inset 0 0 0 5px #7a5c30, inset 0 0 0 7px #e8d8ac;
+}
 
 /* --- TEAC R-770: серебро 80-х; ДРУГАЯ РАСКЛАДКА: дисплей сверху во всю ширину,
        рифлёная ручка настройки, ВЕРТИКАЛЬНЫЕ ФЕЙДЕРЫ VOL/СВЕТ --- */
@@ -1040,6 +1065,27 @@ html[data-skin="miami"] .kcol:last-child .knob .face::after {
   left:calc(50% - 1.25px); top:4px; bottom:4px; width:2.5px; height:auto; margin-left:0;
   background:linear-gradient(180deg,#7df9ff,#ff71d4); box-shadow:0 0 6px #ff71d4;
 }
+/* Miami-84: анатомия бумбокса — две решётки динамиков по краям, кассетник в центре */
+html[data-skin="miami"] .mid { position:relative; gap:16px; }
+html[data-skin="miami"] .mid::before, html[data-skin="miami"] .mid::after {
+  content:""; flex:0 0 112px; align-self:stretch; border-radius:8px;
+  background:
+    radial-gradient(circle at 50% 30%, transparent 20px, rgba(125,249,255,.55) 21px 23.5px, rgba(0,0,0,.4) 24px 27px, transparent 28px),
+    radial-gradient(circle at 50% 70%, transparent 20px, rgba(255,113,212,.55) 21px 23.5px, rgba(0,0,0,.4) 24px 27px, transparent 28px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.14) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg,#0e0624,#1a0c3a);
+  box-shadow:
+    inset 0 0 0 3px rgba(255,113,212,.75), inset 0 0 24px rgba(255,113,212,.22),
+    0 1px 0 rgba(255,120,220,.2);
+}
+html[data-skin="miami"] .mid::before {
+  box-shadow: inset 0 0 0 3px rgba(125,249,255,.75), inset 0 0 24px rgba(125,249,255,.2), 0 1px 0 rgba(255,120,220,.2);
+}
+html[data-skin="miami"] .fine #btnSleep, html[data-skin="miami"] .fine #btnClr { display:none; }
+/* кассетная дека — центр бумбокса: крупное окно под кассету */
+html[data-skin="miami"] .deck { width:130px; height:130px; border-radius:12px; border-color:#7a3aa0; box-shadow: inset 0 2px 8px rgba(0,0,0,.6), 0 0 22px rgba(255,113,212,.22); }
+html[data-skin="miami"] .deck .carrier { zoom:1.6; opacity:1; filter:none; }
+html[data-skin="miami"] .deckrow { margin-top:16px; }
 
 /* --- NEON-77: Cyberpunk 2077 — фирменный жёлтый терминал на графите,
        острые углы, сканлайны, красная строка угроз --- */
