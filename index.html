@@ -156,6 +156,7 @@ input[type="color"] {
 .mp-fav { flex:0 0 auto; background:none; border:0; font-size:18px; color:var(--muted); }
 .mp-fav:hover { color:var(--accent); }
 #mpVol { flex:0 0 90px; accent-color:var(--accent); cursor:pointer; height:4px; }
+.bp-vol { flex:0 0 110px; accent-color:var(--accent); cursor:pointer; height:4px; }
 
 /* ============ ПОПОВЕР НАСТРОЕК ============ */
 .settings-pop {
@@ -214,15 +215,11 @@ body:not([data-page="launcher"]) #gate { display:none !important; }
 body.tray-open .rec-main { max-width:none; }
 .tray {
   display:none; flex:0 0 360px; width:360px; position:sticky; top:74px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--accent) 8%, transparent), transparent 24%),
-    repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 1px, transparent 1px 4px),
-    linear-gradient(180deg,#1b1b22,#0f0f14);
-  border:1px solid var(--border); border-radius:14px; padding:14px;
-  box-shadow:0 18px 40px rgba(0,0,0,.5), inset 0 12px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+  background:var(--case-bg, linear-gradient(180deg,#1b1b22,#0f0f14));
+  border:1px solid var(--case-border, var(--border)); border-radius:10px; padding:14px;
+  box-shadow:0 18px 40px rgba(0,0,0,.5), inset 0 1px 0 var(--case-hi, rgba(255,255,255,.06)), inset 0 -3px 8px var(--case-low, rgba(0,0,0,.35));
   max-height:calc(100vh - 96px); overflow-y:auto;
 }
-html[data-theme="light"] .tray { background:linear-gradient(180deg,#efece4,#e0dcd0); }
 body.tray-open .tray { display:block; }
 .tray-head { display:flex; align-items:baseline; gap:8px; margin-bottom:12px; }
 .tray-head b { font-family:var(--mono); letter-spacing:2.5px; font-size:12px; color:var(--accent); }
@@ -232,9 +229,13 @@ body.tray-open .tray { display:block; }
 .tray-grid { display:flex; flex-direction:column; gap:10px; }
 .tray-item {
   display:flex; align-items:center; gap:12px; padding:9px 10px;
-  border:1px solid var(--border); border-radius:11px; background:var(--panel2);
+  border:1px solid var(--case-border, var(--border)); border-radius:11px; background:rgba(127,127,127,.10);
   transition:border-color .2s, box-shadow .2s;
 }
+html[data-skin="teac"] .tray, html[data-skin="sakura"] .tray { color:#2b3138; }
+html[data-skin="teac"] .tray-item, html[data-skin="sakura"] .tray-item { background:rgba(255,255,255,.55); border-color:rgba(0,0,0,.2); }
+html[data-skin="teac"] .tray-item .ti-info span, html[data-skin="teac"] .tray-item .tislot small,
+html[data-skin="sakura"] .tray-item .ti-info span, html[data-skin="sakura"] .tray-item .tislot small { color:#6a7480; }
 .tray-item:hover { border-color:var(--accent); }
 .tray-item.playing { border-color:var(--accent); box-shadow:inset 3px 0 0 var(--accent), 0 0 0 1px var(--accent-soft); }
 .tray-item .tislot { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:3px; zoom:1.2; position:relative; transition:transform .2s; }
@@ -339,7 +340,7 @@ body[data-page="list"] .tray-fab, body[data-page="launcher"] .tray-fab { display
     linear-gradient(180deg,#e0e4da,#9aa090);
   box-shadow:inset 0 0 0 1px #6a7060; }
 .carrier-usb::after { content:""; position:absolute; right:6px; top:7px; width:5px; height:5px; border-radius:50%;
-  background:#7dff6a; box-shadow:0 0 6px #7dff6a; }
+  background:#e8ece8; box-shadow:0 0 6px #e8ece8; }
 .tray-item.playing .carrier-usb::after, .deck.live .carrier-usb::after { animation:blinkled .5s steps(2) infinite; }
 /* VHS (Miami-84): чёрная кассета с наклейкой сверху и двумя окнами бобин */
 .carrier-vhs { border-radius:4px; background:linear-gradient(180deg,#26262e,#101014); border:1px solid #000; }
@@ -1039,6 +1040,7 @@ html[data-skin="neon"] .lcd::after {
 html[data-skin="neon"] .knob .face::after { background:linear-gradient(180deg,#fff,#fcee0a); box-shadow:0 0 10px rgba(252,238,10,.85); }
 html[data-skin="neon"] .scale-frame { border-radius:3px; }
 html[data-skin="neon"] .preset { border-radius:3px; }
+html[data-skin="neon"] .scale-frame { display:none; }
 html[data-skin="neon"] .fine button, html[data-skin="neon"] .tbtn { border-radius:3px; }
 /* фон сайта под Neon-77: жёлтый терминал Night City на графите */
 html[data-skin="neon"] body {
@@ -1054,57 +1056,57 @@ html[data-skin="dedsec"] .unit {
   --case-bg:
     repeating-linear-gradient(45deg, rgba(255,255,255,.02) 0 2px, transparent 2px 6px),
     linear-gradient(180deg,#1a1d1a 0%, #101210 60%, #0a0c0a 100%);
-  --case-hi:rgba(125,255,106,.18); --case-low:rgba(0,0,0,.7); --case-border:#262c24;
+  --case-hi:rgba(232,236,232,.18); --case-low:rgba(0,0,0,.7); --case-border:#262c24;
   --face-bg: linear-gradient(180deg,#141614,#0c0e0c);
   --face-border:#232623;
   --knob-bg: radial-gradient(circle at 35% 28%, #262a26, #0a0c0a 70%);
-  --lcd-bg:#04140a; --lcd-fg:#7dff6a; --lcd-glow:rgba(125,255,106,.45); --lcd-off:#06180a;
-  --lbl:#9aa89a; --lbl2:#5c6a5c;
-  --btn-bg:#1c201c; --btn-fg:#d8ffd0;
-  --led:#7dff6a;
+  --lcd-bg:#0c0e0c; --lcd-fg:#e8ece8; --lcd-glow:rgba(232,236,232,.4); --lcd-off:#121412;
+  --lbl:#9aa89a; --lbl2:#8a928a;
+  --btn-bg:#1c201c; --btn-fg:#eef0ee;
+  --led:#e8ece8;
 }
 html[data-skin="dedsec"] .unit::before {
   content:"DEDSEC // UNAUTHORIZED BROADCAST"; position:absolute; top:-11px; left:22px; z-index:6;
-  background:#7dff6a; color:#0c0e0c; font-family:var(--mono); font-size:9px; letter-spacing:2px;
+  background:#e8ece8; color:#0c0e0c; font-family:var(--mono); font-size:9px; letter-spacing:2px;
   padding:2px 8px; transform:rotate(-2deg); border-radius:2px;
 }
-html[data-skin="dedsec"] .plate { color:#7dff6a; text-shadow:0 0 12px rgba(125,255,106,.4); }
+html[data-skin="dedsec"] .plate { color:#e8ece8; text-shadow:0 0 12px rgba(232,236,232,.4); }
 html[data-skin="dedsec"] .lcd { font-family:var(--mono); border-radius:6px; }
 /* DedSec: приёмник = горизонтальный смартфон; всё управление — на экране, флешка вставляется сбоку */
 html[data-skin="dedsec"] .unit {
   border-radius:26px; padding:14px 18px 16px;
   border:3px solid #05070a;
   background:
-    radial-gradient(120% 80% at 50% 0%, rgba(125,255,106,.06), transparent 55%),
+    radial-gradient(120% 80% at 50% 0%, rgba(232,236,232,.06), transparent 55%),
     linear-gradient(180deg,#101410,#080b08);
-  box-shadow:0 24px 48px rgba(0,0,0,.65), inset 0 0 0 2px #1a221a, inset 0 0 34px rgba(125,255,106,.05);
+  box-shadow:0 24px 48px rgba(0,0,0,.65), inset 0 0 0 2px #1a221a, inset 0 0 34px rgba(232,236,232,.05);
 }
 html[data-skin="dedsec"] .scale-frame { border-radius:12px; background:linear-gradient(180deg,#0a140c,#060a07); border-color:#1c2a1c; }
-html[data-skin="dedsec"] .lcd { border-radius:10px; border-color:#16241a; box-shadow:inset 0 0 26px rgba(125,255,106,.08); }
+html[data-skin="dedsec"] .lcd { border-radius:10px; border-color:#22261f; box-shadow:inset 0 0 26px rgba(232,236,232,.06); }
 html[data-skin="dedsec"] .knob {
   background:#0b0f0b; border:1px solid #223022;
-  box-shadow:inset 0 0 0 2px rgba(125,255,106,.14), 0 0 12px rgba(125,255,106,.08);
+  box-shadow:inset 0 0 0 2px rgba(232,236,232,.14), 0 0 12px rgba(232,236,232,.08);
 }
 html[data-skin="dedsec"] .knob::before { background:radial-gradient(circle at 38% 30%, #182018, #060a06 75%); box-shadow:none; }
-html[data-skin="dedsec"] .knob .face::after { background:linear-gradient(180deg,#dfffe0,#7dff6a); box-shadow:0 0 8px rgba(125,255,106,.8); }
+html[data-skin="dedsec"] .knob .face::after { background:linear-gradient(180deg,#f2f4f2,#e8ece8); box-shadow:0 0 8px rgba(232,236,232,.8); }
 html[data-skin="dedsec"] .tg { background:#0b0f0b; border:1px solid #223022; border-radius:16px; }
 html[data-skin="dedsec"] .tg .sw { background:#060a06; border-color:#223022; }
-html[data-skin="dedsec"] .tg.on .sw::after { background:linear-gradient(180deg,#dfffe0,#7dff6a); }
+html[data-skin="dedsec"] .tg.on .sw::after { background:linear-gradient(180deg,#f2f4f2,#e8ece8); }
 html[data-skin="dedsec"] .fine button, html[data-skin="dedsec"] .tbtn {
-  background:rgba(125,255,106,.08); color:#b8ffb0; border:1px solid rgba(125,255,106,.3);
+  background:rgba(232,236,232,.08); color:#b8ffb0; border:1px solid rgba(232,236,232,.3);
   border-radius:14px; box-shadow:none;
 }
 html[data-skin="dedsec"] .preset {
-  background:rgba(125,255,106,.06); border:1px solid rgba(125,255,106,.25);
+  background:rgba(232,236,232,.06); border:1px solid rgba(232,236,232,.25);
   border-radius:10px; color:#b8ffb0; box-shadow:none;
 }
-html[data-skin="dedsec"] .preset.written { color:#dfffe0; }
-html[data-skin="dedsec"] .preset.active { background:rgba(125,255,106,.16); box-shadow:inset 0 0 0 1px #7dff6a; }
+html[data-skin="dedsec"] .preset.written { color:#f2f4f2; }
+html[data-skin="dedsec"] .preset.active { background:rgba(232,236,232,.16); box-shadow:inset 0 0 0 1px #e8ece8; }
 /* боковой USB-порт: флешка лежит горизонтально, торчит из торца */
 html[data-skin="dedsec"] .deckrow { margin-top:12px; }
 html[data-skin="dedsec"] .deck { width:118px; height:38px; border-radius:19px; }
 html[data-skin="dedsec"] .deck .carrier { transform:rotate(-90deg) scale(.8); zoom:1; }
-html[data-skin="dedsec"] .deck-cap { color:#5c6a5c; }
+html[data-skin="dedsec"] .deck-cap { color:#8a928a; }
 /* экран вместо «приёмника»: без винтов и аналоговых приборов — только стекло с развёрткой */
 html[data-skin="dedsec"] .unit { max-width:760px; }
 html[data-skin="dedsec"] .screw { display:none; }
@@ -1113,16 +1115,17 @@ html[data-skin="dedsec"] .unit-head { margin-bottom:10px; }
 html[data-skin="dedsec"] .scale-frame { border:0; background:transparent; box-shadow:none; padding:0 0 4px; }
 html[data-skin="dedsec"] .unit::after {
   display:block; border-radius:22px;
-  background:repeating-linear-gradient(0deg, rgba(125,255,106,.025) 0 1px, transparent 1px 3px);
-  box-shadow:inset 0 0 46px rgba(125,255,106,.07), inset 0 1px 0 rgba(125,255,106,.14);
+  background:repeating-linear-gradient(0deg, rgba(232,236,232,.025) 0 1px, transparent 1px 3px);
+  box-shadow:inset 0 0 46px rgba(232,236,232,.07), inset 0 1px 0 rgba(232,236,232,.14);
 }
-/* фон сайта под DedSec: зелёный скан ctOS */
+/* фон сайта под DedSec: серый скан ctOS, всё как в Watch Dogs */
 html[data-skin="dedsec"] body {
   background:
-    radial-gradient(760px 340px at 84% -6%, rgba(125,255,106,.08), transparent 60%),
-    radial-gradient(520px 280px at 8% 108%, rgba(125,255,106,.05), transparent 65%),
-    linear-gradient(180deg,#0d110c 0%, #050705 100%) !important;
+    radial-gradient(760px 340px at 84% -6%, rgba(232,236,232,.06), transparent 60%),
+    radial-gradient(520px 280px at 8% 108%, rgba(232,236,232,.04), transparent 65%),
+    linear-gradient(180deg,#101312 0%, #080a09 100%) !important;
   background-attachment:fixed !important;
+  font-family:var(--mono);
 }
 
 /* --- КАРТРИДЖ-8: 8-бит, серый пластик, пиксельный экранчик --- */
@@ -1361,6 +1364,24 @@ html[data-skin="vfd"] .scale-frame { border-radius:9px; box-shadow: inset 0 2px 
   box-shadow: inset 0 2px 8px rgba(0,0,0,.45), 0 0 16px var(--accent-soft);
 }
 .deck-cap { font-family:var(--mono); font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--lbl2, var(--muted)); }
+.deck-name { max-width:260px; margin-top:4px; text-align:center; font-family:var(--mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--lbl, var(--fg)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+html[data-skin="vega"] .deck-name, html[data-skin="radiola"] .deck-name { font-family:Georgia,serif; text-transform:none; letter-spacing:.5px; font-size:12.5px; }
+html[data-skin="teac"] .deck-name, html[data-skin="sakura"] .deck-name { color:var(--fg); }
+/* дисковые приборы: проигрыватель — главный элемент передней панели */
+html[data-skin="radiola"] .deck { width:150px; height:150px; border-radius:50%; }
+html[data-skin="radiola"] .deck .carrier { zoom:2.1; }
+html[data-skin="vfd"] .deck { width:140px; height:140px; border-radius:50%; }
+html[data-skin="vfd"] .deck .carrier { zoom:1.9; }
+html[data-skin="geiger"] .deck { width:126px; height:126px; border-radius:50%; }
+html[data-skin="geiger"] .deck .carrier { zoom:1.7; }
+html[data-skin="drx"] .deck { width:112px; height:112px; border-radius:8px; }
+html[data-skin="drx"] .deck .carrier { zoom:1.6; }
+html[data-skin="teac"] .deck { width:120px; height:96px; }
+html[data-skin="teac"] .deck .carrier { zoom:1.5; }
+html[data-skin="sakura"] .deck { width:104px; height:86px; }
+html[data-skin="sakura"] .deck .carrier { zoom:1.4; }
+html[data-skin="seance0"] .deck { width:110px; height:92px; }
+html[data-skin="seance0"] .deck .carrier { zoom:1.45; }
 .meters-row { display:flex; gap:16px; margin-top:14px; align-items:stretch; flex-wrap:wrap; }
 .meter {
   background:var(--face-bg); border:1px solid var(--face-border); border-radius:9px;
@@ -1819,7 +1840,7 @@ html[data-skin="radiola"] { --chrome-bg:linear-gradient(180deg,#2c1c0e,#1a1008);
 html[data-skin="geiger"] { --chrome-bg:linear-gradient(180deg,#141a10,#0a0e08); --chrome-border:#2c4a1c; }
 html[data-skin="miami"] { --chrome-bg:linear-gradient(180deg,#241428,#120a18); --chrome-border:#5a2a6a; }
 html[data-skin="neon"] { --chrome-bg:linear-gradient(180deg,#1c1c14,#0d0d08); --chrome-border:#4a4414; }
-html[data-skin="dedsec"] { --chrome-bg:linear-gradient(180deg,#101410,#080a08); --chrome-border:#1f2a1f; }
+html[data-skin="dedsec"] { --chrome-bg:linear-gradient(180deg,#101312,#080a09); --chrome-border:#2c322e; }
 html[data-skin="cart8"] { --chrome-bg:linear-gradient(180deg,#22252c,#101216); --chrome-border:#3e4148; }
 html[data-skin="sakura"] { --chrome-bg:linear-gradient(180deg,#fdf1f5,#f3d9e3); --chrome-border:#e0b0c2; }
 html[data-skin="seance0"] { --chrome-bg:linear-gradient(180deg,#1a1216,#0c080a); --chrome-border:#3a2028; }
@@ -1829,15 +1850,15 @@ html[data-skin="seance0"] { --chrome-bg:linear-gradient(180deg,#1a1216,#0c080a);
   border-bottom-color:var(--chrome-border, var(--border));
   color:#f0eee8;
 }
-.topbar .mode-switch button { color:rgba(240,238,232,.62); }
+.topbar .mode-switch button { color:#d5d2ca; }
 .topbar .mode-switch button:hover { color:#fff; }
-.topbar .tbctl { color:rgba(240,238,232,.55); }
+.topbar .tbctl { color:#c9c6be; }
 .topbar .iconbtn { color:#f0eee8; }
 .miniplayer { background:var(--chrome-bg, color-mix(in srgb, var(--panel) 92%, transparent)); border-color:var(--chrome-border, var(--border)); color:#f0eee8; }
-.miniplayer .mp-info span { color:rgba(240,238,232,.6); }
+.miniplayer .mp-info span { color:#d5d2ca; }
 .bigplayer { background:var(--chrome-bg, linear-gradient(165deg, var(--card), color-mix(in srgb, var(--card) 80%, #000 20%))); border-color:var(--chrome-border, var(--border)); color:#f0eee8; }
-.bigplayer .bp-cat { color:rgba(240,238,232,.55); }
-.bigplayer .bp-np { color:rgba(240,238,232,.6); }
+.bigplayer .bp-cat { color:#c9c6be; }
+.bigplayer .bp-np { color:#d5d2ca; }
 /* мини-плеер в приёмнике не нужен: у прибора свои органы управления */
 body[data-page="receiver"] .miniplayer { display:none; }
 /* светлые приборы: тёмный текст на светлом хроме */
@@ -1854,9 +1875,19 @@ html[data-skin="radiola"] body[data-page="list"] { --page-bg:#171008; --page-bg2
 html[data-skin="geiger"] body[data-page="list"] { --page-bg:#0c110a; --page-bg2:#050805; --panel:#141a12; --panel2:#1a2218; --fg:#e4f0dc; --muted:#8ba080; --border:#2c3e26; --card:#131a11; --card-hover:#1a2418; }
 html[data-skin="miami"] body[data-page="list"] { --page-bg:#170d1c; --page-bg2:#0c0610; --panel:#221329; --panel2:#2a1832; --fg:#f5e6f2; --muted:#a888a8; --border:#4a2a56; --card:#20122a; --card-hover:#2a1a36; }
 html[data-skin="neon"] body[data-page="list"] { --page-bg:#12120c; --page-bg2:#060604; --panel:#1a1a12; --panel2:#22221a; --fg:#f2f0e2; --muted:#a8a084; --border:#3c3a20; --card:#191910; --card-hover:#22221a; }
-html[data-skin="dedsec"] body[data-page="list"] { --page-bg:#0c110c; --page-bg2:#050705; --panel:#121812; --panel2:#182018; --fg:#e0f0da; --muted:#84a07c; --border:#263e26; --card:#111811; --card-hover:#182218; }
+html[data-skin="dedsec"] body[data-page="list"] { --page-bg:#101312; --page-bg2:#070908; --panel:#161a18; --panel2:#1c201e; --fg:#e4e8e6; --muted:#98a09c; --border:#2c322e; --card:#141816; --card-hover:#1a1e1c; }
 html[data-skin="cart8"] body[data-page="list"] { --page-bg:#14161c; --page-bg2:#0b0c10; --panel:#1e2128; --panel2:#262a32; --fg:#e8ecf4; --muted:#9298a8; --border:#3a3f4c; --card:#1c2028; --card-hover:#242a34; }
 html[data-skin="seance0"] body[data-page="list"] { --page-bg:#120c0f; --page-bg2:#080506; --panel:#1a1216; --panel2:#221820; --fg:#f2e4ea; --muted:#a08494; --border:#3c2834; --card:#181016; --card-hover:#201820; }
+
+/* ============ ШАПКА: свой почерк у каждого прибора ============ */
+html[data-skin="drx"] .topbar { border-bottom:2px solid #39ffd0; }
+html[data-skin="drx"] .brand { font-family:var(--mono); letter-spacing:6px; }
+html[data-skin="vfd"] .topbar { border-bottom:3px double #d4af37; }
+html[data-skin="vfd"] .brand { font-family:Georgia,serif; letter-spacing:5px; color:#e8d8a0; }
+html[data-skin="neon"] .topbar { border-bottom:2px solid #fcee0a; }
+html[data-skin="neon"] .brand { font-family:var(--mono); text-transform:uppercase; letter-spacing:5px; color:#fcee0a; text-shadow:0 0 12px rgba(252,238,10,.5); }
+html[data-skin="seance0"] .topbar { border-bottom:2px solid #ff5e8a; box-shadow:0 8px 22px rgba(0,0,0,.6), 0 6px 26px rgba(255,94,138,.12); }
+html[data-skin="seance0"] .brand { font-family:Georgia,serif; letter-spacing:4px; text-shadow:0 0 10px rgba(255,94,138,.35); }
 
 /* ============ АДАПТИВ ============ */
 @media (max-width: 760px) {
@@ -2077,6 +2108,7 @@ body[data-mode="list"] .set-row.rec-only { display:none; }
       <b class="bp-name" id="bpName">волна не выбрана</b>
       <span class="bp-np" id="bpNp">выберите волну из каталога</span>
     </div>
+    <input type="range" class="bp-vol" id="bpVol" min="0" max="100" step="1" value="60" aria-label="Громкость">
     <button class="bp-fav" id="bpFav" title="В избранное">☆</button>
   </div>
   <details class="addstation" id="addStation">
@@ -2176,6 +2208,7 @@ body[data-mode="list"] .set-row.rec-only { display:none; }
     </div>
 
     <div class="deckrow"><div class="deck" id="deck"><div class="deck-slot" id="deckSlot"></div></div><div class="deck-cap" id="deckCap"></div></div>
+    <div class="deck-name" id="deckName"></div>
 
     <div class="meters-row">
       <div class="meter"><div class="mlabel">SIGNAL</div><canvas id="sigC" width="150" height="66" role="img" aria-label="Уровень сигнала"></canvas></div>
@@ -2553,6 +2586,8 @@ function renderDeck(){
   slot.innerHTML = '<div class="carrier carrier-'+carrier+'" aria-hidden="true"></div>';
   const cap = $('#deckCap'); if(cap) cap.textContent = CARRIER_LABELS[carrier]||'носитель';
   const d = $('#deck'); if(d) d.classList.toggle('live', !!(state.playing && state.powered && state.current));
+  const stNow = findSt(state.current);
+  const nm = $('#deckName'); if(nm) nm.textContent = state.current==='ghost' ? '???' : (state.playing && stNow ? (stNow.short||stNow.name) : '');
 }
 function renderTray(){
   const grid = $('#trayGrid'); if(!grid) return;
@@ -3426,7 +3461,7 @@ $('#impFile').addEventListener('change', e=>{
 /* фирменный цвет прибора: у скинов со своим характером акцент несъёмный */
 const SKIN_ACCENT = {
   teac:'#e05545', drx:'#39ffd0', vfd:'#52ffa8', radiola:'#d9a05a', geiger:'#8aff5e',
-  miami:'#ff71ce', neon:'#fcee0a', dedsec:'#7dff6a', cart8:'#9eff6a', sakura:'#ff9ec2', seance0:'#ff5e8a'
+  miami:'#ff71ce', neon:'#fcee0a', dedsec:'#e8ece8', cart8:'#9eff6a', sakura:'#ff9ec2', seance0:'#ff5e8a'
 };
 function accentNow(){ return SKIN_ACCENT[state.skin] || state.accent; }
 function applySkinAccent(){
@@ -3698,6 +3733,7 @@ $('#mpFav').addEventListener('click', ()=>{
   toggleFav(st.id);
 });
 $('#mpVol').addEventListener('input', e=>setVolume(+e.target.value));
+$('#bpVol').addEventListener('input', e=>setVolume(+e.target.value));
 
 /* ================= UI v12: ИЗБРАННОЕ И ИСТОРИЯ ================= */
 function toggleFav(id){
@@ -3999,6 +4035,7 @@ function setVolume(v){
   state.volume = Math.round(clamp(v,0,100));
   if(engine.audio) engine.audio.volume = clamp(state.volume/100*volFactor(),0,1);
   const mv = $('#mpVol'); if(mv && +mv.value !== state.volume){ mv.value = state.volume; }
+  const bv = $('#bpVol'); if(bv && +bv.value !== state.volume){ bv.value = state.volume; }
   $$('.card.playing').forEach(c=>c.style.setProperty('--amp', clamp(state.volume/100,0,1)));
   syncKnobs(); save();
   if(state.mode==='receiver' && state.powered) dialUpdate();
@@ -4186,6 +4223,87 @@ function fitCanvas(c){
   if(c.width !== Math.round(w*dpr)){ c.width = Math.round(w*dpr); c.height = Math.round(h*dpr); }
   return {w, h, dpr};
 }
+function drawCracks(w,h,dark){
+  /* шрамы сеансов: каждая «чертовщина» оставляет на стекле новую трещину — навсегда, на любом аппарате */
+      const cracks = Math.min(state.crackN||0, 12);
+      for(let k=0;k<cracks;k++){
+        /* у каждой трещины свой нрав: ход, длина, ветвистость, глубина и нажим —
+           всё детерминировано по номеру, чтобы не дрожало при перерисовке */
+        const cx = w*(0.08 + ((k*0.317+0.07)%0.84));
+        const amp = 1.5 + ((k*7)%5)*1.1;                    /* размах зигзага */
+        const dep = (k%5===0) ? 0.45+((k*0.11)%0.2) : 1;    /* часть трещин короткие — не сквозные */
+        const y1 = 0.2+((k*0.13)%0.15), y2 = 0.42+((k*0.29)%0.2), y3 = 0.66+((k*0.07)%0.18);
+        const op = 0.3 + ((k*3)%4)*0.08;
+        sctx.strokeStyle = dark ? ('rgba(212,226,236,'+(0.3+op*0.4).toFixed(2)+')') : ('rgba(56,38,12,'+op.toFixed(2)+')');
+        sctx.lineWidth = 0.8 + ((k*5)%3)*0.3;
+        sctx.beginPath();
+        sctx.moveTo(cx+((k%2)?2:-2), 0);
+        sctx.lineTo(cx+amp, h*y1*dep);
+        sctx.lineTo(cx-amp*1.2, h*y2*dep);
+        if(dep===1) sctx.lineTo(cx+amp*0.7, h*y3);
+        sctx.lineTo(cx*((k%3===0)?1.012:0.986), h*dep);
+        sctx.stroke();
+        /* ветви: у каждой трещины их разное число, смотрят в разные стороны */
+        const br = 1 + (k%4);
+        sctx.lineWidth = 0.7 + (k%2)*0.25;
+        sctx.beginPath();
+        for(let b=0;b<br;b++){
+          const by = h*(y1 + b*((y2-y1)/br)) * (dep===1?1:0.7);
+          const bx = cx + ((b%2)? amp : -amp*1.2);
+          const dx = ((k+b)%2? 1:-1) * (5+((k*3+b*7)%11));
+          sctx.moveTo(bx, by); sctx.lineTo(bx+dx, by - (4+((k+b*5)%8)));
+          if(b%2===0){ sctx.moveTo(bx, by); sctx.lineTo(bx-dx*0.6, by + (3+((k*2+b)%6))); }
+        }
+        sctx.stroke();
+        /* изредка — точка удара: маленькая звёздочка */
+        if(k%3===2){
+          sctx.beginPath();
+          const ix = cx+amp*1.3, iy = h*y1*dep;
+          for(let s=0;s<5;s++){
+            const a = s*1.256 + k;
+            sctx.moveTo(ix, iy);
+            sctx.lineTo(ix + Math.cos(a)*(3+s%3), iy + Math.sin(a)*(3+s%3));
+          }
+          sctx.stroke();
+        }
+      }
+}
+
+/* у старых приборов вместо прямой полосы — полукруглый циферблат со стрелкой */
+function drawDial(w,h){
+  const F0=87.5, F1=108;
+  const cx=w/2, cy=h*0.94, R=Math.min(w*0.46, h*0.9);
+  sctx.clearRect(0,0,w,h);
+  sctx.fillStyle = state.skin==='radiola' ? '#e8d9b4' : '#f2e6c2';
+  sctx.beginPath(); sctx.moveTo(cx,cy); sctx.arc(cx,cy,R,Math.PI,0); sctx.closePath(); sctx.fill();
+  sctx.strokeStyle='#4a3a1c'; sctx.lineWidth=2;
+  sctx.beginPath(); sctx.arc(cx,cy,R,Math.PI,0); sctx.stroke();
+  sctx.font='bold 8.5px sans-serif'; sctx.textAlign='center';
+  for(let f=F0; f<=F1+0.001; f+=0.5){
+    const a = Math.PI*(1-(f-F0)/(F1-F0));
+    const major = Math.abs(f%1)<0.001;
+    sctx.strokeStyle = major ? '#4a3a1c' : '#8a744a';
+    sctx.lineWidth = major ? 1.3 : 0.7;
+    sctx.beginPath();
+    sctx.moveTo(cx+Math.cos(a)*(R-2), cy+Math.sin(a)*(R-2));
+    sctx.lineTo(cx+Math.cos(a)*(R-(major?13:7)), cy+Math.sin(a)*(R-(major?13:7)));
+    sctx.stroke();
+    if(major){ sctx.fillStyle='#4a3a1c'; sctx.fillText(f.toFixed(0), cx+Math.cos(a)*(R-23), cy+Math.sin(a)*(R-23)+3); }
+  }
+  markedStations().forEach(st=>{
+    const a = Math.PI*(1-(freqOf(st)-F0)/(F1-F0));
+    sctx.fillStyle='#8a2b1e';
+    sctx.beginPath(); sctx.arc(cx+Math.cos(a)*(R-16), cy+Math.sin(a)*(R-16), 2.2, 0, Math.PI*2); sctx.fill();
+  });
+  const a = Math.PI*(1-(clamp(state.freq,F0,F1)-F0)/(F1-F0));
+  sctx.strokeStyle=state.accent; sctx.shadowColor=state.accent; sctx.shadowBlur=8; sctx.lineWidth=2;
+  sctx.beginPath(); sctx.moveTo(cx,cy);
+  sctx.lineTo(cx+Math.cos(a)*(R-6), cy+Math.sin(a)*(R-6));
+  sctx.stroke(); sctx.shadowBlur=0;
+  sctx.fillStyle='#33240e'; sctx.beginPath(); sctx.arc(cx,cy,5,0,Math.PI*2); sctx.fill();
+  sctx.textAlign='left';
+  drawCracks(w,h,false);
+}
 function drawScale(){
   const {w,h,dpr} = fitCanvas(scaleC);
   const x = c => { sctx.setTransform(dpr,0,0,dpr,0,0); return c; };
@@ -4193,6 +4311,7 @@ function drawScale(){
     const F0=87.5, F1=108, pad=8, iw=w-pad*2;
     const fx = f => pad + (f-F0)/(F1-F0)*iw;
     const dskin = state.skin==='drx' || state.skin==='vfd' || state.skin==='neon';
+    if(state.skin==='vega' || state.skin==='radiola'){ drawDial(w,h); return; }
     sctx.clearRect(0,0,w,h);
     /* фон шкалы */
     const grad = sctx.createLinearGradient(0,0,0,h);
@@ -4257,50 +4376,8 @@ function drawScale(){
       sctx.moveTo(cx-1, 0); sctx.lineTo(cx+6, h*0.3); sctx.lineTo(cx-3, h*0.55);
       sctx.stroke();
     }
-    /* шрамы сеансов: каждая «чертовщина» оставляет на стекле новую трещину — навсегда, на любом аппарате */
-    const cracks = Math.min(state.crackN||0, 12);
-    for(let k=0;k<cracks;k++){
-      /* у каждой трещины свой нрав: ход, длина, ветвистость, глубина и нажим —
-         всё детерминировано по номеру, чтобы не дрожало при перерисовке */
-      const cx = w*(0.08 + ((k*0.317+0.07)%0.84));
-      const amp = 1.5 + ((k*7)%5)*1.1;                    /* размах зигзага */
-      const dep = (k%5===0) ? 0.45+((k*0.11)%0.2) : 1;    /* часть трещин короткие — не сквозные */
-      const y1 = 0.2+((k*0.13)%0.15), y2 = 0.42+((k*0.29)%0.2), y3 = 0.66+((k*0.07)%0.18);
-      const op = 0.3 + ((k*3)%4)*0.08;
-      sctx.strokeStyle = dskin ? ('rgba(212,226,236,'+(0.3+op*0.4).toFixed(2)+')') : ('rgba(56,38,12,'+op.toFixed(2)+')');
-      sctx.lineWidth = 0.8 + ((k*5)%3)*0.3;
-      sctx.beginPath();
-      sctx.moveTo(cx+((k%2)?2:-2), 0);
-      sctx.lineTo(cx+amp, h*y1*dep);
-      sctx.lineTo(cx-amp*1.2, h*y2*dep);
-      if(dep===1) sctx.lineTo(cx+amp*0.7, h*y3);
-      sctx.lineTo(cx*((k%3===0)?1.012:0.986), h*dep);
-      sctx.stroke();
-      /* ветви: у каждой трещины их разное число, смотрят в разные стороны */
-      const br = 1 + (k%4);
-      sctx.lineWidth = 0.7 + (k%2)*0.25;
-      sctx.beginPath();
-      for(let b=0;b<br;b++){
-        const by = h*(y1 + b*((y2-y1)/br)) * (dep===1?1:0.7);
-        const bx = cx + ((b%2)? amp : -amp*1.2);
-        const dx = ((k+b)%2? 1:-1) * (5+((k*3+b*7)%11));
-        sctx.moveTo(bx, by); sctx.lineTo(bx+dx, by - (4+((k+b*5)%8)));
-        if(b%2===0){ sctx.moveTo(bx, by); sctx.lineTo(bx-dx*0.6, by + (3+((k*2+b)%6))); }
-      }
-      sctx.stroke();
-      /* изредка — точка удара: маленькая звёздочка */
-      if(k%3===2){
-        sctx.beginPath();
-        const ix = cx+amp*1.3, iy = h*y1*dep;
-        for(let s=0;s<5;s++){
-          const a = s*1.256 + k;
-          sctx.moveTo(ix, iy);
-          sctx.lineTo(ix + Math.cos(a)*(3+s%3), iy + Math.sin(a)*(3+s%3));
-        }
-        sctx.stroke();
-      }
-    }
-  })();
+    drawCracks(w,h,dskin);
+    })();
 }
 /* S-метр */
 const sigC = $('#sigC'); const gctx = sigC.getContext('2d');
