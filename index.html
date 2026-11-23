@@ -37,6 +37,7 @@ body::before {
     repeating-linear-gradient(0deg, transparent 0 33px, var(--grid) 33px 34px),
     repeating-linear-gradient(90deg, transparent 0 33px, var(--grid) 33px 34px);
 }
+html, body { overflow-x:clip; }
 button { font-family:inherit; cursor:pointer; color:var(--fg); }
 input, select, textarea { font-family:inherit; color:var(--fg); }
 main, header.topbar { position:relative; z-index:1; }
@@ -273,6 +274,7 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
 .mode-switch { display:flex; border:1px solid var(--border); border-radius:10px; overflow:hidden; background:var(--panel2); }
 .mode-switch button { background:transparent; color:var(--muted); border:0; padding:7px 10px; font-size:12px; font-weight:600; }
 .mode-switch button.active { background:var(--accent); color:#161616; }
+.mode-switch .cshort { display:none; }
 /* ЛИЧНОСТИ: обложка интерфейса поверх темы и акцента (не скины-аппараты) */
 html[data-cover="paper"] body { font-family:Georgia,"Times New Roman",serif; }
 html[data-cover="paper"] .card, html[data-cover="paper"] .bigplayer, html[data-cover="paper"] .addstation,
@@ -397,13 +399,25 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 
 @media (max-width:900px){
   #ws { flex-direction:column; }
-  #ws .bigplayer { position:relative; flex:none; order:-1; }
+  body:not(.night) #ws .bigplayer {
+    position:relative; flex:none; width:100%; order:-1;
+    padding:14px 12px 16px; gap:8px;
+  }
+  #ws .phead { flex-wrap:wrap; justify-content:center; }
+  body:not(.night) #ws .npart { width:112px; height:112px; font-size:40px; }
+  body:not(.night) #ws .bigplayer h2 { font-size:18px; }
+  #ws .npbig { white-space:normal; overflow:visible; text-overflow:clip; line-height:1.35; }
+  body:not(.night) #ws .pctl { gap:13px; }
+  body:not(.night) #ws .pctl .bigplay { width:54px; height:54px; font-size:20px; }
   #ws:not(.player-open) #bigpanel { display:none; }
 }
 @media (max-width:720px){
   .grid { grid-template-columns:1fr; }
   .search { width:100%; margin-left:0; }
-  .topbar { flex-wrap:nowrap; padding:8px 10px; gap:8px; }
+  .topbar { padding:8px 10px; gap:8px; }
+  .swatches, #customColor { display:none; }
+  #coverSwitch { flex:1 0 100%; }
+  #coverSwitch button { flex:1; }
   .brand { font-size:13px; letter-spacing:2px; }
   .brand .bfull { display:none; }
   /* П3: на мобиле не нужны */
