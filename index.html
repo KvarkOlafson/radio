@@ -414,10 +414,13 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 @media (max-width:720px){
   .grid { grid-template-columns:1fr; }
   .search { width:100%; margin-left:0; }
-  .topbar { padding:8px 10px; gap:8px; }
-  .swatches, #customColor { display:none; }
-  #coverSwitch { flex:1 0 100%; }
-  #coverSwitch button { flex:1; }
+  .topbar { padding:8px 10px; gap:10px; }
+  #coverSwitch { order:9; flex:none; width:100%; }
+  #coverSwitch button { flex:1; padding:10px 6px; font-size:12px; }
+  /* палитра акцентов видимой строкой по центру (в v3.13 была зря спрятана) */
+  .swatches { order:10; margin-left:auto; margin-top:2px; gap:16px; }
+  .swatch { width:23px; height:23px; }
+  #customColor { order:11; margin-right:auto; margin-left:14px; margin-top:2px; width:31px; height:31px; }
   .brand { font-size:13px; letter-spacing:2px; }
   .brand .bfull { display:none; }
   /* П3: на мобиле не нужны */
