@@ -365,6 +365,26 @@ body.night .npart { width:320px; height:320px; font-size:124px; }
 body.night .bigplayer h2 { font-size:34px; }
 body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-align:center; }
 
+/* ============ МОБИЛЬНАЯ КАПЛЯ-ПЛЕЕР ============ */
+.mbar {
+  position:fixed; left:10px; right:10px; bottom:10px; z-index:60;
+  align-items:center; gap:10px; padding:9px 12px;
+  background:color-mix(in srgb, var(--panel) 88%, transparent);
+  backdrop-filter:blur(12px) saturate(1.2);
+  border:1px solid var(--border); border-radius:14px;
+  box-shadow:0 12px 30px rgba(0,0,0,.4);
+}
+.mbar:not([hidden]) { display:flex; }
+.mbar .mart { width:38px; height:38px; border-radius:9px; border:1px solid var(--border); background:linear-gradient(135deg, var(--accent-soft), var(--panel2)) center/cover; flex:none; }
+.mbar .minfo { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+.mbar .minfo b { font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mbar .minfo i { font-style:normal; font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:var(--mono); }
+.mbar .mplay {
+  width:40px; height:40px; border-radius:50%; border:0; flex:none;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, #fff), var(--accent));
+  color:#161616; font-size:15px; font-weight:800;
+}
+
 /* ============ ТОСТ ============ */
 #toast {
   position:fixed; left:50%; bottom:74px; transform:translateX(-50%) translateY(16px);
@@ -377,12 +397,28 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 
 @media (max-width:900px){
   #ws { flex-direction:column; }
-  #ws .bigplayer { position:sticky; top:52px; z-index:20; flex:none; order:-1; }
+  #ws .bigplayer { position:relative; flex:none; order:-1; }
   #ws:not(.player-open) #bigpanel { display:none; }
 }
 @media (max-width:720px){
   .grid { grid-template-columns:1fr; }
   .search { width:100%; margin-left:0; }
+  .topbar { flex-wrap:nowrap; padding:8px 10px; gap:8px; }
+  .brand { font-size:13px; letter-spacing:2px; }
+  .brand .bfull { display:none; }
+  .iconbtn { padding:6px 8px; font-size:14px; }
+  .mode-switch { border-radius:8px; }
+  .mode-switch button { padding:7px 8px; font-size:11px; }
+  .cfull { display:none; }
+  .cshort { display:inline; }
+  .card { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:2px 10px; padding:9px 12px; }
+  .card .ctop { grid-column:1 / 4; grid-row:1; }
+  .card h3 { grid-column:2; grid-row:2; font-size:14px; }
+  .card .genre { grid-column:2; grid-row:3; }
+  .card .np { grid-column:2; grid-row:4; min-height:0; }
+  .card .playbtn { grid-column:3; grid-row:2; margin-top:0; align-self:center; padding:7px 12px; }
+  .card .cvu { display:none; }
+  .card .covthumb { width:34px; height:34px; border-radius:8px; }
 }
 </style>
 </head>
@@ -390,7 +426,7 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 <canvas id="bgfx"></canvas>
 
 <header class="topbar">
-  <div class="brand">ДИАПАЗОН <span class="accentdot">FM</span></div>
+  <div class="brand"><span class="bfull">ДИАПАЗОН </span><span class="accentdot">FM</span></div>
   <div class="spacer"></div>
   <div class="swatches" id="swatches"></div>
   <input type="color" id="customColor" value="#e6a23c" title="Свой акцентный цвет">
@@ -485,6 +521,11 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
     </div>
     <div id="artList" class="artgrid"><small class="addnote">Клик по картинке — поставить её волне; 🔎 ищет в базе станций, Википедии и по домену; 🖼 — свой файл, Shift+клик — сброс.</small></div>
   </div>
+</div>
+<div class="mbar" id="mbar" hidden>
+  <span class="mart" id="mArt"></span>
+  <span class="minfo"><b id="mName"></b><i id="mMeta"></i></span>
+  <button class="mplay" id="mPlay">▶</button>
 </div>
 <div id="toast"></div>
 
@@ -900,7 +941,22 @@ function paintStatus(text){
   $$('.card .np').forEach(el => {
     if(el.dataset.for === state.current){ el.textContent = show; el.classList.toggle('on', !!show); }
   });
+  paintMbar();
 }
+function paintMbar(){
+  const m = $('#mbar'); if(!m) return;
+  const st = curSt();
+  const mob = window.matchMedia && window.matchMedia('(max-width:900px)').matches;
+  m.hidden = !(mob && state.playing && st && window.scrollY > 240);
+  if(!st) return;
+  $('#mName').textContent = st.name;
+  $('#mMeta').textContent = (npText && npText.indexOf('эфир') !== 0 && npText.indexOf('⚠') !== 0) ? npText : (st.genre || '');
+  $('#mPlay').textContent = state.playing ? '⏸' : '▶';
+  const a = artFor(st);
+  $('#mArt').style.backgroundImage = a ? 'url(' + a + ')' : '';
+}
+window.addEventListener('scroll', () => paintMbar(), { passive: true });
+window.addEventListener('resize', () => paintMbar());
 let metaTimer = 0;
 async function pollMeta(){
   const st = findSt(state.current);
@@ -990,6 +1046,7 @@ function paintAll(){
     $('#pPlay').textContent = state.playing ? '⏸' : '▶';
     $('#bigpanel').classList.toggle('playing', !!state.playing);
   }
+  paintMbar();
 }
 function openPlayer(){
   $('#ws').classList.add('player-open');
@@ -1080,7 +1137,7 @@ function importStations(txt){
 }
 
 /* ================= ЛИЧНОСТИ И ПАНЕЛЬ ПЛЕЕРА ================= */
-const COVERS = [['','Обычный'],['paper','Бумага'],['term','Терм'],['neon','Неон'],['day','День']];
+const COVERS = [['','Обычный','Об'],['paper','Бумага','Бум'],['term','Терм','Терм'],['neon','Неон','Неон'],['day','День','День']];
 function applySide(s){
   state.side = (s === 'left') ? 'left' : 'right';
   $('#ws').dataset.side = state.side;
@@ -1096,7 +1153,7 @@ function applyCover(c){
 }
 function renderCoverSwitch(){
   $('#coverSwitch').innerHTML = COVERS.map(x =>
-    '<button data-cov="' + x[0] + '"' + (state.cover === x[0] ? ' class="active"' : '') + '>' + x[1] + '</button>'
+    '<button data-cov="' + x[0] + '"' + (state.cover === x[0] ? ' class="active"' : '') + '><span class="cfull">' + x[1] + '</span><span class="cshort">' + x[2] + '</span></button>'
   ).join('');
 }
 $('#coverSwitch').addEventListener('click', e => {
@@ -1356,6 +1413,8 @@ $('#swatches').addEventListener('click', e => {
   if(b){ applyAccent(b.dataset.c); $('#customColor').value = b.dataset.c; }
 });
 $('#pPlay').addEventListener('click', () => { if(curSt()) togglePlay(curSt()); });
+$('#mPlay').addEventListener('click', () => { if(curSt()) togglePlay(curSt()); });
+$('#mbar').addEventListener('click', e => { if(e.target.id !== 'mPlay') window.scrollTo({ top:0, behavior:'smooth' }); });
 $('#pPrev').addEventListener('click', () => step(-1));
 $('#pNext').addEventListener('click', () => step(1));
 $('#pFav').addEventListener('click', () => { if(state.current){ if(state.fav[state.current]) delete state.fav[state.current]; else state.fav[state.current] = true; save(); paintAll(); } });
