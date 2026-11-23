@@ -406,7 +406,14 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
   .topbar { flex-wrap:nowrap; padding:8px 10px; gap:8px; }
   .brand { font-size:13px; letter-spacing:2px; }
   .brand .bfull { display:none; }
-  .iconbtn { padding:6px 8px; font-size:14px; }
+  /* П3: на мобиле не нужны */
+  #sideBtn, #nightBtn { display:none; }
+  /* П5: громкость системными кнопками */
+  .pvolrow { display:none; }
+  /* П6: тач-таргеты ~40px */
+  .iconbtn { padding:8px 11px; font-size:15px; }
+  .chipf { padding:9px 14px; font-size:12.5px; }
+  .minibtn { padding:5px 11px; font-size:12px; }
   .mode-switch { border-radius:8px; }
   .mode-switch button { padding:7px 8px; font-size:11px; }
   .cfull { display:none; }
@@ -420,6 +427,9 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
   .card .cvu { display:none; }
   .card .covthumb { width:34px; height:34px; border-radius:8px; }
 }
+/* П7: вечерний фуллскрин — вольготнее */
+body.night .pctl .bigplay { width:80px; height:80px; font-size:28px; }
+body.night .npbig { white-space:normal; overflow:visible; text-overflow:clip; line-height:1.35; }
 </style>
 </head>
 <body>
