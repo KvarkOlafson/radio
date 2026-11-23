@@ -94,6 +94,10 @@ main { max-width:1240px; margin:0 auto; padding:18px 16px 110px; }
 }
 .rndbtn:hover { border-color:var(--accent); box-shadow:0 0 12px var(--accent-soft); }
 .rndbtn.on { background:var(--accent); color:#161616; border-color:var(--accent); box-shadow:0 0 14px var(--accent-soft); }
+.pmrow { display:flex; align-items:center; gap:12px; padding:9px 2px; border-bottom:1px solid var(--border); font-size:12.5px; color:var(--muted); }
+.pmrow:last-of-type { border-bottom:0; }
+.pmrow .iconbtn { flex:none; min-width:36px; }
+.pmrow[hidden] { display:none; }
 .trk { display:flex; align-items:center; gap:10px; padding:7px 2px; border-bottom:1px solid var(--border); font-size:12.5px; }
 .trk b { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; }
 .trk i { font-style:normal; color:var(--muted); font-size:10.5px; font-family:var(--mono); white-space:nowrap; }
@@ -473,15 +477,8 @@ body.night .npbig { white-space:normal; overflow:visible; text-overflow:clip; li
   <section id="bigpanel" class="bigplayer">
     <div class="phead">
       <button class="iconbtn" id="sideBtn" title="Плеер: слева или справа">⇄</button>
-      <button class="iconbtn" id="trackBtn" title="Найти текущий трек" hidden>⌕</button>
-      <button class="iconbtn" id="shareBtn" title="Скопировать ссылку на волну">⧉</button>
-      <button class="iconbtn" id="sleepBtn" title="Сон: 15/30/60 мин циклом">☾</button>
-      <button class="iconbtn" id="pLuck" title="Удиви меня: случайная живая волна">🎲</button>
-      <button class="iconbtn" id="fxBtn" title="Фоновая анимация вкл/выкл">✨</button>
       <button class="iconbtn" id="nightBtn" title="Вечерний режим: плеер на весь экран">⛶</button>
-      <button class="iconbtn" id="pArtBtn2" title="Найти логотип станции в интернете">🔎</button>
-      <button class="iconbtn" id="pArtBtn" title="Своё изображение волны (Shift+клик — вернуть сгенерированное)">🖼</button>
-      <button class="iconbtn" id="logBtn" title="Журнал: что играло в этой сессии">📜</button>
+      <button class="iconbtn" id="pmBtn" title="Ещё: сон, фон, журнал, обложки">⋯</button>
     </div>
     <div class="npart" id="pArt">∿</div>
     <h2 id="pName">—</h2>
@@ -553,6 +550,20 @@ body.night .npbig { white-space:normal; overflow:visible; text-overflow:clip; li
       <button class="iconbtn modal-back" id="artClose">Закрыть</button>
     </div>
     <div id="artList" class="artgrid"><small class="addnote">Клик по картинке — поставить её волне; 🔎 ищет в базе станций, Википедии и по домену; 🖼 — свой файл, Shift+клик — сброс.</small></div>
+  </div>
+</div>
+<div class="modal small" id="pmModal" hidden>
+  <div class="modal-box">
+    <h3>Ещё · плеер</h3>
+    <div class="pmrow" id="trkRow"><button class="iconbtn" id="trackBtn" title="Найти текущий трек" hidden>⌕</button><span>Найти текущий трек в YouTube</span></div>
+    <div class="pmrow"><button class="iconbtn" id="shareBtn" title="Скопировать ссылку на волну">⧉</button><span>Скопировать ссылку на волну</span></div>
+    <div class="pmrow"><button class="iconbtn" id="sleepBtn" title="Сон: 15/30/60 мин циклом">☾</button><span>Таймер сна 15/30/60 мин</span></div>
+    <div class="pmrow"><button class="iconbtn" id="pLuck" title="Удиви меня: случайная живая волна">🎲</button><span>Удиви меня — случайная волна</span></div>
+    <div class="pmrow"><button class="iconbtn" id="fxBtn" title="Фоновая анимация вкл/выкл">✨</button><span>Фоновая анимация вкл/выкл</span></div>
+    <div class="pmrow"><button class="iconbtn" id="pArtBtn2" title="Найти логотип станции в интернете">🔎</button><span>Найти логотип станции</span></div>
+    <div class="pmrow"><button class="iconbtn" id="pArtBtn" title="Своё изображение волны (Shift+клик — вернуть сгенерированное)">🖼</button><span>Своё изображение волны</span></div>
+    <div class="pmrow"><button class="iconbtn" id="logBtn" title="Журнал: что играло в этой сессии">📜</button><span>Что играло в этой сессии</span></div>
+    <button class="iconbtn modal-back" id="pmClose">Закрыть</button>
   </div>
 </div>
 <div class="modal small" id="trkModal" hidden>
@@ -1045,9 +1056,10 @@ function paintStatus(text){
     ? '▶ ' + ((curSt() || {}).name || '') + (npText && npText.indexOf('эфир') !== 0 && npText.indexOf('⚠') !== 0 ? ' — ' + npText : '')
     : 'Диапазон FM — интернет-радио';
   const show = state.playing ? (npText || '—') : '';
-  const pn = $('#pNp'), tb = $('#trackBtn');
+  const pn = $('#pNp'), tb = $('#trackBtn'), tr = $('#trkRow');
   if(pn) pn.textContent = show;
   if(tb) tb.hidden = !trackBtnOk();
+  if(tr) tr.hidden = !trackBtnOk();
   $$('.card .np').forEach(el => {
     if(el.dataset.for === state.current){ el.textContent = show; el.classList.toggle('on', !!show); }
   });
@@ -1991,6 +2003,12 @@ function renderTrkLog(){
     ? trackLog.map(x => '<div class="trk"><b>' + esc(x.t) + '</b><i>' + esc(x.s) + ' · ' + String(x.d.getHours()).padStart(2,'0') + ':' + String(x.d.getMinutes()).padStart(2,'0') + '</i><a href="https://www.youtube.com/results?search_query=' + encodeURIComponent(x.s + ' ' + x.t) + '" target="_blank" rel="noopener">найти ⌕</a></div>').join('')
     : '<small class="addnote">Пока ничего — включи эфир.</small>';
 }
+$('#pmBtn').addEventListener('click', () => $('#pmModal').hidden = false);
+$('#pmClose').addEventListener('click', () => $('#pmModal').hidden = true);
+$('#pmModal').addEventListener('click', e => {
+  if(e.target.id === 'pmModal' || e.target.id === 'pmClose') $('#pmModal').hidden = true;
+  if(e.target.closest('.pmrow') && e.target.id !== 'sleepBtn') $('#pmModal').hidden = true;
+});
 $('#logBtn').addEventListener('click', () => { renderTrkLog(); $('#trkModal').hidden = false; });
 $('#trkClose').addEventListener('click', () => $('#trkModal').hidden = true);
 $('#trkModal').addEventListener('click', e => { if(e.target.id === 'trkModal') $('#trkModal').hidden = true; });
