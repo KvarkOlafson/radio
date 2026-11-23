@@ -618,11 +618,11 @@ const STATIONS = [
 {id:'rw-chip', name:'Rainwave: Chiptune', short:'CHIP', cat:'game', genre:'Чиптюн, 8-бит', url:'https://gamestream.rainwave.cc/chiptune.mp3', rw:4},
 {id:'rw-covers', name:'Rainwave: Covers', short:'COVERS', cat:'game', genre:'Игровые каверы', url:'https://gamestream.rainwave.cc/covers.mp3', rw:3},
 {id:'rw-all', name:'Rainwave: All', short:'RW ALL', cat:'game', genre:'Всё игровое сразу', url:'https://gamestream.rainwave.cc/all.mp3', rw:5},
-{id:'sega', name:'RadioSEGA', short:'SEGA', cat:'game', genre:'Музыка SEGA', url:'https://icecast.radiosega.net/live'},
+{id:'sega', name:'RadioSEGA', short:'SEGA', cat:'game', genre:'Музыка SEGA', url:'https://icecast.radiosega.net/live', icestat:'https://icecast.radiosega.net/status-json.xsl|live'},
 /* --- аниме и японское: потоки, доступные из российского региона (у каждой есть запасные адреса) --- */
 {id:'anison', name:'Anison.FM', short:'ANISON', cat:'anime', genre:'Опенинги и эндинги, аниме-музыка', url:['http://anison.fm:9002/stream','https://anison.fm/stream/']},
-{id:'listenmoe', name:'LISTEN.moe', short:'MOE', cat:'anime', genre:'J-POP и аниме-музыка 24/7', url:['https://listen.moe/fallback','https://listen.moe/stream']},
-{id:'gensokyo', name:'Gensokyo Radio', short:'GENSOKYO', cat:'anime', genre:'Тохо-аранжи, J-rock и J-pop', url:['https://stream.gensokyoradio.net/3','https://stream.gensokyoradio.net/1']},
+{id:'listenmoe', name:'LISTEN.moe', short:'MOE', cat:'anime', genre:'J-POP и аниме-музыка 24/7', url:['https://listen.moe/fallback','https://listen.moe/stream'], moe:1},
+{id:'gensokyo', name:'Gensokyo Radio', short:'GENSOKYO', cat:'anime', genre:'Тохо-аранжи, J-rock и J-pop', url:['https://stream.gensokyoradio.net/3','https://stream.gensokyoradio.net/1'], gsk:1},
 {id:'shonan', name:'Shonan Beach FM', short:'SHONAN', cat:'foreign', genre:'настоящая японская FM-волна: Зуси · Хаяма, 78.9 МГц', url:['http://shonanbeachfm.out.airtime.pro:8000/shonanbeachfm_a','http://shonanbeachfm.out.airtime.pro:8000/shonanbeachfm_b']},
 /* --- местные станции: свои городские потоки, которых нет у федеральных сетей --- */
 {id:'radio3-omsk', name:'Радио 3 · Омск', short:'РАДИО 3', cat:'ru', local:1, genre:'омская городская волна', url:'http://81.23.194.18:8010/radio3.mp3', freq:103.5},
@@ -862,7 +862,7 @@ const engine = {
     a.onplaying = () => {
       if(tok !== this.tok) return;
       clearTimeout(this.watch);
-      paintStatus('эфир · прямой эфир');
+      paintStatus(hasMeta(curSt()) ? 'эфир · прямой эфир' : 'эфир · метаданных нет');
       pollMeta();
     };
     a.onended = () => { if(tok === this.tok){ this.ci = 0; this._next(tok); } };
@@ -993,9 +993,33 @@ async function fetchMeta(st){
       const r = await fetchT('https://www.radiorecord.ru/api/stations/');
       if(!r || !r.ok) return null;
       const j = await r.json();
-      const arr = (j && j.result) || j || [];
+      const arr = (j && j.result && j.result.stations) || (j && j.result) || j || [];
       const s = Array.isArray(arr) ? arr.find(x => x && typeof x.title === 'string' && (x.title === st.rr || x.title.indexOf(st.rr) === 0)) : null;
       return (s && s.song) ? s.song : null;
+    }
+    if(st.icestat){
+      const parts = String(st.icestat).split('|');
+      const r = await fetchT(parts[0]);
+      if(!r || !r.ok) return null;
+      const j = await r.json();
+      let srcs = j && j.icestats && j.icestats.source;
+      srcs = Array.isArray(srcs) ? srcs : (srcs ? [srcs] : []);
+      const mnt = srcs.map(x => x || {}).filter(x => String(x.listenurl || '').indexOf(parts[1]) !== -1 && x.title);
+      return mnt.length ? mnt[0].title : null;
+    }
+    if(st.gsk){
+      const r = await fetchT('https://gensokyoradio.net/api/station/playing/');
+      if(!r || !r.ok) return null;
+      const j = await r.json();
+      const si = j && j.SONGINFO;
+      return si && si.TITLE ? ([si.ARTIST, si.TITLE].filter(Boolean).join(' — ') || null) : null;
+    }
+    if(st.moe){
+      const r = await fetchT('https://api.listen.moe/v2/songs/current');
+      if(!r || !r.ok) return null;
+      const j = await r.json();
+      const s = j && ((j.songs && j.songs[0]) || j.current || j.song || j);
+      return s && s.title ? ([s.artist, s.artistName].filter(Boolean)[0] ? [s.artist || s.artistName, s.title].filter(Boolean).join(' — ') : s.title || null) : null;
     }
   }catch(e){}
   return null;
@@ -1013,6 +1037,7 @@ function scheduleRetry(){
   }, wait);
   toast('⚠ «' + name + '» отозвалась — вернёмся через ' + Math.round(wait/1000) + ' с');
 }
+const hasMeta = st => !!(st && (st.rw || st.soma || st.nr || st.rr || st.icestat || st.gsk || st.moe));
 const trackBtnOk = () => !!(state.playing && npText && npText.indexOf('эфир') !== 0 && npText.indexOf('⚠') !== 0);
 function paintStatus(text){
   if(text !== undefined) npText = text;
