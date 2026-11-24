@@ -244,7 +244,10 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
 .bigplayer h2 { font-size:24px; letter-spacing:.4px; }
 .npgenre { color:var(--muted); font-size:13px; }
 .npbig { font-family:var(--mono); font-size:13px; color:var(--accent); min-height:18px; max-width:100%; align-self:center; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.pctl { display:flex; align-items:center; gap:18px; margin-top:6px; }
+.pnamer { display:flex; align-items:center; justify-content:center; gap:10px; max-width:100%; }
+.pnamer h2 { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pnamer .pfaved { flex:none; font-size:19px; padding:6px; }
+.pctl { display:flex; align-items:center; justify-content:center; gap:18px; margin-top:6px; }
 .pctl button { background:none; border:0; font-size:22px; color:var(--muted); transition:color .15s, transform .1s; }
 .pctl button:hover { color:var(--fg); }
 .pctl button:active { transform:translateY(1px); }
@@ -254,7 +257,9 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
   color:#161616; box-shadow:0 6px 18px var(--accent-soft);
 }
 .pfaved.on { color:var(--accent) !important; }
-.pvolrow { display:flex; align-items:center; gap:10px; width:min(340px,100%); margin-top:4px; font-family:var(--mono); font-size:10px; letter-spacing:1.5px; color:var(--muted); }
+.pfaved:hover { color:var(--fg); }
+.pvolrow { display:flex; align-items:center; gap:10px; width:min(280px,100%); margin-top:4px; font-family:var(--mono); font-size:11px; color:var(--muted); justify-content:center; }
+.pvolrow b { min-width:24px; text-align:left; font-family:var(--mono); }
 .pvolrow input { flex:1; accent-color:var(--accent); cursor:pointer; height:4px; }
 
 
@@ -489,7 +494,7 @@ body.night .npbig { white-space:normal; overflow:visible; text-overflow:clip; li
       <button class="iconbtn" id="pmBtn" title="Ещё: сон, фон, журнал, обложки">⋯</button>
     </div>
     <div class="npart" id="pArt">∿</div>
-    <h2 id="pName">—</h2>
+    <div class="pnamer"><h2 id="pName">—</h2><button class="pfaved" id="pFav" title="В избранное">☆</button></div>
     <div class="npgenre" id="pGenre"></div>
     <div class="npbig" id="pNp"></div>
     <div class="nightclock" id="pClock"></div>
@@ -497,9 +502,8 @@ body.night .npbig { white-space:normal; overflow:visible; text-overflow:clip; li
       <button id="pPrev" title="Предыдущая волна">⏮</button>
       <button class="bigplay" id="pPlay">▶</button>
       <button id="pNext" title="Следующая волна">⏭</button>
-      <button class="pfaved" id="pFav" title="В избранное">☆</button>
     </div>
-    <div class="pvolrow"><span>ГРОМК</span><input type="range" id="pVol" min="0" max="100" value="70"><b id="pVolVal">70</b></div>
+    <div class="pvolrow"><span>🔈</span><input type="range" id="pVol" min="0" max="100" value="70"><b id="pVolVal">70</b></div>
   </section>
 
   <section id="viewList" class="shelf">
