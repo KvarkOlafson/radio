@@ -514,6 +514,19 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 }
 .hudwset label { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--fg); cursor:pointer; }
 .hudwset small { color:var(--muted); font-size:10.5px; }
+#hudDot { position:fixed; top:16px; right:16px; z-index:86; }
+#hudDot .iconbtn { background:var(--panel2); border:1px solid var(--border); }
+#skinMenu {
+  position:fixed; top:60px; right:16px; z-index:87; width:min(220px,80vw);
+  background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:8px;
+  display:flex; flex-direction:column; gap:2px; box-shadow:0 18px 40px rgba(0,0,0,.5);
+}
+#skinMenu .skrow {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:none; border:0; color:var(--fg); font-size:13.5px; cursor:pointer; padding:8px 10px; border-radius:9px; text-align:left;
+}
+#skinMenu .skrow:hover { background:rgba(128,128,128,.18); }
+#skinMenu .skrow.cur { color:var(--accent); }
 .hudwset .selclock { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--fg); }
 .hudwset select { background:var(--panel2); color:var(--fg); border:1px solid var(--border); border-radius:8px; font-size:12.5px; padding:3px 6px; }
 /* ===== v3.22-б: Кинескоп, Акварель, OSD громкости, дежурный режим, часы-табло ===== */
@@ -698,6 +711,8 @@ body.duty:not(.night)::after { content:""; position:fixed; inset:0; z-index:80; 
   <button class="mplay" id="mPlay">▶</button>
 </div>
 <div id="nightHud" hidden></div>
+<div id="hudDot" hidden><button class="iconbtn" id="hudSkinBtn" title="Скины вечернего экрана">◧</button></div>
+<div id="skinMenu" hidden></div>
 <div id="volOsd"></div>
 <div id="toast"></div>
 
@@ -2217,6 +2232,10 @@ function renderNight(){
   hud.dataset.skin = skin;
   hud.hidden = !(on && skin !== 'classic');
   $('#bigpanel').classList.toggle('hud-off', on && skin !== 'classic');
+  const dot = $('#hudDot');
+  if(dot) dot.hidden = !on || skin !== 'classic';
+  const menu = $('#skinMenu');
+  if(menu && (!on || skin === 'classic')) menu.hidden = true;
   if(hud.hidden) return;
   const st = curSt();
   const fav = st ? !!state.fav[st.id] : false;
@@ -2280,9 +2299,11 @@ $('#nightHud').addEventListener('click', e => {
     return;
   }
   if(act === 'skin'){
-    const i = NIGHT_SKINS.map(x => x[0]).indexOf(state.nightSkin);
-    state.nightSkin = NIGHT_SKINS[(i + 1) % NIGHT_SKINS.length][0];
-    save(); renderNight(); toast('◧ Скин: ' + (NIGHT_SKINS.find(x => x[0] === state.nightSkin) || ['','?'])[1]); return;
+    const ws = $('#hudWset'); if(ws) ws.hidden = true;
+    const menu = $('#skinMenu');
+    menu.innerHTML = NIGHT_SKINS.map(s => '<button class="skrow' + (state.nightSkin === s[0] ? ' cur' : '') + '" data-sk="' + s[0] + '">' + s[1] + (state.nightSkin === s[0] ? ' <span>·</span>' : '') + '</button>').join('');
+    menu.hidden = !menu.hidden;
+    return;
   }
   if(act === 'gear'){ $('#hudWset').hidden = !$('#hudWset').hidden; return; }
   if(act === 'luck'){ surprise(); return; }
@@ -2294,6 +2315,20 @@ $('#nightHud').addEventListener('click', e => {
     if(state.fav[st.id]) delete state.fav[st.id]; else state.fav[st.id] = true;
     save(); paintAll();
   }
+});
+$('#hudSkinBtn').addEventListener('click', () => {
+  const m = $('#skinMenu');
+  m.innerHTML = NIGHT_SKINS.map(s => '<button class="skrow' + (state.nightSkin === s[0] ? ' cur' : '') + '" data-sk="' + s[0] + '">' + s[1] + (state.nightSkin === s[0] ? ' <span>·</span>' : '') + '</button>').join('');
+  m.hidden = !m.hidden;
+});
+$('#skinMenu').addEventListener('click', e => {
+  const b = e.target.closest('[data-sk]');
+  if(!b) return;
+  state.nightSkin = b.dataset.sk;
+  save();
+  $('#skinMenu').hidden = true;
+  renderNight();
+  toast('◧ Скин: ' + (NIGHT_SKINS.find(x => x[0] === state.nightSkin) || ['','?'])[1]);
 });
 $('#nightHud').addEventListener('change', e => {
   const s = e.target.closest('[data-clk]');
