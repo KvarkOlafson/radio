@@ -476,7 +476,8 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 }
 #nightHud[hidden] { display:none; }
 .hudcorner { position:absolute; top:16px; right:16px; display:flex; gap:8px; }
-.hudcorner .iconbtn { background:var(--panel2); border:1px solid var(--border); }
+.hudcorner .iconbtn { background:var(--panel2); border:1px solid var(--border); min-width:40px; min-height:40px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+.hudbar button { min-width:38px; min-height:38px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
 .hudclock { font-family:var(--mono); font-size:min(17vw,150px); line-height:1; color:var(--fg); letter-spacing:4px; }
 .huddate { color:var(--muted); font-size:14px; letter-spacing:1px; }
 .hudnp { font-size:15px; color:var(--accent); max-width:86vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; }
@@ -1727,7 +1728,7 @@ function tickClock(){
   const now = new Date();
   if(el) el.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
   applyDuty();
-  if($('#nightHud') && !$('#nightHud').hidden) renderNight();
+  hudTick();
 }
 setInterval(() => { if(document.body.classList.contains('night')) tickClock(); }, 10000);
 $('#ioBtn').addEventListener('click', () => { $('#ioModal').hidden = false; });
@@ -2167,6 +2168,7 @@ function logTrack(){
   if(trackLog[0] && trackLog[0].k === key) return;
   trackLog.unshift({ k: key, t: npText, s: st.short || st.name, d: new Date() });
   if(trackLog.length > 20) trackLog.pop();
+  if(window.nightNp) nightNp();
 }
 function renderTrkLog(){
   const el = $('#trkList'); if(!el) return;
@@ -2220,16 +2222,29 @@ function hudNpStr(){
   return (npText && npText.indexOf('эфир') !== 0 && npText.indexOf('⚠') !== 0 && npText !== st.name) ? npText : '';
 }
 let hudClockPrev = '';
-function hudClockHtml(){
+function hudClockNow(){
   const el = document.querySelector('.nightclock');
-  const txt = el ? (el.textContent || '00:00') : '00:00';
-  let out;
-  if(txt.length === 5 && (state.nightW || {}).clock === 'flap'){
+  return (el && el.textContent) ? el.textContent : '00:00';
+}
+function hudClockHtmlFor(txt){
+  if(String(txt).length === 5 && (state.nightW || {}).clock === 'flap'){
     const p = hudClockPrev;
-    out = [...txt].map((ch, i) => (ch === ':' ? '<span class="hudco">:</span>' : '<span class="flapd' + (p[i] !== ch ? ' flip' : '') + '">' + ch + '</span>')).join('');
-  } else out = esc(txt);
-  hudClockPrev = txt;
-  return out;
+    return String(txt).split('').map((ch, i) => (ch === ':' ? '<span class="hudco">:</span>' : '<span class="flapd' + (p[i] !== ch ? ' flip' : '') + '">' + ch + '</span>')).join('');
+  }
+  return esc(txt);
+}
+/* деликатный тик: обновляем только часы HUD, НЕ пересобирая кнопки (иначе клик теряется) */
+function hudTick(){
+  const clock = $('#nightHud .hudclock');
+  if(!clock) return;
+  const txt = hudClockNow();
+  if(hudClockPrev !== txt){ clock.innerHTML = hudClockHtmlFor(txt); hudClockPrev = txt; }
+  const sesEl = $('#nightHud .hud-sess'), slpEl = $('#nightHud .hud-sleep');
+  if(sesEl) sesEl.textContent = 'вечер · ' + hudSessionStr();
+  if(slpEl){
+    if(sleepLeft > 0) slpEl.textContent = '☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0');
+    else slpEl.remove();
+  }
 }
 function renderNight(){
   const hud = $('#nightHud'); if(!hud) return;
@@ -2257,16 +2272,16 @@ function renderNight(){
   const w = state.nightW || {};
   const ribbon = w.ribbon && trackLog.length
     ? '<div class="hudribbon">' + trackLog.slice(0, 4).map(x => esc(x.t)).join('   ·   ') + '</div>' : '';
-  const session = w.session ? '<div class="hudsession">вечер · ' + hudSessionStr() + '</div>' : '';
+  const session = w.session ? '<div class="hudsession hud-sess">вечер · ' + hudSessionStr() + '</div>' : '';
   if(skin === 'lighthouse' || skin === 'kineskop' || skin === 'aquarel'){
     hud.innerHTML =
       '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить скин">◧</button>' +
       '<button class="iconbtn" data-act="gear" title="Виджеты">⚙</button>' +
       '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
-      '<div class="hudclock">' + hudClockHtml() + '</div>' +
+      '<div class="hudclock">' + (() => { const t = hudClockNow(); const h = hudClockHtmlFor(t); hudClockPrev = t; return h; })() + '</div>' +
       (w.date ? '<div class="huddate">' + hudDayStr(new Date()) + '</div>' : '') +
       (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
-      (w.sleep && sleepLeft > 0 ? '<div class="hudsession">☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0') + '</div>' : '') +
+      (w.sleep && sleepLeft > 0 ? '<div class="hudsession hud-sleep">☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0') + '</div>' : '') +
       session + '<div style="flex:1"></div>' + ribbon + bar;
   } else if(skin === 'disc'){
     const art = st ? artFor(st) : '';
@@ -2328,8 +2343,15 @@ $('#nightCfg').addEventListener('change', e => {
   save(); renderNight();
 });
 window.nightNp = function(){
+  if($('#nightHud').hidden || !$('#nightHud')) return;
   const el = $('#nightHud .hudnp');
-  if(el && !$('#nightHud').hidden) renderNight();
+  const s = hudNpStr();
+  if(el){ const h = s ? esc(s) : ''; if(el.innerHTML !== h){ el.innerHTML = h; el.hidden = !s; } }
+  const rb = $('#nightHud .hudribbon');
+  if(rb){
+    const rr = trackLog.length ? trackLog.slice(0, 4).map(x => esc(x.t)).join('   ·   ') : '';
+    if(rb.textContent !== rr){ rb.textContent = rr; rb.hidden = !rr; }
+  }
 };
 
 /* ================= СТАРТ ================= */
