@@ -507,28 +507,37 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
   background:#0b0b10; box-shadow:0 0 0 2px rgba(255,255,255,.4); z-index:2;
 }
 .playing .huddisc { animation:spinslow 3.4s linear infinite; }
-.hudwset {
-  position:absolute; top:60px; right:16px; width:min(280px,80vw);
-  background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:12px 14px;
-  display:flex; flex-direction:column; gap:8px; box-shadow:0 18px 40px rgba(0,0,0,.5);
-}
-.hudwset label { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--fg); cursor:pointer; }
-.hudwset small { color:var(--muted); font-size:10.5px; }
 #hudDot { position:fixed; top:16px; right:16px; z-index:86; }
 #hudDot .iconbtn { background:var(--panel2); border:1px solid var(--border); }
-#skinMenu {
-  position:fixed; top:60px; right:16px; z-index:87; width:min(220px,80vw);
-  background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:8px;
-  display:flex; flex-direction:column; gap:2px; box-shadow:0 18px 40px rgba(0,0,0,.5);
+#nightCfg { position:fixed; inset:0; z-index:88; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:20px; }
+#nightCfg[hidden] { display:none; }
+.ncfg-box {
+  width:min(400px,94vw); max-height:84vh; overflow:auto;
+  background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:16px 18px;
+  box-shadow:0 24px 70px rgba(0,0,0,.55);
 }
-#skinMenu .skrow {
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  background:none; border:0; color:var(--fg); font-size:13.5px; cursor:pointer; padding:8px 10px; border-radius:9px; text-align:left;
+.ncfg-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+.ncfg-sec { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin:14px 0 8px; }
+.ncfg-skins { display:grid; grid-template-columns:repeat(auto-fill,minmax(72px,1fr)); gap:8px; }
+.ncfg-skin {
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  background:var(--panel2); border:1px solid var(--border); border-radius:12px;
+  padding:10px 6px; cursor:pointer; color:var(--fg); font-size:12.5px;
 }
-#skinMenu .skrow:hover { background:rgba(128,128,128,.18); }
-#skinMenu .skrow.cur { color:var(--accent); }
-.hudwset .selclock { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--fg); }
-.hudwset select { background:var(--panel2); color:var(--fg); border:1px solid var(--border); border-radius:8px; font-size:12.5px; padding:3px 6px; }
+.ncfg-skin .ics { font-size:20px; line-height:1; }
+.ncfg-skin.cur { border-color:var(--accent); color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+.ncfg-seg { display:flex; gap:6px; }
+.ncfg-seg button { flex:1; padding:8px; border-radius:10px; border:1px solid var(--border); background:var(--panel2); color:var(--fg); cursor:pointer; font-size:13px; }
+.ncfg-seg button.cur { border-color:var(--accent); color:var(--accent); }
+.ncfg-toggles { display:flex; flex-direction:column; }
+.ncfg-w { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 2px; font-size:13px; color:var(--fg); cursor:pointer; }
+.ncfg-w + .ncfg-w { border-top:1px solid var(--border); }
+.ncfg-t { position:relative; width:38px; height:22px; flex:none; }
+.ncfg-t input { position:absolute; opacity:0; inset:0; margin:0; cursor:pointer; }
+.ncfg-t i { position:absolute; inset:0; border-radius:999px; background:rgba(128,128,128,.35); transition:background .15s; }
+.ncfg-t i::after { content:""; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform .15s; }
+.ncfg-t input:checked + i { background:var(--accent); }
+.ncfg-t input:checked + i::after { transform:translateX(16px); }
 /* ===== v3.22-б: Кинескоп, Акварель, OSD громкости, дежурный режим, часы-табло ===== */
 #nightHud[data-skin="kineskop"] { background:transparent; }
 #nightHud[data-skin="kineskop"]::before {
@@ -711,8 +720,16 @@ body.duty:not(.night)::after { content:""; position:fixed; inset:0; z-index:80; 
   <button class="mplay" id="mPlay">▶</button>
 </div>
 <div id="nightHud" hidden></div>
-<div id="hudDot" hidden><button class="iconbtn" id="hudSkinBtn" title="Скины вечернего экрана">◧</button></div>
-<div id="skinMenu" hidden></div>
+<div id="hudDot" hidden><button class="iconbtn" id="hudSkinBtn" title="Скины и виджеты вечернего экрана">◧</button></div>
+<div id="nightCfg" hidden><div class="ncfg-box">
+  <div class="ncfg-head"><b>Вечерний экран</b><button class="iconbtn" id="ncfgClose" title="Закрыть">✕</button></div>
+  <div class="ncfg-sec">Скин</div>
+  <div class="ncfg-skins" id="ncfgSkins"></div>
+  <div class="ncfg-sec">Часы</div>
+  <div class="ncfg-seg" id="ncfgClock"><button data-cm="digits">Цифры</button><button data-cm="flap">Табло</button></div>
+  <div class="ncfg-sec">Виджеты</div>
+  <div class="ncfg-toggles" id="ncfgW"></div>
+</div></div>
 <div id="volOsd"></div>
 <div id="toast"></div>
 
@@ -1767,6 +1784,7 @@ window.addEventListener('keydown', e => {
   if(e.code === 'Space' && curSt()){ e.preventDefault(); togglePlay(curSt()); }
   else if(e.key === 'ArrowUp'){ setVol(state.vol + 5); e.preventDefault(); }
   else if(e.key === 'ArrowDown'){ setVol(state.vol - 5); e.preventDefault(); }
+  else if(e.key === 'Escape' && !$('#nightCfg').hidden){ $('#nightCfg').hidden = true; }
   else if(e.key === 'Escape' && nightVirtual && !document.fullscreenElement){ nightVirtual = false; applyNight(); }
 });
 if('mediaSession' in navigator){
@@ -2197,7 +2215,8 @@ window.addEventListener('online', () => {
 });
 
 /* ===== ВЕЧЕРНИЙ РЕЖИМ: СКИНЫ ФУЛЛСКРИНА ===== */
-const NIGHT_SKINS = [['classic','Классика'],['lighthouse','Маяк'],['disc','Винил'],['kineskop','Кинескоп'],['aquarel','Акварель']];
+const NIGHT_SKINS = [['classic','Классика','◫' ],['lighthouse','Маяк','↟'],['disc','Винил','◎'],['kineskop','Кинескоп','▦'],['aquarel','Акварель','❋']];
+state.nightW = Object.assign({ clock:'digits', date:true, sleep:true, session:true, ribbon:true, breath:false, autodim:true, weather:false }, state.nightW || {});
 let nightStart = 0;
 const hudDayStr = d => ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'][d.getDay()] + ', ' +
   d.getDate() + ' ' + ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'][d.getMonth()];
@@ -2234,8 +2253,8 @@ function renderNight(){
   $('#bigpanel').classList.toggle('hud-off', on && skin !== 'classic');
   const dot = $('#hudDot');
   if(dot) dot.hidden = !on || skin !== 'classic';
-  const menu = $('#skinMenu');
-  if(menu && (!on || skin === 'classic')) menu.hidden = true;
+  const cfg = $('#nightCfg');
+  if(cfg && !on) cfg.hidden = true;
   if(hud.hidden) return;
   const st = curSt();
   const fav = st ? !!state.fav[st.id] : false;
@@ -2271,21 +2290,6 @@ function renderNight(){
       (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
       session + '<div style="flex:1"></div>' + ribbon + bar;
   }
-  hud.appendChild(wsetPanel());
-}
-function wsetPanel(){
-  const w = state.nightW || {};
-  const chk = (k, lbl) => '<label><input type="checkbox" data-w="' + k + '"' + (w[k] ? ' checked' : '') + '> ' + lbl + '</label>';
-  const d = document.createElement('div');
-  d.className = 'hudwset'; d.hidden = true; d.id = 'hudWset';
-  d.innerHTML = '<h3 style="font-size:13px">Виджеты вечернего экрана</h3>' +
-    chk('date','Дата и день недели') + chk('session','Сессия вечера') + chk('sleep','Отсчёт Таймера сна') + chk('ribbon','Лента треков вечера') +
-    chk('autodim','Дежурный режим после 23:00') +
-    '<label class="selclock">Часы: <select data-clk="clock"><option value="digits">Цифры</option><option value="flap">Табло</option></select></label>' +
-    '<small>скоро: погода, дыхание</small>';
-  const sel = d.querySelector('select');
-  if(sel) sel.value = (state.nightW || {}).clock === 'flap' ? 'flap' : 'digits';
-  return d;
 }
 $('#nightHud').addEventListener('click', e => {
   const cb = e.target.closest('[data-w]');
@@ -2298,14 +2302,7 @@ $('#nightHud').addEventListener('click', e => {
     else { nightVirtual = false; applyNight(); }
     return;
   }
-  if(act === 'skin'){
-    const ws = $('#hudWset'); if(ws) ws.hidden = true;
-    const menu = $('#skinMenu');
-    menu.innerHTML = NIGHT_SKINS.map(s => '<button class="skrow' + (state.nightSkin === s[0] ? ' cur' : '') + '" data-sk="' + s[0] + '">' + s[1] + (state.nightSkin === s[0] ? ' <span>·</span>' : '') + '</button>').join('');
-    menu.hidden = !menu.hidden;
-    return;
-  }
-  if(act === 'gear'){ $('#hudWset').hidden = !$('#hudWset').hidden; return; }
+  if(act === 'skin' || act === 'gear'){ openNightCfg(); return; }
   if(act === 'luck'){ surprise(); return; }
   const st = curSt(); if(!st) return;
   if(act === 'play') togglePlay(st);
@@ -2316,24 +2313,30 @@ $('#nightHud').addEventListener('click', e => {
     save(); paintAll();
   }
 });
-$('#hudSkinBtn').addEventListener('click', () => {
-  const m = $('#skinMenu');
-  m.innerHTML = NIGHT_SKINS.map(s => '<button class="skrow' + (state.nightSkin === s[0] ? ' cur' : '') + '" data-sk="' + s[0] + '">' + s[1] + (state.nightSkin === s[0] ? ' <span>·</span>' : '') + '</button>').join('');
-  m.hidden = !m.hidden;
+function openNightCfg(){
+  $('#ncfgSkins').innerHTML = NIGHT_SKINS.map(s => '<button class="ncfg-skin' + (state.nightSkin === s[0] ? ' cur' : '') + '" data-sk="' + s[0] + '"><span class="ics">' + s[2] + '</span>' + s[1] + '</button>').join('');
+  [...$('#ncfgClock').children].forEach(b => b.classList.toggle('cur', (state.nightW.clock === 'flap') === (b.dataset.cm === 'flap')));
+  const W = [['date','Дата и день недели'],['session','Сессия вечера'],['sleep','Отсчёт Таймера сна'],['ribbon','Лента треков вечера'],['autodim','Дежурный режим после 23:00']];
+  $('#ncfgW').innerHTML = W.map(x => '<label class="ncfg-w">' + x[1] + '<span class="ncfg-t"><input type="checkbox" data-w="' + x[0] + '"' + (state.nightW[x[0]] ? ' checked' : '') + '><i></i></span></label>').join('');
+  $('#nightCfg').hidden = false;
+}
+$('#hudSkinBtn').addEventListener('click', openNightCfg);
+$('#ncfgClose').addEventListener('click', () => { $('#nightCfg').hidden = true; });
+$('#nightCfg').addEventListener('click', e => {
+  if(e.target === $('#nightCfg')){ $('#nightCfg').hidden = true; return; }
+  const sk = e.target.closest('[data-sk]');
+  if(sk){
+    state.nightSkin = sk.dataset.sk; save(); openNightCfg(); renderNight();
+    toast('◧ Скин: ' + (NIGHT_SKINS.find(x => x[0] === state.nightSkin) || ['','?'])[1]);
+    return;
+  }
+  const cm = e.target.closest('[data-cm]');
+  if(cm){ state.nightW.clock = cm.dataset.cm === 'flap' ? 'flap' : 'digits'; save(); openNightCfg(); renderNight(); return; }
 });
-$('#skinMenu').addEventListener('click', e => {
-  const b = e.target.closest('[data-sk]');
-  if(!b) return;
-  state.nightSkin = b.dataset.sk;
-  save();
-  $('#skinMenu').hidden = true;
-  renderNight();
-  toast('◧ Скин: ' + (NIGHT_SKINS.find(x => x[0] === state.nightSkin) || ['','?'])[1]);
-});
-$('#nightHud').addEventListener('change', e => {
-  const s = e.target.closest('[data-clk]');
-  if(!s) return;
-  state.nightW[s.dataset.clk] = s.value === 'flap' ? 'flap' : 'digits';
+$('#nightCfg').addEventListener('change', e => {
+  const w = e.target.closest('[data-w]');
+  if(!w) return;
+  state.nightW[w.dataset.w] = w.checked;
   save(); renderNight();
 });
 window.nightNp = function(){
