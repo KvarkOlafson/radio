@@ -540,6 +540,17 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 .ncfg-t input:checked + i { background:var(--accent); }
 .ncfg-t input:checked + i::after { transform:translateX(16px); }
 .ncfg-hint { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.45; }
+/* ===== v3.25: виджеты вечернего экрана: погода, прогресс дня, дыхание 4-7-8 ===== */
+.hudwx { font-size:15px; color:var(--fg); opacity:.92; display:flex; gap:9px; align-items:center; margin-top:12px; }
+.hudwx small { color:var(--muted); font-size:12px; }
+.hudwx .wxfb { background:none; border:1px solid var(--border); border-radius:8px; cursor:pointer; color:var(--fg); padding:2px 8px; font-size:13px; }
+.hudday { width:min(440px,72vw); height:6px; border-radius:999px; background:rgba(128,128,128,.28); position:relative; margin:12px auto 0; }
+.hudday .fill { position:absolute; left:0; top:0; bottom:0; border-radius:999px; background:var(--accent); opacity:.38; }
+.hudday i { position:absolute; top:50%; transform:translate(-50%,-50%); font-size:17px; line-height:1; }
+.hudbreath { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:12px; }
+.hudbreath .bcr { width:76px; height:76px; border-radius:50%; border:2px solid var(--accent); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--muted); transform:scale(.55); }
+.hudbreath .blb { font-size:12px; color:var(--muted); }
+.hudbreath .wxfb { background:none; border:1px solid var(--border); border-radius:8px; cursor:pointer; color:var(--fg); padding:4px 12px; font-size:12px; }
 /* ===== v3.24: раскладки вечернего экрана (Акварель), OSD громкости, дежурный режим, часы-табло ===== */
 #nightHud[data-skin="aquarel"] { background:linear-gradient(160deg,#f7f2e7,#ebe2d0); }
 #nightHud[data-skin="aquarel"]::before {
@@ -797,7 +808,7 @@ const freqOf = st => (typeof st.freq === 'number' && st.freq >= 87.5 && st.freq 
 /* ================= STORE ================= */
 const LSKEY = 'dipfm3';
 function freshState(){
-  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, current:null, playing:false, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, alive:false, cruise:false, nightSkin:'classic', nightW:{clock:'digits',date:true,sleep:true,session:true,ribbon:true,breath:false,autodim:true,weather:false} };
+  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, current:null, playing:false, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, alive:false, cruise:false, nightSkin:'classic', nightW:{clock:'digits',date:true,sleep:true,session:true,ribbon:true,breath:false,autodim:true,weather:false}, wx:null };
 }
 function load(){
   let d = null;
@@ -822,8 +833,8 @@ let saveT = 0;
 function save(){ clearTimeout(saveT); saveT = setTimeout(flushSave, 2000); }
 function flushSave(){
   clearTimeout(saveT);
-  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,nightSkin,nightW} = state;
-  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,nightSkin,nightW})); }catch(e){}
+  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,nightSkin,nightW,wx} = state;
+  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,nightSkin,nightW,wx})); }catch(e){}
 }
 window.addEventListener('beforeunload', flushSave);
 
@@ -1695,7 +1706,7 @@ $('#pVol').addEventListener('input', e => setVol(+e.target.value));
 let nightVirtual = false;
 function applyNight(){
   const on = !!document.fullscreenElement || nightVirtual;
-  if(!on) nightStart = 0;
+  if(!on){ nightStart = 0; breathStop(); }
   document.body.classList.toggle('night', on);
   renderNight();
   tickClock();
@@ -2239,6 +2250,75 @@ function hudTick(){
     if(sleepLeft > 0) slpEl.textContent = '☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0');
     else slpEl.remove();
   }
+  if(state.nightW && state.nightW.weather) nightWx();
+}
+
+/* ===== v3.25: ПОГОДА И ПРОГРЕСС ДНЯ (Open-Meteo, без ключей; кэш 1ч) ===== */
+const WX_CODES = {0:['☀','ясно'],1:['🌤','почти ясно'],2:['⛅','переменно'],3:['☁','пасмурно'],45:['🌫','туман'],48:['🌫','туман'],51:['🌦','морось'],53:['🌦','морось'],55:['🌦','морось'],61:['🌧','дождь'],63:['🌧','дождь'],65:['🌧','ливень'],71:['🌨','снег'],73:['🌨','снег'],75:['❄','снегопад'],80:['🌦','ливни'],81:['🌧','ливни'],82:['⛈','ливни'],95:['⛈','гроза'],96:['⛈','гроза'],99:['⛈','гроза']};
+function ensureWx(){
+  const now = Date.now();
+  if(state.wx && now - state.wx.t < 3600000){ nightWx(); return; }
+  if(!navigator.geolocation || ensureWx.busy || now - (ensureWx.try0 || 0) < 600000) return;
+  ensureWx.busy = true; ensureWx.try0 = now;
+  nightWx(true);
+  navigator.geolocation.getCurrentPosition(p => {
+    ensureWx.busy = false;
+    fetchWx(p.coords.latitude, p.coords.longitude);
+  }, () => { ensureWx.busy = false; nightWx(); toast('⚠ Геолокация не разрешена — повторить можно по 📍'); }, {timeout:9000, maximumAge:600000});
+}
+function fetchWx(lat, lon){
+  const u = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat.toFixed(3) + '&longitude=' + lon.toFixed(3) + '&current=temperature_2m,weather_code&daily=sunrise,sunset&timezone=auto&forecast_days=1';
+  fetchT(u, 9000).then(r => { if(!r || !r.ok) throw 0; return r.json(); }).then(j => {
+    const c = j && j.current, d = j && j.daily;
+    if(!c || !d || !d.sunrise || !d.sunrise[0]) throw 0;
+    state.wx = { t: Date.now(), lat, lon, temp: Math.round(c.temperature_2m), code: c.weather_code || 0, rise: d.sunrise[0], set: d.sunset[0], name: state.wx && state.wx.lat === lat && state.wx.name || '' };
+    save(); nightWx();
+    return fetchT('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat.toFixed(3) + '&longitude=' + lon.toFixed(3) + '&localityLanguage=ru', 8000).then(r2 => r2 && r2.ok ? r2.json() : null).then(g => {
+      if(g && state.wx && Math.abs(state.wx.lat - lat) < 0.001){ state.wx.name = g.city || g.locality || ''; if(state.wx.name){ save(); nightWx(); } }
+    }).catch(() => {});
+  }).catch(() => { toast('⚠ Погода: сеть не ответила'); nightWx(); });
+}
+function dayPos(){
+  if(!state.wx || !state.wx.rise || !state.wx.set) return null;
+  const t = Date.now(), a = new Date(state.wx.rise).getTime(), b = new Date(state.wx.set).getTime();
+  if(!(a > 0) || !(b > a)) return null;
+  return Math.max(0, Math.min(1, (t - a) / (b - a)));
+}
+function nightWx(loading){
+  const el = document.getElementById('hudWX'); if(!el) return;
+  const day = document.getElementById('hudDay');
+  if(day) day.hidden = true;
+  if(loading){ el.innerHTML = '<small>определяю место…</small>'; return; }
+  if(!state.wx){ el.innerHTML = '<small>место не определено</small><button class="wxfb" data-wxgeo title="Определить место заново">📍</button>'; return; }
+  const cc = WX_CODES[state.wx.code] || ['🌡',''];
+  const p = dayPos();
+  el.innerHTML = '<span>' + cc[0] + '</span><b>' + state.wx.temp + '°</b>' + (cc[1] ? '<small>' + cc[1] + '</small>' : '') + (state.wx.name ? '<small>' + esc(state.wx.name) + '</small>' : '');
+  if(day && p != null){
+    day.hidden = false;
+    const f = day.querySelector('.fill'), ic = day.querySelector('i');
+    if(f) f.style.width = (p*100).toFixed(1) + '%';
+    if(ic){ ic.style.left = (p*100).toFixed(1) + '%'; ic.textContent = (p <= 0 || p >= 1) ? '☾' : '☀'; }
+  }
+}
+
+/* ===== v3.25: ДЫХАНИЕ 4-7-8 ===== */
+let breathOn = false, breathT0 = 0, breathI = 0;
+function breathStop(){ breathOn = false; clearInterval(breathI); }
+function breathStart(){
+  if(!document.getElementById('hudBreath')){ toast('Включи виджет «Дыхание» в настройках экрана'); return; }
+  breathOn = true; breathT0 = Date.now();
+  clearInterval(breathI);
+  breathI = setInterval(breathTick, 100);
+  breathTick();
+}
+function breathTick(){
+  const c = document.querySelector('#hudBreath .bcr'), lb = document.querySelector('#hudBreath .blb');
+  if(!c || !breathOn){ breathStop(); return; }
+  const t = ((Date.now() - breathT0) / 1000) % 19;
+  if(lb) lb.textContent = 'дыхание · ' + (t < 4 ? 'вдох' : t < 11 ? 'задержка' : 'выдох');
+  c.style.transition = 'none';
+  c.style.transform = 'scale(' + (t < 4 ? 0.55 + t/4*0.45 : t < 11 ? 1 : 1 - (t-11)/8*0.45).toFixed(3) + ')';
+  c.textContent = Math.ceil(t < 4 ? 4 - t : t < 11 ? 11 - t : 19 - t);
 }
 function renderNight(){
   const hud = $('#nightHud'); if(!hud) return;
@@ -2267,6 +2347,8 @@ function renderNight(){
   const ribbon = w.ribbon && trackLog.length
     ? '<div class="hudribbon">' + trackLog.slice(0, 4).map(x => esc(x.t)).join('   ·   ') + '</div>' : '';
   const session = w.session ? '<div class="hudsession hud-sess">вечер · ' + hudSessionStr() + '</div>' : '';
+  const wxHtml = w.weather ? '<div class="hudwx" id="hudWX"></div><div class="hudday" id="hudDay" hidden><span class="fill"></span><i>☀</i></div>' : '';
+  const breathHtml = w.breath ? '<div class="hudbreath" id="hudBreath"><div class="bcr"></div><div class="blb"></div><button class="wxfb" data-act="breath">' + (breathOn ? '⏹ остановить' : '〇 дыхание 4-7-8') + '</button></div>' : '';
   if(skin === 'lighthouse' || skin === 'aquarel'){
     hud.innerHTML =
       '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить раскладку">◧</button>' +
@@ -2276,7 +2358,8 @@ function renderNight(){
       (w.date ? '<div class="huddate">' + hudDayStr(new Date()) + '</div>' : '') +
       (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
       (w.sleep && sleepLeft > 0 ? '<div class="hudsession hud-sleep">☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0') + '</div>' : '') +
-      session + '<div style="flex:1"></div>' + ribbon + bar;
+      session + wxHtml + breathHtml + '<div style="flex:1"></div>' + ribbon + bar;
+    if(w.weather) ensureWx();
   } else if(skin === 'disc'){
     const art = st ? artFor(st) : '';
     hud.innerHTML =
@@ -2285,7 +2368,8 @@ function renderNight(){
       '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
       '<div class="huddisc"' + (art ? ' style="--artl:' + cssUrl(art) + '"' : '') + '></div>' +
       (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
-      session + '<div style="flex:1"></div>' + ribbon + bar;
+      session + wxHtml + breathHtml + '<div style="flex:1"></div>' + ribbon + bar;
+    if(w.weather) ensureWx();
   }
 }
 $('#nightHud').addEventListener('click', e => {
@@ -2300,6 +2384,9 @@ $('#nightHud').addEventListener('click', e => {
     return;
   }
   if(act === 'skin' || act === 'gear'){ openNightCfg(); return; }
+  if(act === 'breath'){ if(breathOn){ breathStop(); renderNight(); } else breathStart(); return; }
+  const wg = e.target.closest('[data-wxgeo]');
+  if(wg){ ensureWx.try0 = 0; ensureWx(); return; }
   if(act === 'luck'){ surprise(); return; }
   const st = curSt(); if(!st) return;
   if(act === 'play') togglePlay(st);
@@ -2316,7 +2403,7 @@ function openNightCfg(){
     ? 'Классика — пустой экран под фон: слышно радио, видна только кнопка ◧ в углу. Часы и виджеты действуют в других раскладках.'
     : 'Виджеты ниже — общие: работают в любой раскладке с HUD.';
   [...$('#ncfgClock').children].forEach(b => b.classList.toggle('cur', (state.nightW.clock === 'flap') === (b.dataset.cm === 'flap')));
-  const W = [['date','Дата и день недели'],['session','Сессия вечера'],['sleep','Отсчёт Таймера сна'],['ribbon','Лента треков вечера'],['autodim','Дежурный режим после 23:00']];
+  const W = [['date','Дата и день недели'],['session','Сессия вечера'],['sleep','Отсчёт Таймера сна'],['ribbon','Лента треков вечера'],['weather','Погода (гео)'],['breath','Дыхание 4-7-8'],['autodim','Дежурный режим после 23:00']];
   $('#ncfgW').innerHTML = W.map(x => '<label class="ncfg-w">' + x[1] + '<span class="ncfg-t"><input type="checkbox" data-w="' + x[0] + '"' + (state.nightW[x[0]] ? ' checked' : '') + '><i></i></span></label>').join('');
   $('#nightCfg').hidden = false;
 }
