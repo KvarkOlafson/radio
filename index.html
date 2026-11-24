@@ -742,6 +742,8 @@ body.duty:not(.night)::after { content:""; position:fixed; inset:0; z-index:80; 
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* URL для CSS url()/—переменных: жёстко вырезаем всё, что может вырваться из кавычек (XSS/инъекция) */
+const cssUrl = u => u ? 'url("' + String(u).replace(/["'\\<>\s\u0000-\u001f]/g, '') + '")' : '';
 const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
 
 /* ================= DATA: КАТАЛОГ ВОЛН ================= */
@@ -802,7 +804,7 @@ const freqOf = st => (typeof st.freq === 'number' && st.freq >= 87.5 && st.freq 
 /* ================= STORE ================= */
 const LSKEY = 'dipfm3';
 function freshState(){
-  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, alive:false, cruise:false, nightSkin:'classic', nightW:{clock:'digits',date:true,sleep:true,session:true,ribbon:true,breath:false,autodim:true,weather:false} };
+  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, current:null, playing:false, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, alive:false, cruise:false, nightSkin:'classic', nightW:{clock:'digits',date:true,sleep:true,session:true,ribbon:true,breath:false,autodim:true,weather:false} };
 }
 function load(){
   let d = null;
@@ -881,7 +883,7 @@ function artTile(u){
     const note = list.querySelector('.addnote'); if(note) note.remove();
     const t = document.createElement('div');
     t.className = 'arttile';
-    t.style.backgroundImage = 'url(' + u + ')';
+    t.style.backgroundImage = cssUrl(u);
     t.title = 'Поставить эту картинку';
     t.addEventListener('click', () => {
       setArt(artSt, u); $('#artModal').hidden = true; toast('🖼 Картинка «' + artSt.name + '» обновлена');
@@ -1120,24 +1122,7 @@ function pushMedia(npLine){
     });
   }catch(e){}
 }
-if('mediaSession' in navigator){
-  ['play','pause'].forEach(a => { try{ navigator.mediaSession.setActionHandler(a, () => { const s = curSt(); if(s) togglePlay(s); }); }catch(e){} });
-  ['previoustrack','nexttrack'].forEach(a => { try{ navigator.mediaSession.setActionHandler(a, () => step(a === 'nexttrack' ? 1 : -1)); }catch(e){} });
-}
-
-/* ===== ГОРЯЧИЕ КЛАВИШИ (десктоп): Space, ←→, ↑↓ ===== */
-document.addEventListener('keydown', e => {
-  const tg = e.target && e.target.tagName;
-  if(tg && /INPUT|TEXTAREA|SELECT/.test(tg)) return;
-  if(e.key === ' '){
-    e.preventDefault();
-    const s = curSt() || findSt(state.last) || allStations()[0];
-    if(s) togglePlay(s);
-  } else if(e.key === 'ArrowRight'){ step(1); }
-  else if(e.key === 'ArrowLeft'){ step(-1); }
-  else if(e.key === 'ArrowUp'){ e.preventDefault(); setVol(state.vol + 5); }
-  else if(e.key === 'ArrowDown'){ e.preventDefault(); setVol(state.vol - 5); }
-});
+/* ===== ГОРЯЧИЕ КЛАВИШИ (десктоп): Space, ←→, ↑↓ — один слушатель ===== */
 
 /* ================= META: ЧТО СЕЙЧАС В ЭФИРЕ ================= */
 async function fetchT(u, ms){ try{ const c = new AbortController(); const tt = setTimeout(()=>c.abort(), ms||7000); const r = await fetch(u, {signal:c.signal}); clearTimeout(tt); return r; }catch(e){ return null; } }
@@ -1239,7 +1224,7 @@ function paintMbar(){
   $('#mMeta').textContent = (npText && npText.indexOf('эфир') !== 0 && npText.indexOf('⚠') !== 0) ? npText : (st.genre || '');
   $('#mPlay').textContent = state.playing ? '⏸' : '▶';
   const a = artFor(st);
-  $('#mArt').style.backgroundImage = a ? 'url(' + a + ')' : '';
+  $('#mArt').style.backgroundImage = cssUrl(a);
 }
 window.addEventListener('scroll', () => paintMbar(), { passive: true });
 window.addEventListener('resize', () => paintMbar());
@@ -1319,7 +1304,7 @@ function paintAll(){
   if(st){
     $('#pName').textContent = st.name;
     const art = artFor(st);
-    if(art){ $('#pArt').style.setProperty('--artl', 'url(' + art + ')'); $('#pArt').classList.add('arted'); $('#pArt').textContent = ''; }
+    if(art){ $('#pArt').style.setProperty('--artl', cssUrl(art)); $('#pArt').classList.add('arted'); $('#pArt').textContent = ''; }
     else { $('#pArt').style.removeProperty('--artl'); $('#pArt').classList.remove('arted'); }
     $('#pGenre').textContent = st.genre;
     const fv = !!state.fav[st.id];
@@ -1618,8 +1603,8 @@ function reprobe(id){ const st = findSt(id); if(st){ probeQ.push({ st: st, force
 function probeUrl(u, cb){
   const cand = collectCandidates({ url: u });
   const a = new Audio(); a.muted = true; a.preload = 'auto';
-  let i = 0;
-  const done = d => { clearTimeout(t); try{ a.pause(); a.removeAttribute('src'); }catch(e){} cb(d); };
+  let i = 0, fin = false;
+  const done = d => { if(fin) return; fin = true; clearTimeout(t); try{ a.pause(); a.removeAttribute('src'); }catch(e){} cb(d); };
   const t = setTimeout(() => done(false), 6000);
   a.oncanplay = () => done(false);
   a.onerror = () => { if(++i < cand.length) a.src = cand[i]; else done(true); };
@@ -1780,8 +1765,11 @@ $('#ioImport').addEventListener('click', () => {
 });
 window.addEventListener('keydown', e => {
   const tag = (e.target && e.target.tagName) || '';
-  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON') return;
-  if(e.code === 'Space' && curSt()){ e.preventDefault(); togglePlay(curSt()); }
+  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  const t = curSt() || findSt(state.last) || allStations()[0];
+  if(e.code === 'Space' && t){ e.preventDefault(); togglePlay(t); }
+  else if(e.key === 'ArrowRight'){ step(1); }
+  else if(e.key === 'ArrowLeft'){ step(-1); }
   else if(e.key === 'ArrowUp'){ setVol(state.vol + 5); e.preventDefault(); }
   else if(e.key === 'ArrowDown'){ setVol(state.vol - 5); e.preventDefault(); }
   else if(e.key === 'Escape' && !$('#nightCfg').hidden){ $('#nightCfg').hidden = true; }
@@ -2286,7 +2274,7 @@ function renderNight(){
       '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить скин">◧</button>' +
       '<button class="iconbtn" data-act="gear" title="Виджеты">⚙</button>' +
       '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
-      '<div class="huddisc"' + (art ? ' style="--artl:url(\'' + art.replace(/'/g,'') + '\')"' : '') + '></div>' +
+      '<div class="huddisc"' + (art ? ' style="--artl:' + cssUrl(art) + '"' : '') + '></div>' +
       (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
       session + '<div style="flex:1"></div>' + ribbon + bar;
   }
