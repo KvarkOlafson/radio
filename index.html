@@ -539,16 +539,8 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 .ncfg-t i::after { content:""; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform .15s; }
 .ncfg-t input:checked + i { background:var(--accent); }
 .ncfg-t input:checked + i::after { transform:translateX(16px); }
-/* ===== v3.22-б: Кинескоп, Акварель, OSD громкости, дежурный режим, часы-табло ===== */
-#nightHud[data-skin="kineskop"] { background:transparent; }
-#nightHud[data-skin="kineskop"]::before {
-  content:""; position:absolute; inset:0; pointer-events:none;
-  background:repeating-linear-gradient(0deg, rgba(0,0,0,.24) 0 2px, transparent 2px 4px);
-}
-#nightHud[data-skin="kineskop"] .hudclock { color:#58ff9b; text-shadow:0 0 16px rgba(88,255,155,.5); animation:hudflick 7s linear infinite; }
-#nightHud[data-skin="kineskop"] .huddate, #nightHud[data-skin="kineskop"] .hudnp, #nightHud[data-skin="kineskop"] .hudsession, #nightHud[data-skin="kineskop"] .hudribbon { color:#9fe6bb; }
-#nightHud[data-skin="kineskop"] .hudcorner .iconbtn { background:rgba(8,20,14,.72); border-color:rgba(88,255,155,.25); color:#9fe6bb; }
-#nightHud[data-skin="kineskop"] .hudbar { background:rgba(8,20,14,.72); border-color:rgba(88,255,155,.25); }
+.ncfg-hint { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.45; }
+/* ===== v3.24: раскладки вечернего экрана (Акварель), OSD громкости, дежурный режим, часы-табло ===== */
 #nightHud[data-skin="aquarel"] { background:linear-gradient(160deg,#f7f2e7,#ebe2d0); }
 #nightHud[data-skin="aquarel"]::before {
   content:""; position:absolute; inset:0; pointer-events:none;
@@ -564,7 +556,6 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 #nightHud[data-skin="aquarel"] .hudbar { background:rgba(255,255,255,.62); border-color:rgba(60,50,30,.16); }
 #nightHud[data-skin="aquarel"] .hudbar b { color:#2b2933; }
 #nightHud[data-skin="aquarel"] .hudbar button { color:#5c5a66; }
-@keyframes hudflick { 0%,93%{opacity:1} 94%{opacity:.86} 95%{opacity:1} 97%{opacity:.92} 98%,100%{opacity:1} }
 .hudco { animation:hudblink 2s steps(1) infinite; }
 @keyframes hudblink { 0%,49%{opacity:1} 50%,100%{opacity:.28} }
 .hudclock .flapd {
@@ -584,7 +575,7 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 }
 #volOsd.on { opacity:1; }
 body.duty:not(.night)::after { content:""; position:fixed; inset:0; z-index:80; pointer-events:none; background:linear-gradient(rgba(255,150,60,.07), rgba(5,3,0,.24)); }
-@media (prefers-reduced-motion: reduce) { #nightHud[data-skin="kineskop"] .hudclock, .hudco, .hudclock .flapd { animation:none; } }
+@media (prefers-reduced-motion: reduce) { .hudco, .hudclock .flapd { animation:none; } }
 </style>
 </head>
 <body>
@@ -721,11 +712,12 @@ body.duty:not(.night)::after { content:""; position:fixed; inset:0; z-index:80; 
   <button class="mplay" id="mPlay">▶</button>
 </div>
 <div id="nightHud" hidden></div>
-<div id="hudDot" hidden><button class="iconbtn" id="hudSkinBtn" title="Скины и виджеты вечернего экрана">◧</button></div>
+<div id="hudDot" hidden><button class="iconbtn" id="hudSkinBtn" title="Раскладки и виджеты вечернего экрана">◧</button></div>
 <div id="nightCfg" hidden><div class="ncfg-box">
   <div class="ncfg-head"><b>Вечерний экран</b><button class="iconbtn" id="ncfgClose" title="Закрыть">✕</button></div>
-  <div class="ncfg-sec">Скин</div>
+  <div class="ncfg-sec">Раскладка</div>
   <div class="ncfg-skins" id="ncfgSkins"></div>
+  <div class="ncfg-hint" id="ncfgHint"></div>
   <div class="ncfg-sec">Часы</div>
   <div class="ncfg-seg" id="ncfgClock"><button data-cm="digits">Цифры</button><button data-cm="flap">Табло</button></div>
   <div class="ncfg-sec">Виджеты</div>
@@ -1752,7 +1744,8 @@ $('#ioImport').addEventListener('click', () => {
     if(s.vol != null) state.vol = Math.round(Math.max(0, Math.min(100, s.vol)));
     if(s.theme === 'light' || s.theme === 'dark') state.theme = s.theme;
     if(s.accent) state.accent = s.accent;
-    if(typeof NIGHT_SKINS !== 'undefined' && NIGHT_SKINS.some(function(x){ return x[0] === s.nightSkin; })) state.nightSkin = s.nightSkin;
+    if(typeof NIGHT_LAYOUTS !== 'undefined' && NIGHT_LAYOUTS.some(function(x){ return x[0] === s.nightSkin; })) state.nightSkin = s.nightSkin;
+    if(s.nightSkin === 'kineskop') state.nightSkin = 'lighthouse';
     if(s.nightW && typeof s.nightW === 'object' && !Array.isArray(s.nightW)) state.nightW = Object.assign(state.nightW, s.nightW);
     flushSave(); applyTheme(state.theme === 'light' ? 'light' : 'dark'); applyAccent(state.accent);
     $('#customColor').value = state.accent;
@@ -2205,7 +2198,8 @@ window.addEventListener('online', () => {
 });
 
 /* ===== ВЕЧЕРНИЙ РЕЖИМ: СКИНЫ ФУЛЛСКРИНА ===== */
-const NIGHT_SKINS = [['classic','Классика','◫' ],['lighthouse','Маяк','↟'],['disc','Винил','◎'],['kineskop','Кинескоп','▦'],['aquarel','Акварель','❋']];
+const NIGHT_LAYOUTS = [['classic','Классика','◫' ],['lighthouse','Маяк','↟'],['disc','Винил','◎'],['aquarel','Акварель','❋']];
+if(state.nightSkin === 'kineskop') state.nightSkin = 'lighthouse';
 state.nightW = Object.assign({ clock:'digits', date:true, sleep:true, session:true, ribbon:true, breath:false, autodim:true, weather:false }, state.nightW || {});
 let nightStart = 0;
 const hudDayStr = d => ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'][d.getDay()] + ', ' +
@@ -2249,7 +2243,7 @@ function hudTick(){
 function renderNight(){
   const hud = $('#nightHud'); if(!hud) return;
   const on = document.body.classList.contains('night');
-  const skin = NIGHT_SKINS.some(x => x[0] === state.nightSkin) ? state.nightSkin : 'classic';
+  const skin = state.nightSkin === 'kineskop' ? 'lighthouse' : (NIGHT_LAYOUTS.some(x => x[0] === state.nightSkin) ? state.nightSkin : 'classic');
   state.nightSkin = skin;
   hud.dataset.skin = skin;
   hud.hidden = !(on && skin !== 'classic');
@@ -2273,9 +2267,9 @@ function renderNight(){
   const ribbon = w.ribbon && trackLog.length
     ? '<div class="hudribbon">' + trackLog.slice(0, 4).map(x => esc(x.t)).join('   ·   ') + '</div>' : '';
   const session = w.session ? '<div class="hudsession hud-sess">вечер · ' + hudSessionStr() + '</div>' : '';
-  if(skin === 'lighthouse' || skin === 'kineskop' || skin === 'aquarel'){
+  if(skin === 'lighthouse' || skin === 'aquarel'){
     hud.innerHTML =
-      '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить скин">◧</button>' +
+      '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить раскладку">◧</button>' +
       '<button class="iconbtn" data-act="gear" title="Виджеты">⚙</button>' +
       '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
       '<div class="hudclock">' + (() => { const t = hudClockNow(); const h = hudClockHtmlFor(t); hudClockPrev = t; return h; })() + '</div>' +
@@ -2286,7 +2280,7 @@ function renderNight(){
   } else if(skin === 'disc'){
     const art = st ? artFor(st) : '';
     hud.innerHTML =
-      '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить скин">◧</button>' +
+      '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить раскладку">◧</button>' +
       '<button class="iconbtn" data-act="gear" title="Виджеты">⚙</button>' +
       '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
       '<div class="huddisc"' + (art ? ' style="--artl:' + cssUrl(art) + '"' : '') + '></div>' +
@@ -2317,7 +2311,10 @@ $('#nightHud').addEventListener('click', e => {
   }
 });
 function openNightCfg(){
-  $('#ncfgSkins').innerHTML = NIGHT_SKINS.map(s => '<button class="ncfg-skin' + (state.nightSkin === s[0] ? ' cur' : '') + '" data-sk="' + s[0] + '"><span class="ics">' + s[2] + '</span>' + s[1] + '</button>').join('');
+  $('#ncfgSkins').innerHTML = NIGHT_LAYOUTS.map(s => '<button class="ncfg-skin' + (state.nightSkin === s[0] ? ' cur' : '') + '" data-sk="' + s[0] + '"><span class="ics">' + s[2] + '</span>' + s[1] + '</button>').join('');
+  $('#ncfgHint').textContent = state.nightSkin === 'classic'
+    ? 'Классика — пустой экран под фон: слышно радио, видна только кнопка ◧ в углу. Часы и виджеты действуют в других раскладках.'
+    : 'Виджеты ниже — общие: работают в любой раскладке с HUD.';
   [...$('#ncfgClock').children].forEach(b => b.classList.toggle('cur', (state.nightW.clock === 'flap') === (b.dataset.cm === 'flap')));
   const W = [['date','Дата и день недели'],['session','Сессия вечера'],['sleep','Отсчёт Таймера сна'],['ribbon','Лента треков вечера'],['autodim','Дежурный режим после 23:00']];
   $('#ncfgW').innerHTML = W.map(x => '<label class="ncfg-w">' + x[1] + '<span class="ncfg-t"><input type="checkbox" data-w="' + x[0] + '"' + (state.nightW[x[0]] ? ' checked' : '') + '><i></i></span></label>').join('');
@@ -2330,7 +2327,7 @@ $('#nightCfg').addEventListener('click', e => {
   const sk = e.target.closest('[data-sk]');
   if(sk){
     state.nightSkin = sk.dataset.sk; save(); openNightCfg(); renderNight();
-    toast('◧ Скин: ' + (NIGHT_SKINS.find(x => x[0] === state.nightSkin) || ['','?'])[1]);
+    toast('◨ Раскладка: ' + (NIGHT_LAYOUTS.find(x => x[0] === state.nightSkin) || ['','?'])[1]);
     return;
   }
   const cm = e.target.closest('[data-cm]');
