@@ -1682,19 +1682,28 @@ $('#cruiseBtn').addEventListener('click', () => {
 });
 $('#pFav').addEventListener('click', () => { if(state.current){ if(state.fav[state.current]) delete state.fav[state.current]; else state.fav[state.current] = true; save(); paintAll(); } });
 $('#pVol').addEventListener('input', e => setVol(+e.target.value));
+let nightVirtual = false;
+function applyNight(){
+  const on = !!document.fullscreenElement || nightVirtual;
+  if(!on) nightStart = 0;
+  document.body.classList.toggle('night', on);
+  renderNight();
+  tickClock();
+}
 $('#nightBtn').addEventListener('click', () => {
   if(document.fullscreenElement){ document.exitFullscreen().catch(() => {}); return; }
+  if(nightVirtual){ nightVirtual = false; applyNight(); return; }
+  nightVirtual = true; applyNight();
   const p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
-  if(p && p.catch) p.catch(() => toast('⛶ Полный экран недоступен в этом браузере'));
+  if(p && p.catch) p.catch(() => toast('⛶ Полный экран браузера недоступен — вечерний режим поверх страницы'));
 });
 document.addEventListener('fullscreenchange', () => {
-  const on = !!document.fullscreenElement;
-  document.body.classList.toggle('night', on);
-  if(on) tickClock();
+  if(!document.fullscreenElement) nightVirtual = false;
+  applyNight();
 });
 function dutyOn(d){ const h = d.getHours(); return h >= 23 || h < 6; }
 function applyDuty(){
-  document.body.classList.toggle('duty', !document.fullscreenElement && (state.nightW || {}).autodim !== false && dutyOn(new Date()));
+  document.body.classList.toggle('duty', !document.body.classList.contains('night') && (state.nightW || {}).autodim !== false && dutyOn(new Date()));
 }
 function tickClock(){
   const el = $('#pClock');
@@ -1743,6 +1752,7 @@ window.addEventListener('keydown', e => {
   if(e.code === 'Space' && curSt()){ e.preventDefault(); togglePlay(curSt()); }
   else if(e.key === 'ArrowUp'){ setVol(state.vol + 5); e.preventDefault(); }
   else if(e.key === 'ArrowDown'){ setVol(state.vol - 5); e.preventDefault(); }
+  else if(e.key === 'Escape' && nightVirtual && !document.fullscreenElement){ nightVirtual = false; applyNight(); }
 });
 if('mediaSession' in navigator){
   try{
@@ -2264,7 +2274,11 @@ $('#nightHud').addEventListener('click', e => {
   const b = e.target.closest('[data-act]');
   if(!b) return;
   const act = b.dataset.act;
-  if(act === 'exit'){ document.exitFullscreen && document.exitFullscreen().catch(() => {}); return; }
+  if(act === 'exit'){
+    if(document.fullscreenElement && document.exitFullscreen){ document.exitFullscreen().catch(() => {}); }
+    else { nightVirtual = false; applyNight(); }
+    return;
+  }
   if(act === 'skin'){
     const i = NIGHT_SKINS.map(x => x[0]).indexOf(state.nightSkin);
     state.nightSkin = NIGHT_SKINS[(i + 1) % NIGHT_SKINS.length][0];
@@ -2291,13 +2305,6 @@ window.nightNp = function(){
   const el = $('#nightHud .hudnp');
   if(el && !$('#nightHud').hidden) renderNight();
 };
-document.addEventListener('fullscreenchange', () => {
-  const on = !!document.fullscreenElement;
-  document.body.classList.toggle('night', on);
-  if(on && !nightStart) nightStart = Date.now();
-  if(on) tickClock();
-  renderNight();
-});
 
 /* ================= СТАРТ ================= */
 const urlSt = new URLSearchParams(location.search).get('st');
