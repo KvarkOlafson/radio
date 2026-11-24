@@ -244,9 +244,10 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
 .bigplayer h2 { font-size:24px; letter-spacing:.4px; }
 .npgenre { color:var(--muted); font-size:13px; }
 .npbig { font-family:var(--mono); font-size:13px; color:var(--accent); min-height:18px; max-width:100%; align-self:center; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.pnamer { display:flex; align-items:center; justify-content:center; gap:10px; max-width:100%; }
+.pnamer { display:flex; align-items:center; justify-content:center; gap:8px; max-width:100%; }
 .pnamer h2 { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.pnamer .pfaved { flex:none; font-size:19px; padding:6px; }
+.pfaved { flex:none; background:none; border:0; font-size:19px; padding:6px 8px; color:var(--muted); cursor:pointer; transition:color .15s, transform .1s; }
+.pfaved:active { transform:translateY(1px); }
 .pctl { display:flex; align-items:center; justify-content:center; gap:18px; margin-top:6px; }
 .pctl button { background:none; border:0; font-size:22px; color:var(--muted); transition:color .15s, transform .1s; }
 .pctl button:hover { color:var(--fg); }
@@ -258,6 +259,7 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
 }
 .pfaved.on { color:var(--accent) !important; }
 .pfaved:hover { color:var(--fg); }
+.phead { justify-content:center; }
 .pvolrow { display:flex; align-items:center; gap:10px; width:min(280px,100%); margin-top:4px; font-family:var(--mono); font-size:11px; color:var(--muted); justify-content:center; }
 .pvolrow b { min-width:24px; text-align:left; font-family:var(--mono); }
 .pvolrow input { flex:1; accent-color:var(--accent); cursor:pointer; height:4px; }
@@ -467,8 +469,51 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
   .card .covthumb { width:34px; height:34px; border-radius:8px; }
 }
 /* П7: вечерний фуллскрин — вольготнее */
-body.night .pctl .bigplay { width:80px; height:80px; font-size:28px; }
-body.night .npbig { white-space:normal; overflow:visible; text-overflow:clip; line-height:1.35; }
+/* ===== NIGHT HUD: скины полноэкранного режима ===== */
+#nightHud {
+  position:fixed; inset:0; z-index:85; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:var(--page-bg); gap:10px; padding:24px 20px;
+}
+#nightHud[hidden] { display:none; }
+.hudcorner { position:absolute; top:16px; right:16px; display:flex; gap:8px; }
+.hudcorner .iconbtn { background:var(--panel2); border:1px solid var(--border); }
+.hudclock { font-family:var(--mono); font-size:min(17vw,150px); line-height:1; color:var(--fg); letter-spacing:4px; }
+.huddate { color:var(--muted); font-size:14px; letter-spacing:1px; }
+.hudnp { font-size:15px; color:var(--accent); max-width:86vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; }
+.hudribbon { font-family:var(--mono); font-size:11px; color:var(--muted); max-width:86vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hudsession { font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:1px; }
+.hudbar {
+  display:flex; align-items:center; gap:14px; padding:9px 14px;
+  background:var(--panel2); border:1px solid var(--border); border-radius:999px; max-width:94vw;
+}
+.hudbar b { font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:24vw; }
+.hudbar button { background:none; border:0; font-size:18px; color:var(--muted); cursor:pointer; padding:6px 8px; }
+.hudbar button:hover { color:var(--fg); }
+.hudbar .bigplaylink { width:46px; height:46px; border-radius:50%; border:0; font-size:18px; font-weight:800; color:#161616;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, #fff), var(--accent)); box-shadow:0 4px 14px var(--accent-soft); }
+.hudstar.on { color:var(--accent) !important; }
+.huddisc {
+  width:min(56vh,56vw); height:min(56vh,56vw); border-radius:50%; position:relative; flex:none;
+  background:repeating-radial-gradient(circle at 50% 50%, #14141a 0 2px, #26262f 2px 4px);
+  border:1px solid var(--border); box-shadow:0 24px 70px rgba(0,0,0,.5);
+}
+.huddisc::after {
+  content:""; position:absolute; inset:17%; border-radius:50%;
+  background-image:var(--artl); background-size:cover; background-position:center;
+  box-shadow:0 0 0 5px #0a0a0e, 0 0 0 7px rgba(255,255,255,.3);
+}
+.huddisc::before {
+  content:""; position:absolute; left:50%; top:50%; width:9px; height:9px; margin:-4.5px; border-radius:50%;
+  background:#0b0b10; box-shadow:0 0 0 2px rgba(255,255,255,.4); z-index:2;
+}
+.playing .huddisc { animation:spinslow 3.4s linear infinite; }
+.hudwset {
+  position:absolute; top:60px; right:16px; width:min(280px,80vw);
+  background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:12px 14px;
+  display:flex; flex-direction:column; gap:8px; box-shadow:0 18px 40px rgba(0,0,0,.5);
+}
+.hudwset label { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--fg); cursor:pointer; }
+.hudwset small { color:var(--muted); font-size:10.5px; }
 </style>
 </head>
 <body>
@@ -604,6 +649,7 @@ body.night .npbig { white-space:normal; overflow:visible; text-overflow:clip; li
   <span class="minfo"><b id="mName"></b><i id="mMeta"></i></span>
   <button class="mplay" id="mPlay">▶</button>
 </div>
+<div id="nightHud" hidden></div>
 <div id="toast"></div>
 
 <script>
@@ -675,7 +721,7 @@ const freqOf = st => (typeof st.freq === 'number' && st.freq >= 87.5 && st.freq 
 /* ================= STORE ================= */
 const LSKEY = 'dipfm3';
 function freshState(){
-  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, alive:false, cruise:false };
+  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, alive:false, cruise:false, nightSkin:'classic', nightW:{clock:'digits',date:true,sleep:true,session:true,ribbon:true,breath:false,autodim:true,weather:false} };
 }
 function load(){
   let d = null;
@@ -700,8 +746,8 @@ let saveT = 0;
 function save(){ clearTimeout(saveT); saveT = setTimeout(flushSave, 2000); }
 function flushSave(){
   clearTimeout(saveT);
-  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise} = state;
-  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise})); }catch(e){}
+  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,nightSkin,nightW} = state;
+  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,nightSkin,nightW})); }catch(e){}
 }
 window.addEventListener('beforeunload', flushSave);
 
@@ -1193,6 +1239,7 @@ function paintAll(){
   }
   pushMedia(npText);
   paintMbar();
+  if(window.nightNp) nightNp();
 }
 function openPlayer(){
   $('#ws').classList.add('player-open');
@@ -1590,13 +1637,14 @@ function tickClock(){
   const el = $('#pClock');
   const now = new Date();
   if(el) el.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+  if($('#nightHud') && !$('#nightHud').hidden) renderNight();
 }
 setInterval(() => { if(document.body.classList.contains('night')) tickClock(); }, 10000);
 $('#ioBtn').addEventListener('click', () => { $('#ioModal').hidden = false; });
 $('#ioClose').addEventListener('click', () => { $('#ioModal').hidden = true; });
 $('#ioModal').addEventListener('click', e => { if(e.target === $('#ioModal')) $('#ioModal').hidden = true; });
 $('#ioExport').addEventListener('click', async () => {
-  const data = JSON.stringify({ app:'Диапазон FM', v:3, profile:true, user:state.user, fav:state.fav, listen:state.listen, arts:state.arts, set:{ vol:state.vol, theme:state.theme, accent:state.accent, side:state.side, cover:state.cover } }, null, 1);
+  const data = JSON.stringify({ app:'Диапазон FM', v:3, profile:true, user:state.user, fav:state.fav, listen:state.listen, arts:state.arts, set:{ vol:state.vol, theme:state.theme, accent:state.accent, side:state.side, cover:state.cover, nightSkin:state.nightSkin, nightW:state.nightW } }, null, 1);
   $('#ioText').value = data;
   try { await navigator.clipboard.writeText(data); toast('⇅ Профиль в буфере обмена — сохраните его в файл'); }
   catch(e){ toast('⇅ JSON профиля готов в поле ниже'); }
@@ -1613,6 +1661,8 @@ $('#ioImport').addEventListener('click', () => {
     if(s.vol != null) state.vol = Math.round(Math.max(0, Math.min(100, s.vol)));
     if(s.theme === 'light' || s.theme === 'dark') state.theme = s.theme;
     if(s.accent) state.accent = s.accent;
+    if(typeof NIGHT_SKINS !== 'undefined' && NIGHT_SKINS.some(function(x){ return x[0] === s.nightSkin; })) state.nightSkin = s.nightSkin;
+    if(s.nightW && typeof s.nightW === 'object' && !Array.isArray(s.nightW)) state.nightW = Object.assign(state.nightW, s.nightW);
     flushSave(); applyTheme(state.theme === 'light' ? 'light' : 'dark'); applyAccent(state.accent);
     $('#customColor').value = state.accent;
     applySide(s.side || state.side); applyCover(s.cover || '');
@@ -2057,9 +2107,115 @@ window.addEventListener('online', () => {
   if(state.playing && curSt()){ clearTimeout(retryT); retryN = 0; paintStatus('эфир · сеть вернулась…'); engine.play(curSt()); }
 });
 
+/* ===== ВЕЧЕРНИЙ РЕЖИМ: СКИНЫ ФУЛЛСКРИНА ===== */
+const NIGHT_SKINS = [['classic','Классика'],['lighthouse','Маяк'],['disc','Винил']];
+let nightStart = 0;
+const hudDayStr = d => ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'][d.getDay()] + ', ' +
+  d.getDate() + ' ' + ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'][d.getMonth()];
+function hudSessionStr(){
+  if(!nightStart) return 'вечер только начался';
+  const m = Math.round((Date.now() - nightStart) / 60000);
+  const h = Math.floor(m / 60);
+  return (h ? h + 'ч ' + (m % 60) + 'м' : m + 'м') + (trackLog.length ? ' · ' + trackLog.length + ' ' + (trackLog.length % 10 === 1 && trackLog.length % 100 !== 11 ? 'трек' : 'треков') : '');
+}
+function hudNpStr(){
+  const st = curSt();
+  if(!st || !state.playing) return '';
+  return (npText && npText.indexOf('эфир') !== 0 && npText.indexOf('⚠') !== 0 && npText !== st.name) ? npText : '';
+}
+function renderNight(){
+  const hud = $('#nightHud'); if(!hud) return;
+  const on = document.body.classList.contains('night');
+  const skin = NIGHT_SKINS.some(x => x[0] === state.nightSkin) ? state.nightSkin : 'classic';
+  state.nightSkin = skin;
+  hud.hidden = !(on && skin !== 'classic');
+  $('#bigpanel').classList.toggle('hud-off', on && skin !== 'classic');
+  if(hud.hidden) return;
+  const st = curSt();
+  const fav = st ? !!state.fav[st.id] : false;
+  const bar = st
+    ? '<div class="hudbar"><b>' + esc(st.name) + '</b>' +
+      '<button data-act="prev" title="Предыдущая">⏮</button>' +
+      '<button class="bigplaylink" data-act="play" title="Пуск/пауза">' + (state.playing ? '⏸' : '▶') + '</button>' +
+      '<button data-act="next" title="Следующая">⏭</button>' +
+      '<button class="hudstar' + (fav ? ' on' : '') + '" data-act="star" title="В избранное">' + (fav ? '★' : '☆') + '</button>' +
+      '<button data-act="luck" title="Удиви меня — случайная волна">🎲</button>' +
+      '</div>' : '';
+  const w = state.nightW || {};
+  const ribbon = w.ribbon && trackLog.length
+    ? '<div class="hudribbon">' + trackLog.slice(0, 4).map(x => esc(x.t)).join('   ·   ') + '</div>' : '';
+  const session = w.session ? '<div class="hudsession">вечер · ' + hudSessionStr() + '</div>' : '';
+  if(skin === 'lighthouse'){
+    hud.innerHTML =
+      '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить скин">◧</button>' +
+      '<button class="iconbtn" data-act="gear" title="Виджеты">⚙</button>' +
+      '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
+      '<div class="hudclock">' + (document.querySelector('.nightclock') ? document.querySelector('.nightclock').textContent : '') + '</div>' +
+      (w.date ? '<div class="huddate">' + hudDayStr(new Date()) + '</div>' : '') +
+      (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
+      (w.sleep && sleepLeft > 0 ? '<div class="hudsession">☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0') + '</div>' : '') +
+      session + '<div style="flex:1"></div>' + ribbon + bar;
+  } else if(skin === 'disc'){
+    const art = st ? artFor(st) : '';
+    hud.innerHTML =
+      '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить скин">◧</button>' +
+      '<button class="iconbtn" data-act="gear" title="Виджеты">⚙</button>' +
+      '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
+      '<div class="huddisc"' + (art ? ' style="--artl:url(\'' + art.replace(/'/g,'') + '\')"' : '') + '></div>' +
+      (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
+      session + '<div style="flex:1"></div>' + ribbon + bar;
+  }
+  hud.appendChild(wsetPanel());
+}
+function wsetPanel(){
+  const w = state.nightW || {};
+  const chk = (k, lbl) => '<label><input type="checkbox" data-w="' + k + '"' + (w[k] ? ' checked' : '') + '> ' + lbl + '</label>';
+  const d = document.createElement('div');
+  d.className = 'hudwset'; d.hidden = true; d.id = 'hudWset';
+  d.innerHTML = '<h3 style="font-size:13px">Виджеты вечернего экрана</h3>' +
+    chk('date','Дата и день недели') + chk('session','Сессия вечера') + chk('sleep','Отсчёт Таймера сна') + chk('ribbon','Лента треков вечера') +
+    '<small>скоро: погода, дыхание, автодим, часы-табло</small>';
+  return d;
+}
+$('#nightHud').addEventListener('click', e => {
+  const cb = e.target.closest('[data-w]');
+  if(cb){ state.nightW[cb.dataset.w] = cb.checked; save(); renderNight(); return; }
+  const b = e.target.closest('[data-act]');
+  if(!b) return;
+  const act = b.dataset.act;
+  if(act === 'exit'){ document.exitFullscreen && document.exitFullscreen().catch(() => {}); return; }
+  if(act === 'skin'){
+    const i = NIGHT_SKINS.map(x => x[0]).indexOf(state.nightSkin);
+    state.nightSkin = NIGHT_SKINS[(i + 1) % NIGHT_SKINS.length][0];
+    save(); renderNight(); toast('◧ Скин: ' + (NIGHT_SKINS.find(x => x[0] === state.nightSkin) || ['','?'])[1]); return;
+  }
+  if(act === 'gear'){ $('#hudWset').hidden = !$('#hudWset').hidden; return; }
+  if(act === 'luck'){ surprise(); return; }
+  const st = curSt(); if(!st) return;
+  if(act === 'play') togglePlay(st);
+  else if(act === 'prev') step(-1);
+  else if(act === 'next') step(1);
+  else if(act === 'star'){
+    if(state.fav[st.id]) delete state.fav[st.id]; else state.fav[st.id] = true;
+    save(); paintAll();
+  }
+});
+window.nightNp = function(){
+  const el = $('#nightHud .hudnp');
+  if(el && !$('#nightHud').hidden) renderNight();
+};
+document.addEventListener('fullscreenchange', () => {
+  const on = !!document.fullscreenElement;
+  document.body.classList.toggle('night', on);
+  if(on && !nightStart) nightStart = Date.now();
+  if(on) tickClock();
+  renderNight();
+});
+
 /* ================= СТАРТ ================= */
 const urlSt = new URLSearchParams(location.search).get('st');
 if(urlSt && findSt(urlSt)){ state.last = urlSt; state.hist = [urlSt].concat(state.hist.filter(x => x !== urlSt)).slice(0,12); }
+renderNight();
 applyTheme(state.theme === 'light' ? 'light' : 'dark');
 applySide(state.side);
 renderCoverSwitch();
