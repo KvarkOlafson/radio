@@ -514,6 +514,54 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 }
 .hudwset label { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--fg); cursor:pointer; }
 .hudwset small { color:var(--muted); font-size:10.5px; }
+.hudwset .selclock { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--fg); }
+.hudwset select { background:var(--panel2); color:var(--fg); border:1px solid var(--border); border-radius:8px; font-size:12.5px; padding:3px 6px; }
+/* ===== v3.22-б: Кинескоп, Акварель, OSD громкости, дежурный режим, часы-табло ===== */
+#nightHud[data-skin="kineskop"] { background:transparent; }
+#nightHud[data-skin="kineskop"]::before {
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.24) 0 2px, transparent 2px 4px);
+}
+#nightHud[data-skin="kineskop"] .hudclock { color:#58ff9b; text-shadow:0 0 16px rgba(88,255,155,.5); animation:hudflick 7s linear infinite; }
+#nightHud[data-skin="kineskop"] .huddate, #nightHud[data-skin="kineskop"] .hudnp, #nightHud[data-skin="kineskop"] .hudsession, #nightHud[data-skin="kineskop"] .hudribbon { color:#9fe6bb; }
+#nightHud[data-skin="kineskop"] .hudcorner .iconbtn { background:rgba(8,20,14,.72); border-color:rgba(88,255,155,.25); color:#9fe6bb; }
+#nightHud[data-skin="kineskop"] .hudbar { background:rgba(8,20,14,.72); border-color:rgba(88,255,155,.25); }
+#nightHud[data-skin="aquarel"] { background:linear-gradient(160deg,#f7f2e7,#ebe2d0); }
+#nightHud[data-skin="aquarel"]::before {
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(closest-side at 18% 24%, rgba(58,90,160,.15), transparent 70%),
+    radial-gradient(closest-side at 80% 72%, rgba(160,58,90,.13), transparent 70%),
+    radial-gradient(closest-side at 55% 15%, rgba(55,135,85,.11), transparent 70%),
+    radial-gradient(closest-side at 30% 85%, rgba(200,140,50,.10), transparent 70%);
+}
+#nightHud[data-skin="aquarel"] .hudclock { color:#2b2933; font-family:Georgia,'Times New Roman',serif; letter-spacing:2px; }
+#nightHud[data-skin="aquarel"] .huddate, #nightHud[data-skin="aquarel"] .hudnp, #nightHud[data-skin="aquarel"] .hudsession, #nightHud[data-skin="aquarel"] .hudribbon { color:#5c5a66; }
+#nightHud[data-skin="aquarel"] .hudcorner .iconbtn { background:rgba(255,255,255,.72); border-color:rgba(60,50,30,.18); color:#5c5a66; }
+#nightHud[data-skin="aquarel"] .hudbar { background:rgba(255,255,255,.62); border-color:rgba(60,50,30,.16); }
+#nightHud[data-skin="aquarel"] .hudbar b { color:#2b2933; }
+#nightHud[data-skin="aquarel"] .hudbar button { color:#5c5a66; }
+@keyframes hudflick { 0%,93%{opacity:1} 94%{opacity:.86} 95%{opacity:1} 97%{opacity:.92} 98%,100%{opacity:1} }
+.hudco { animation:hudblink 2s steps(1) infinite; }
+@keyframes hudblink { 0%,49%{opacity:1} 50%,100%{opacity:.28} }
+.hudclock .flapd {
+  display:inline-block; position:relative; padding:0 .06em; margin:0 .045em;
+  background:linear-gradient(#2c2c30,#17171a); border:1px solid rgba(255,255,255,.14); border-radius:6px;
+  box-shadow:0 6px 16px rgba(0,0,0,.4);
+}
+.hudclock .flapd::after { content:""; position:absolute; left:0; right:0; top:50%; height:1px; background:rgba(0,0,0,.65); }
+.hudclock .flapd.flip { animation:flapflip .25s ease-in; transform-origin:top center; }
+@keyframes flapflip { 0%{transform:rotateX(72deg); opacity:.3} 100%{transform:rotateX(0); opacity:1} }
+#nightHud[data-skin="aquarel"] .hudclock .flapd { background:linear-gradient(#eae3d3,#d7cdb7); border-color:rgba(60,50,30,.22); box-shadow:0 3px 9px rgba(60,50,30,.18); }
+#nightHud[data-skin="aquarel"] .hudclock .flapd::after { background:rgba(60,50,30,.3); }
+#volOsd {
+  position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:86;
+  background:rgba(10,10,14,.78); color:#fff; font-weight:800; font-size:44px; letter-spacing:2px;
+  padding:16px 30px; border-radius:18px; pointer-events:none; opacity:0; transition:opacity .25s;
+}
+#volOsd.on { opacity:1; }
+body.duty:not(.night)::after { content:""; position:fixed; inset:0; z-index:80; pointer-events:none; background:linear-gradient(rgba(255,150,60,.07), rgba(5,3,0,.24)); }
+@media (prefers-reduced-motion: reduce) { #nightHud[data-skin="kineskop"] .hudclock, .hudco, .hudclock .flapd { animation:none; } }
 </style>
 </head>
 <body>
@@ -650,6 +698,7 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
   <button class="mplay" id="mPlay">▶</button>
 </div>
 <div id="nightHud" hidden></div>
+<div id="volOsd"></div>
 <div id="toast"></div>
 
 <script>
@@ -1009,7 +1058,17 @@ function setVol(v){
   $('#pVol').value = state.vol;
   $('#pVolVal').textContent = state.vol;
   $$('.card.playing').forEach(c => c.style.setProperty('--amp', state.vol/100));
+  showVolOsd(state.vol);
   save();
+}
+let osdT = 0;
+function showVolOsd(v){
+  const osd = $('#volOsd'); if(!osd) return;
+  const hud = $('#nightHud');
+  if(!hud || hud.hidden){ osd.classList.remove('on'); return; }
+  osd.textContent = '🔈 ' + v;
+  osd.classList.add('on');
+  clearTimeout(osdT); osdT = setTimeout(() => osd.classList.remove('on'), 800);
 }
 
 /* ===== MEDIASESSION: обложка и кнопки в шторке/локскрине ===== */
@@ -1633,10 +1692,15 @@ document.addEventListener('fullscreenchange', () => {
   document.body.classList.toggle('night', on);
   if(on) tickClock();
 });
+function dutyOn(d){ const h = d.getHours(); return h >= 23 || h < 6; }
+function applyDuty(){
+  document.body.classList.toggle('duty', !document.fullscreenElement && (state.nightW || {}).autodim !== false && dutyOn(new Date()));
+}
 function tickClock(){
   const el = $('#pClock');
   const now = new Date();
   if(el) el.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+  applyDuty();
   if($('#nightHud') && !$('#nightHud').hidden) renderNight();
 }
 setInterval(() => { if(document.body.classList.contains('night')) tickClock(); }, 10000);
@@ -2108,7 +2172,7 @@ window.addEventListener('online', () => {
 });
 
 /* ===== ВЕЧЕРНИЙ РЕЖИМ: СКИНЫ ФУЛЛСКРИНА ===== */
-const NIGHT_SKINS = [['classic','Классика'],['lighthouse','Маяк'],['disc','Винил']];
+const NIGHT_SKINS = [['classic','Классика'],['lighthouse','Маяк'],['disc','Винил'],['kineskop','Кинескоп'],['aquarel','Акварель']];
 let nightStart = 0;
 const hudDayStr = d => ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'][d.getDay()] + ', ' +
   d.getDate() + ' ' + ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'][d.getMonth()];
@@ -2123,11 +2187,24 @@ function hudNpStr(){
   if(!st || !state.playing) return '';
   return (npText && npText.indexOf('эфир') !== 0 && npText.indexOf('⚠') !== 0 && npText !== st.name) ? npText : '';
 }
+let hudClockPrev = '';
+function hudClockHtml(){
+  const el = document.querySelector('.nightclock');
+  const txt = el ? (el.textContent || '00:00') : '00:00';
+  let out;
+  if(txt.length === 5 && (state.nightW || {}).clock === 'flap'){
+    const p = hudClockPrev;
+    out = [...txt].map((ch, i) => (ch === ':' ? '<span class="hudco">:</span>' : '<span class="flapd' + (p[i] !== ch ? ' flip' : '') + '">' + ch + '</span>')).join('');
+  } else out = esc(txt);
+  hudClockPrev = txt;
+  return out;
+}
 function renderNight(){
   const hud = $('#nightHud'); if(!hud) return;
   const on = document.body.classList.contains('night');
   const skin = NIGHT_SKINS.some(x => x[0] === state.nightSkin) ? state.nightSkin : 'classic';
   state.nightSkin = skin;
+  hud.dataset.skin = skin;
   hud.hidden = !(on && skin !== 'classic');
   $('#bigpanel').classList.toggle('hud-off', on && skin !== 'classic');
   if(hud.hidden) return;
@@ -2145,12 +2222,12 @@ function renderNight(){
   const ribbon = w.ribbon && trackLog.length
     ? '<div class="hudribbon">' + trackLog.slice(0, 4).map(x => esc(x.t)).join('   ·   ') + '</div>' : '';
   const session = w.session ? '<div class="hudsession">вечер · ' + hudSessionStr() + '</div>' : '';
-  if(skin === 'lighthouse'){
+  if(skin === 'lighthouse' || skin === 'kineskop' || skin === 'aquarel'){
     hud.innerHTML =
       '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить скин">◧</button>' +
       '<button class="iconbtn" data-act="gear" title="Виджеты">⚙</button>' +
       '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
-      '<div class="hudclock">' + (document.querySelector('.nightclock') ? document.querySelector('.nightclock').textContent : '') + '</div>' +
+      '<div class="hudclock">' + hudClockHtml() + '</div>' +
       (w.date ? '<div class="huddate">' + hudDayStr(new Date()) + '</div>' : '') +
       (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
       (w.sleep && sleepLeft > 0 ? '<div class="hudsession">☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0') + '</div>' : '') +
@@ -2174,7 +2251,11 @@ function wsetPanel(){
   d.className = 'hudwset'; d.hidden = true; d.id = 'hudWset';
   d.innerHTML = '<h3 style="font-size:13px">Виджеты вечернего экрана</h3>' +
     chk('date','Дата и день недели') + chk('session','Сессия вечера') + chk('sleep','Отсчёт Таймера сна') + chk('ribbon','Лента треков вечера') +
-    '<small>скоро: погода, дыхание, автодим, часы-табло</small>';
+    chk('autodim','Дежурный режим после 23:00') +
+    '<label class="selclock">Часы: <select data-clk="clock"><option value="digits">Цифры</option><option value="flap">Табло</option></select></label>' +
+    '<small>скоро: погода, дыхание</small>';
+  const sel = d.querySelector('select');
+  if(sel) sel.value = (state.nightW || {}).clock === 'flap' ? 'flap' : 'digits';
   return d;
 }
 $('#nightHud').addEventListener('click', e => {
@@ -2200,6 +2281,12 @@ $('#nightHud').addEventListener('click', e => {
     save(); paintAll();
   }
 });
+$('#nightHud').addEventListener('change', e => {
+  const s = e.target.closest('[data-clk]');
+  if(!s) return;
+  state.nightW[s.dataset.clk] = s.value === 'flap' ? 'flap' : 'digits';
+  save(); renderNight();
+});
 window.nightNp = function(){
   const el = $('#nightHud .hudnp');
   if(el && !$('#nightHud').hidden) renderNight();
@@ -2216,6 +2303,7 @@ document.addEventListener('fullscreenchange', () => {
 const urlSt = new URLSearchParams(location.search).get('st');
 if(urlSt && findSt(urlSt)){ state.last = urlSt; state.hist = [urlSt].concat(state.hist.filter(x => x !== urlSt)).slice(0,12); }
 renderNight();
+applyDuty();
 applyTheme(state.theme === 'light' ? 'light' : 'dark');
 applySide(state.side);
 renderCoverSwitch();
