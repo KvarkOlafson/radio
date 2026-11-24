@@ -81,6 +81,7 @@ main { max-width:1240px; margin:0 auto; padding:18px 16px 110px; }
 .pagehead h1 { font-size:24px; letter-spacing:.5px; margin-bottom:4px; }
 .pagehead p { color:var(--muted); font-size:13px; margin-bottom:14px; }
 .histwrap { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 14px; }
+#histModal .histwrap, #topShelf { margin:0; }
 .histlabel { font-family:var(--mono); font-size:9.5px; letter-spacing:1.6px; text-transform:uppercase; color:var(--muted); }
 .histrow { display:flex; gap:6px; flex-wrap:wrap; }
 .histchip { background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:5px 11px; font-size:12px; }
@@ -94,8 +95,9 @@ main { max-width:1240px; margin:0 auto; padding:18px 16px 110px; }
 }
 .rndbtn:hover { border-color:var(--accent); box-shadow:0 0 12px var(--accent-soft); }
 .rndbtn.on { background:var(--accent); color:#161616; border-color:var(--accent); box-shadow:0 0 14px var(--accent-soft); }
-.pmrow { display:flex; align-items:center; gap:12px; padding:9px 2px; border-bottom:1px solid var(--border); font-size:12.5px; color:var(--muted); }
+.pmrow { display:flex; align-items:center; gap:12px; padding:9px 6px; border-bottom:1px solid var(--border); font-size:12.5px; color:var(--muted); cursor:pointer; border-radius:6px; }
 .pmrow:last-of-type { border-bottom:0; }
+.pmrow:hover { background:var(--panel2); color:var(--fg); }
 .pmrow .iconbtn { flex:none; min-width:36px; }
 .pmrow[hidden] { display:none; }
 .trk { display:flex; align-items:center; gap:10px; padding:7px 2px; border-bottom:1px solid var(--border); font-size:12.5px; }
@@ -432,6 +434,12 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
   #customColor { order:11; margin-right:auto; margin-left:14px; margin-top:2px; width:31px; height:31px; }
   .brand { font-size:13px; letter-spacing:2px; }
   .brand .bfull { display:none; }
+  /* больше воздуха для списка: плеер над списком, но без мёртвых полос */
+  .pagehead h1 { font-size:19px; margin:0 0 2px; }
+  .pagehead p { display:none; }
+  .pagehead { margin-bottom:8px; }
+  .pagehead .rndbtn { margin-bottom:0; padding:8px 11px; font-size:11.5px; }
+  #ws .bigplayer { padding:10px 10px 12px; gap:6px; }
   /* П3: на мобиле не нужны */
   #sideBtn, #nightBtn { display:none; }
   /* П5: громкость системными кнопками */
@@ -496,8 +504,6 @@ body.night .npbig { white-space:normal; overflow:visible; text-overflow:clip; li
 
   <section id="viewList" class="shelf">
     <div class="pagehead"><button class="rndbtn" id="cruiseBtn" title="Круиз: ⏮/⏭ листают живое избранное">🚗 Круиз</button><button class="rndbtn" id="surpriseBtn" title="Случайная живая волна">🎲 Удиви меня</button><h1>Живой эфир</h1><p>38 волн из России, Европы, Японии и игровых сетей — плюс те, что добавите вы</p><span id="resumeSlot"></span></div>
-    <div class="histwrap" id="histWrap"></div>
-    <div id="topShelf"></div>
     <div class="filters" id="filters"></div>
     <details class="addstation">
       <summary>＋ Своя станция — добавить поток</summary>
@@ -563,7 +569,23 @@ body.night .npbig { white-space:normal; overflow:visible; text-overflow:clip; li
     <div class="pmrow"><button class="iconbtn" id="pArtBtn2" title="Найти логотип станции в интернете">🔎</button><span>Найти логотип станции</span></div>
     <div class="pmrow"><button class="iconbtn" id="pArtBtn" title="Своё изображение волны (Shift+клик — вернуть сгенерированное)">🖼</button><span>Своё изображение волны</span></div>
     <div class="pmrow"><button class="iconbtn" id="logBtn" title="Журнал: что играло в этой сессии">📜</button><span>Что играло в этой сессии</span></div>
+    <div class="pmrow"><button class="iconbtn" id="histBtn" title="Недавние волны">🕐</button><span>Недавние волны</span></div>
+    <div class="pmrow"><button class="iconbtn" id="topBtn" title="Полка · топ-5">📊</button><span>Полка · топ-5 по времени</span></div>
     <button class="iconbtn modal-back" id="pmClose">Закрыть</button>
+  </div>
+</div>
+<div class="modal small" id="histModal" hidden>
+  <div class="modal-box">
+    <h3>🕐 Недавние волны</h3>
+    <div class="histwrap" id="histWrap"></div>
+    <button class="iconbtn modal-back" id="histClose">Закрыть</button>
+  </div>
+</div>
+<div class="modal small" id="topModal" hidden>
+  <div class="modal-box">
+    <h3>📊 Полка · топ-5 по времени</h3>
+    <div id="topShelf"></div>
+    <button class="iconbtn modal-back" id="topClose">Закрыть</button>
   </div>
 </div>
 <div class="modal small" id="trkModal" hidden>
@@ -1105,7 +1127,7 @@ function renderHist(){
   $('#histWrap').innerHTML = ids.length
     ? '<span class="histlabel">Недавно:</span><span class="histrow">' +
       ids.map(id => { const s = findSt(id); return '<button class="histchip" data-h="' + id + '">' + esc(s.short || s.name) + '</button>'; }).join('') + '</span>'
-    : '';
+    : '<small class="addnote">Пока пусто — включи пару волн.</small>';
 }
 function renderTop(){
   const rows = Object.keys(state.listen).map(id => ({ id: id, s: state.listen[id] }))
@@ -1116,7 +1138,7 @@ function renderTop(){
         const t = m >= 60 ? Math.floor(m / 60) + 'ч' + (m % 60 ? ' ' + (m % 60) + 'м' : '') : m + 'м';
         return '<button class="histchip" data-t="' + r.id + '">' + esc(s.short || s.name) + ' · ' + t + '</button>';
       }).join('')
-    : '';
+    : '<small class="addnote">Пока пусто — время прослушивания копится здесь.</small>';
 }
 function renderCards(){
   const q = state.q.trim().toLowerCase();
@@ -1499,11 +1521,11 @@ $('#filters').addEventListener('input', e => {
 });
 $('#histWrap').addEventListener('click', e => {
   const b = e.target.closest('[data-h]');
-  if(b){ const s = findSt(b.dataset.h); if(s) togglePlay(s); }
+  if(b){ const s = findSt(b.dataset.h); if(s) togglePlay(s); $('#histModal').hidden = true; }
 });
 $('#topShelf').addEventListener('click', e => {
   const t = e.target.closest('[data-t]');
-  if(t){ playSt(findSt(t.dataset.t)); }
+  if(t){ playSt(findSt(t.dataset.t)); $('#topModal').hidden = true; }
 });
 $('#grid').addEventListener('click', e => {
   const rp = e.target.closest('[data-reprobe]');
@@ -2006,9 +2028,21 @@ function renderTrkLog(){
 $('#pmBtn').addEventListener('click', () => $('#pmModal').hidden = false);
 $('#pmClose').addEventListener('click', () => $('#pmModal').hidden = true);
 $('#pmModal').addEventListener('click', e => {
+  const row = e.target.closest('.pmrow');
+  if(row){
+    if(e.target.id !== 'sleepBtn') $('#pmModal').hidden = true;
+    const btn = row.querySelector('button');
+    if(e.target !== btn) btn.click();
+    return;
+  }
   if(e.target.id === 'pmModal' || e.target.id === 'pmClose') $('#pmModal').hidden = true;
-  if(e.target.closest('.pmrow') && e.target.id !== 'sleepBtn') $('#pmModal').hidden = true;
 });
+$('#histBtn').addEventListener('click', () => { renderHist(); $('#histModal').hidden = false; });
+$('#topBtn').addEventListener('click', () => { renderTop(); $('#topModal').hidden = false; });
+$('#histClose').addEventListener('click', () => $('#histModal').hidden = true);
+$('#topClose').addEventListener('click', () => $('#topModal').hidden = true);
+$('#histModal').addEventListener('click', e => { if(e.target.id === 'histModal') $('#histModal').hidden = true; });
+$('#topModal').addEventListener('click', e => { if(e.target.id === 'topModal') $('#topModal').hidden = true; });
 $('#logBtn').addEventListener('click', () => { renderTrkLog(); $('#trkModal').hidden = false; });
 $('#trkClose').addEventListener('click', () => $('#trkModal').hidden = true);
 $('#trkModal').addEventListener('click', e => { if(e.target.id === 'trkModal') $('#trkModal').hidden = true; });
