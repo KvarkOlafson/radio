@@ -9,7 +9,6 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2317171d'/%3E%3Ctext x='32' y='46' font-size='38' text-anchor='middle' fill='%23e6a23c'%3E%E2%88%BF%3C/text%3E%3C/svg%3E">
 <style>
 
-
 * { margin:0; padding:0; box-sizing:border-box; }
 :root {
   --accent:#e6a23c; --accent-soft:rgba(230,162,60,.18);
@@ -82,25 +81,6 @@ input[type="color"] { width:27px; height:27px; border:1px solid var(--border); b
 .trk i { font-style:normal; color:var(--muted); font-size:10.5px; font-family:var(--mono); white-space:nowrap; }
 .trk a { color:var(--accent); font-size:11px; white-space:nowrap; text-decoration:none; }
 button.badge-dead { background:transparent; border:0; cursor:pointer; padding:2px 4px; font:inherit; }
-html[data-cover="term"] .grid { display:flex; flex-direction:column; gap:0; }
-html[data-cover="term"] .card {
-  border-radius:0; border:0; border-bottom:1px solid #1c3b21;
-  flex-direction:row; flex-wrap:wrap; align-items:center; gap:10px; padding:12px 8px;
-}
-html[data-cover="term"] .card::before { width:2px; }
-html[data-cover="term"] .card .ctop { width:190px; flex:none; }
-html[data-cover="term"] .card h3 { flex:1; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:80px; }
-html[data-cover="term"] .card .np { flex-basis:100%; order:5; min-height:15px; }
-html[data-cover="term"] .card .cvu { display:none; }
-html[data-cover="term"] .card .playbtn { margin:0; padding:4px 14px; }
-html[data-cover="paper"] .grid { grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); }
-html[data-cover="paper"] .card { border:0; background:#fbf5e6; }
-html[data-cover="paper"] .card h3, html[data-cover="paper"] .card .genre { font-style:italic; }
-html[data-cover="paper"] .card::before { width:3px; opacity:.7; }
-html[data-cover="neon"] .grid { grid-template-columns:repeat(auto-fill, minmax(206px,1fr)); }
-html[data-cover="neon"] .card .ctop { flex-wrap:wrap; row-gap:8px; }
-html[data-cover="neon"] .card .covthumb { flex-basis:100%; width:auto; height:112px; border-radius:4px; border-color:color-mix(in srgb, var(--accent) 45%, var(--border)); }
-html[data-cover="neon"] .card h3 { font-size:16px; }
 .filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:4px 0 16px; }
 .chipf {
   background:var(--panel2); color:var(--muted); border:1px solid var(--border);
@@ -191,7 +171,6 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
 }
 .addnote { font-size:11.5px; color:var(--muted); margin-top:8px; }
 
-
 .bigplayer {
   background:color-mix(in srgb, var(--panel) 92%, transparent);
   border:1px solid var(--border); border-radius:20px;
@@ -240,7 +219,6 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
 .pvolrow b { min-width:24px; text-align:left; font-family:var(--mono); }
 .pvolrow input { flex:1; accent-color:var(--accent); cursor:pointer; height:4px; }
 
-
 #bgfx { position:fixed; inset:0; z-index:0; pointer-events:none; }
 .phead { display:flex; gap:8px; width:100%; justify-content:flex-end; margin-bottom:4px; }
 .phead .iconbtn { padding:5px 9px; font-size:13px; }
@@ -259,62 +237,6 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
 .mode-switch button.active { background:var(--accent); color:#161616; }
 .mode-switch .cshort { display:none; }
 
-html[data-cover="paper"] body { font-family:Georgia,"Times New Roman",serif; }
-html[data-cover="paper"] .card, html[data-cover="paper"] .bigplayer, html[data-cover="paper"] .addstation,
-html[data-cover="paper"] .chipf, html[data-cover="paper"] .histchip { border-radius:18px; }
-html[data-cover="term"] body, html[data-cover="term"] .card h3 { font-family:var(--mono); }
-html[data-cover="term"] .card, html[data-cover="term"] .bigplayer, html[data-cover="term"] .addstation,
-html[data-cover="term"] .chipf, html[data-cover="term"] .histchip { border-radius:3px; }
-html[data-cover="neon"] .card, html[data-cover="neon"] .bigplayer { border-radius:4px; border-color:color-mix(in srgb, var(--accent) 55%, var(--border)); }
-html[data-cover="neon"] .brand, html[data-cover="neon"] .bigplayer h2 { text-shadow:0 0 14px var(--accent-soft); }
-html[data-cover="neon"] .card.playing { box-shadow:0 0 0 1px var(--accent), 0 0 26px var(--accent-soft), 0 0 64px var(--accent-soft); }
-html[data-cover="paper"] {
-  --page-bg:#f2e9d5; --page-bg2:#e4d7b6; --panel:#faf5e6; --panel2:#efe7d0;
-  --fg:#3a3320; --muted:#7d7355; --border:#d3c294; --card2:#f7f0dd;
-  --accent:#a5702f; --accent-soft:rgba(165,112,47,.16);
-}
-html[data-cover="paper"] body { background:radial-gradient(800px 420px at 85% -6%, rgba(165,112,47,.1), transparent 62%), var(--page-bg) !important; }
-html[data-cover="paper"] .taskbar { border-bottom-color:#c4b184; box-shadow:0 4px 14px rgba(90,70,30,.16), 0 1px 0 #fffdf2 inset; }
-html[data-cover="paper"] .taskbar::after { opacity:.3; }
-html[data-cover="paper"] .card { box-shadow:0 2px 9px rgba(90,70,30,.13); }
-html[data-cover="paper"] .card:hover { box-shadow:0 10px 24px rgba(90,70,30,.22); }
-html[data-cover="paper"] .brand { font-size:16px; }
-html[data-cover="paper"] .brand::before { content:"♪"; }
-html[data-cover="term"] {
-  --page-bg:#030804; --page-bg2:#010301; --panel:#08130a; --panel2:#0d1c10;
-  --fg:#a9e8ae; --muted:#5c8f63; --border:#1c3b21; --card2:#08130a;
-  --accent:#39ff5e; --accent-soft:rgba(57,255,94,.14);
-}
-html[data-cover="term"] body { background:var(--page-bg) !important; }
-html[data-cover="term"] body::before {
-  background:repeating-linear-gradient(0deg, transparent 0 37px, rgba(57,255,94,.05) 37px 38px) !important;
-}
-html[data-cover="term"] .taskbar { background:rgba(8,19,10,.92); border-bottom-color:#1e4023; }
-html[data-cover="term"] .taskbar::after { opacity:.18; }
-html[data-cover="term"] .brand { letter-spacing:5px; color:var(--accent); text-transform:lowercase; }
-html[data-cover="term"] .card { border-radius:0; border-color:#1e4023; }
-html[data-cover="term"] .card::before { width:2.5px; }
-html[data-cover="term"] .chipf, html[data-cover="term"] .histchip, html[data-cover="term"] .search { border-radius:0; }
-html[data-cover="term"] .playbtn { background:transparent; color:var(--accent); border:1px solid #1e4023; box-shadow:none; font-family:var(--mono); }
-html[data-cover="term"] .playbtn:hover { border-color:var(--accent); box-shadow:0 0 10px var(--accent-soft); }
-html[data-cover="term"] .bigplayer { background:rgba(8,19,10,.9); border-color:#1e4023; }
-html[data-cover="term"] .bigplay { background:transparent; color:var(--accent); border:1px solid #1e4023; box-shadow:none; }
-html[data-cover="term"] .card.playing { box-shadow:0 0 0 1px var(--accent), 0 0 18px var(--accent-soft); }
-html[data-cover="neon"] {
-  --page-bg:#140a22; --page-bg2:#0a0416; --panel:#1e1032; --panel2:#271540;
-  --fg:#f2e9ff; --muted:#9d82c8; --border:#3d2464; --card2:#201130;
-  --accent:#ff3ec8; --accent-soft:rgba(255,62,200,.18);
-}
-html[data-cover="neon"] body {
-  background:
-    radial-gradient(700px 300px at 82% -5%, rgba(255,62,200,.15), transparent 60%),
-    radial-gradient(900px 500px at 12% -10%, rgba(77,139,255,.13), transparent 65%),
-    var(--page-bg) !important;
-}
-html[data-cover="neon"] .taskbar { background:rgba(30,16,50,.88); border-bottom-color:#3d2464; }
-html[data-cover="neon"] .taskbar::after { background:linear-gradient(90deg, transparent 4%, #4d8bff 30%, #ff3ec8 70%, transparent 96%); }
-html[data-cover="neon"] .card:hover { box-shadow:0 0 18px var(--accent-soft); }
-html[data-cover="neon"] .pagehead h1 { text-transform:uppercase; letter-spacing:2px; }
 html[data-cover="day"] {
   --page-bg:#cfe8f6; --page-bg2:#eef7fd; --panel:#ffffffcc; --panel2:#ffffff99;
   --fg:#22303e; --muted:#5f7284; --border:rgba(40,60,80,.22); --card2:rgba(255,255,255,.55);
@@ -342,7 +264,6 @@ html[data-cover] .swatches, html[data-cover] #customColor { display:none; }
 .rb-hit .n b { display:block; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .rb-hit .n span { font-size:11px; color:var(--muted); }
 
-
 #toast {
   position:fixed; left:50%; bottom:74px; transform:translateX(-50%) translateY(16px);
   z-index:99; max-width:min(480px, calc(100vw - 24px));
@@ -364,7 +285,8 @@ body { padding-bottom:0; }
 .deskhint { position:fixed; left:22px; bottom:64px; z-index:1; font-family:var(--mono); font-size:10px; letter-spacing:1.5px; color:var(--muted); opacity:.7; pointer-events:none; }
 
 /* иконки рабочего стола */
-#dicons { position:fixed; left:18px; top:18px; z-index:1; display:flex; flex-direction:column; gap:6px; }
+#dicons { position:fixed; inset:14px 14px 60px 14px; z-index:1; pointer-events:none; }
+#dicons .dicon { position:absolute; pointer-events:auto; }
 .dicon { width:88px; padding:10px 6px 8px; border-radius:10px; border:1px solid transparent; text-align:center; cursor:pointer; user-select:none; }
 .dicon i { display:block; font-style:normal; font-size:26px; margin-bottom:5px; filter:drop-shadow(0 3px 8px rgba(0,0,0,.5)); }
 .dicon span { display:block; font-size:11px; color:var(--fg); text-shadow:0 1px 4px rgba(0,0,0,.6); word-break:break-word; }
@@ -386,6 +308,9 @@ body { padding-bottom:0; }
 .winbar .wbtn { flex:none; width:24px; height:22px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:11px; line-height:1; padding:0; }
 .winbar .wbtn:hover { color:var(--fg); border-color:var(--accent); background:var(--accent-soft); }
 .wbody { flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; }
+.resz { position:absolute; right:1px; bottom:1px; width:16px; height:16px; cursor:nwse-resize; z-index:6; }
+.resz::after { content:''; position:absolute; right:4px; bottom:4px; width:7px; height:7px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); opacity:.55; }
+.minibtn.on { color:var(--accent); border-color:var(--accent); }
 .wbody.pad { padding:16px 18px; }
 
 /* панель задач */
@@ -440,13 +365,7 @@ body { padding-bottom:0; }
 <canvas id="bgfx"></canvas>
 <div class="deskhint">ДВОЙНОЙ КЛИК ПО ИКОНКЕ — ОТКРЫТЬ ОКНО · ПЕРЕТАСКИВАЙТЕ ЗА ЗАГОЛОВОК</div>
 
-<div id="dicons">
-  <div class="dicon" data-win="playerWin" title="Двойной клик — плеер"><i>♪</i><span>Плеер</span></div>
-  <div class="dicon" data-win="stationsWin" title="Двойной клик — эфир"><i>▦</i><span>Эфир</span></div>
-  <div class="dicon" data-win="rbModal" title="Двойной клик — поиск"><i>🌐</i><span>Поиск</span></div>
-  <div class="dicon" data-win="trkModal" title="Двойной клик — журнал"><i>📼</i><span>Журнал</span></div>
-  <div class="dicon" data-win="topModal" title="Двойной клик — полка"><i>📊</i><span>Полка</span></div>
-</div>
+<div id="dicons"></div>
 
 <section class="win" id="playerWin" style="left:64px; top:70px; width:344px;">
   <div class="winbar"><span class="wt">♪ Плеер · Диапазон FM</span><button class="wbtn" id="pmBtn" title="Ещё: сон, обложки, журнал">⋯</button><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
@@ -467,7 +386,7 @@ body { padding-bottom:0; }
 </section>
 
 <section class="win" id="stationsWin" style="left:464px; top:70px; width:min(880px, calc(100vw - 64px));">
-  <div class="winbar"><span class="wt">▦ Живой эфир — все волны</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
+  <div class="winbar"><span class="wt">▦ Библиотека волн</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
   <section id="viewList" class="wbody">
     <div class="pagehead"><button class="rndbtn" id="cruiseBtn" title="Круиз: ⏮/⏭ листают живое избранное">🚗 Круиз</button><button class="rndbtn" id="surpriseBtn" title="Случайная живая волна">🎲 Удиви меня</button><span id="resumeSlot"></span></div>
     <div class="filters" id="filters"></div>
@@ -573,6 +492,8 @@ body { padding-bottom:0; }
     <div class="pmrow"><button class="iconbtn" id="persTheme" title="Светлая и тёмная тема">◑</button><span>Светлая / тёмная тема</span></div>
     <div class="pmrow"><button class="iconbtn" id="persNight" title="Вечер: во весь экран">⛶</button><span>Вечер · во весь экран</span></div>
     <div class="pmrow"><button class="iconbtn" id="persFx" title="Живой фон вкл/выкл">✨</button><span>Живой фон вкл/выкл</span></div>
+    <div class="slabel">Фон</div>
+    <div class="swrow" id="fxRow"></div>
     <div class="slabel">Акцент</div>
     <div class="swrow"><div class="swatches" id="swatches"></div><input type="color" id="customColor" value="#e6a23c" title="Свой акцентный цвет"></div>
   </div>
@@ -581,7 +502,7 @@ body { padding-bottom:0; }
 <div id="startMenu" hidden>
   <div class="slabel">Пуск · Диапазон ОС 4.0</div>
   <button class="smi" data-win="playerWin">♪ Плеер</button>
-  <button class="smi" data-win="stationsWin">▦ Живой эфир</button>
+  <button class="smi" data-win="stationsWin">📁 Библиотека волн</button>
   <button class="smi" data-win="trkModal">📼 Журнал треков</button>
   <button class="smi" data-win="histModal">🕐 Недавние волны</button>
   <button class="smi" data-win="topModal">📊 Полка · топ-5</button>
@@ -593,7 +514,7 @@ body { padding-bottom:0; }
 <div class="taskbar">
   <button id="startBtn" class="tb-start">⌽ <b>Пуск</b></button>
   <button class="tbb" data-tb="playerWin">♪ Плеер</button>
-  <button class="tbb" data-tb="stationsWin">▦ Эфир</button>
+  <button class="tbb" data-tb="stationsWin">📁 Библиотека</button>
   <button class="tbb" data-tb="rbModal">🌐 Поиск</button>
   <button class="tbb" data-tb="ioModal">⇅ Профиль</button>
   <span class="tb-np" id="tbNp"></span>
@@ -677,13 +598,17 @@ const freqOf = st => (typeof st.freq === 'number' && st.freq >= 87.5 && st.freq 
 /* ================= STORE ================= */
 const LSKEY = 'dipfm3';
 function freshState(){
-  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, current:null, playing:false, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, alive:false, cruise:false };
+  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, current:null, playing:false, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, fxKind:'fluid', desk:{}, alive:false, cruise:false };
 }
 function load(){
   let d = null;
   try { d = JSON.parse(localStorage.getItem(LSKEY) || 'null'); } catch(e){}
   const st = Object.assign(freshState(), d || {});
-  st.fav = st.fav || {}; st.hist = Array.isArray(st.hist) ? st.hist : []; st.user = Array.isArray(st.user) ? st.user : []; st.listen = (st.listen && typeof st.listen === 'object' && !Array.isArray(st.listen)) ? st.listen : {}; st.arts = (st.arts && typeof st.arts === 'object' && !Array.isArray(st.arts)) ? st.arts : {};
+  st.fav = st.fav || {}; st.hist = Array.isArray(st.hist) ? st.hist : []; st.user = Array.isArray(st.user) ? st.user : []; st.listen = (st.listen && typeof st.listen === 'object' && !Array.isArray(st.listen)) ? st.listen : {}; st.arts = (st.arts && typeof st.arts === 'object' && !Array.isArray(st.arts)) ? st.arts : {}; st.fxKind = ['fluid','rain','paper','day'].indexOf(st.fxKind) !== -1 ? st.fxKind : 'fluid'; st.desk = (st.desk && typeof st.desk === 'object' && !Array.isArray(st.desk)) ? st.desk : {};
+  /* миграция скинов v4.1 -> v4.2: Бумага/Терм/Неон уходят, фон переезжает в fxKind */
+  if(st.cover === 'term') st.fxKind = 'rain';
+  else if(st.cover === 'paper') st.fxKind = 'paper';
+  if(st.cover !== 'day') st.cover = '';
   /* миграция из классической версии: забираем избранное, свои станции и недавние волны */
   if(!d){
     let old = null;
@@ -703,8 +628,8 @@ let saveT = 0;
 function save(){ clearTimeout(saveT); saveT = setTimeout(flushSave, 2000); }
 function flushSave(){
   clearTimeout(saveT);
-  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,wins} = state;
-  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,wins})); }catch(e){}
+  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,fxKind,desk,alive,cruise,wins} = state;
+  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,fxKind,desk,alive,cruise,wins})); }catch(e){}
 }
 window.addEventListener('beforeunload', flushSave);
 
@@ -1268,7 +1193,7 @@ function importStations(txt){
 }
 
 /* ================= ЛИЧНОСТИ И ПАНЕЛЬ ПЛЕЕРА ================= */
-const COVERS = [['','Обычный','Об'],['paper','Бумага','Бум'],['term','Терм','Терм'],['neon','Неон','Неон'],['day','День','День']];
+const COVERS = [['','Классика','КЛ'],['day','День','ДН']];
 function applySide(s){
   state.side = (s === 'left') ? 'left' : 'right';
   save();
@@ -1289,6 +1214,15 @@ function renderCoverSwitch(){
 $('#coverSwitch').addEventListener('click', e => {
   const b = e.target.closest('[data-cov]');
   if(b){ applyCover(b.dataset.cov); renderCoverSwitch(); }
+});
+const FXDEF = [['fluid','Флюид'],['rain','Матрица'],['paper','Бумага'],['day','День']];
+function renderFxRow(){
+  const row = $('#fxRow'); if(!row) return;
+  row.innerHTML = FXDEF.map(x => '<button class="minibtn' + ((state.fxKind || 'fluid') === x[0] ? ' on' : '') + '" data-fx="' + x[0] + '">' + x[1] + '</button>').join('');
+}
+$('#fxRow').addEventListener('click', e => {
+  const b = e.target.closest('[data-fx]');
+  if(b){ state.fxKind = b.dataset.fx; save(); renderFxRow(); if(window.fxKick) window.fxKick(0); toast('Фон: ' + (FXDEF.find(x => x[0] === b.dataset.fx) || ['',''])[1]); }
 });
 function surprise(){
   const pool = allStations().filter(s => !dead[s.id]);
@@ -1521,7 +1455,7 @@ $('#grid').addEventListener('click', e => {
   if(fav){
     const id = fav.dataset.fav;
     if(state.fav[id]) delete state.fav[id]; else state.fav[id] = true;
-    save(); renderCards(); paintAll();
+    save(); renderCards(); paintAll(); renderDesk();
     return;
   }
   const del = e.target.closest('[data-del]');
@@ -1551,7 +1485,7 @@ $('#cruiseBtn').addEventListener('click', () => {
   $('#cruiseBtn').classList.toggle('on', !!state.cruise);
   toast(state.cruise ? '🚗 Круиз по ★: ⏭ ведёт по живому избранному' : '🚗 Круиз выключен');
 });
-$('#pFav').addEventListener('click', () => { if(state.current){ if(state.fav[state.current]) delete state.fav[state.current]; else state.fav[state.current] = true; save(); paintAll(); } });
+$('#pFav').addEventListener('click', () => { if(state.current){ if(state.fav[state.current]) delete state.fav[state.current]; else state.fav[state.current] = true; save(); paintAll(); renderDesk(); } });
 $('#pVol').addEventListener('input', e => setVol(+e.target.value));
 $('#nightBtn').addEventListener('click', () => {
   if(document.fullscreenElement){ document.exitFullscreen().catch(() => {}); return; }
@@ -1656,7 +1590,7 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
   let gNext = 6000 + Math.random()*8000, gOn = 0, gT0 = 0;
   function drawRibbon(t, dy){
     const hue = accentHue();
-    const neon = document.documentElement.dataset.cover === 'neon';
+    const neon = false;
     const bs = 1 + pulse*0.85;
     let gl = 0, gi = 1;
     if(neon){
@@ -1855,7 +1789,7 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
     };
     const hueRGB = h => { h = ((h % 360) + 360) % 360; const f = n => { const k = (n + h/60) % 6; return 1 - Math.max(0, Math.min(k, 4 - k, 1)); }; return [f(5), f(3), f(1)]; };
     function splat(x, y, dx, dy, col, rad){
-      const neon = document.documentElement.dataset.cover === 'neon';
+      const neon = false;
       gl.useProgram(P.splat);
       gl.uniform1f(U(P.splat, 'aspect'), Math.max(1, fc.width) / Math.max(1, fc.height));
       gl.uniform2f(U(P.splat, 'point'), x, y);
@@ -1869,7 +1803,7 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
     }
     const ems = [0, 1, 2].map(i => ({ p1: Math.random()*6.28, p2: Math.random()*6.28, s1: 0.00011 + Math.random()*0.00007, s2: 0.00013 + Math.random()*0.00007, last: null }));
     function emit(t){
-      const neon = document.documentElement.dataset.cover === 'neon';
+      const neon = false;
       ems.forEach((e, i) => {
         const x = 0.5 + 0.36*Math.sin(t*e.s1 + e.p1), y = 0.5 + 0.33*Math.sin(t*e.s2 + e.p2);
         if(e.last){
@@ -1893,7 +1827,7 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
       plx = x; ply = y;
     }
     function step(dt, t){
-      const neon = document.documentElement.dataset.cover === 'neon';
+      const neon = false;
       gl.disable(gl.BLEND);
       psplat(); emit(t);
       gl.useProgram(P.curl);
@@ -1963,14 +1897,14 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
     /* сторож батареи: стабильно медленный рендер → флюид выключаем, остаётся риббон */
     if(FLB && rawMs > 55){ if(++fpsN > 120) FLB = null; } else fpsN = Math.max(0, fpsN - 3);
     g.clearRect(0, 0, W, H);
-    const cover = document.documentElement.dataset.cover;
-    if(FLB && cover !== 'term' && cover !== 'paper' && cover !== 'day'){
+    const kind = state.fxKind || 'fluid';
+    if(FLB && kind === 'fluid'){
       FLB.step(dts, t);
       g.drawImage(FLB.canvas, 0, 0, W, H);
     }
-    else if(cover === 'term') drawRain(t);
-    else if(cover === 'paper') drawPaper(t);
-    else if(cover === 'day') drawDay(t);
+    else if(kind === 'rain') drawRain(t);
+    else if(kind === 'paper') drawPaper(t);
+    else if(kind === 'day') drawDay(t);
     else drawRibbon(t, document.body.classList.contains('night') ? H*0.04 : 0);
   }
   const FLSCALE = (window.matchMedia && window.matchMedia('(max-width:900px)').matches) ? 0.55 : Math.min(window.devicePixelRatio || 1, 2);
@@ -2028,7 +1962,7 @@ window.addEventListener('online', () => {
 
 /* ================= РАБОЧИЙ СТОЛ: ОКНА И ПАНЕЛЬ ЗАДАЧ ================= */
 const WINDEF = {
-  playerWin:['♪','Плеер'], stationsWin:['▦','Живой эфир'], pmModal:['⋯','Ещё · плеер'],
+  playerWin:['♪','Плеер'], stationsWin:['📁','Библиотека'], pmModal:['⋯','Ещё · плеер'],
   rbModal:['🌐','Глобальный поиск'], artModal:['🖼','Картинка волны'], histModal:['🕐','Недавние волны'],
   topModal:['📊','Полка · топ-5'], trkModal:['📼','Журнал треков'], ioModal:['⇅','Профиль'], persWin:['🎨','Персонализация']
 };
@@ -2049,6 +1983,8 @@ function wOpen(id, pos){
     const cy = p.y != null ? p.y : (pos ? pos[1] : Math.max(16, Math.round((innerHeight - 360) / 2 - 24)));
     el.style.left = cx + 'px'; el.style.top = cy + 'px';
     el.hidden = false;
+    if(p.w) el.style.width = p.w + 'px';
+    if(p.h) el.style.height = p.h + 'px';
     const ww = el.offsetWidth, wh = el.offsetHeight;
     if(ww && cx + ww > innerWidth - 8) el.style.left = clamp(innerWidth - ww - 10, 12, Math.max(12, innerWidth - 140)) + 'px';
     if(wh && cy + wh > innerHeight - 54) el.style.top = Math.max(6, innerHeight - wh - 54) + 'px';
@@ -2089,13 +2025,52 @@ document.addEventListener('click', e => {
   if(e.target.closest('#startBtn')){ const m = $('#startMenu'); m.hidden = !m.hidden; return; }
   if(!e.target.closest('#startMenu')) $('#startMenu').hidden = true;
 });
-$$('.dicon').forEach(d => d.addEventListener('click', () => {
-  $$('.dicon').forEach(x => x.classList.toggle('sel', x === d));
-}));
-$$('.dicon').forEach(d => d.addEventListener('dblclick', () => {
-  $$('.dicon').forEach(x => x.classList.remove('sel'));
-  wOpen(d.dataset.win);
-}));
+const DICONS = [
+  ['playerWin','\u266a','Плеер'], ['stationsWin','\u25a6','Библиотека'], ['rbModal','\U0001F310','Поиск'],
+  ['trkModal','\U0001F4FC','Журнал'], ['topModal','\U0001F4CA','Полка']
+];
+const GR = { x:100, y:104 };
+function deskPos(k, n){
+  const d = state.desk[k];
+  if(d && d.x != null) return [d.x, d.y];
+  return [14 + Math.floor(n / 6) * GR.x, 14 + (n % 6) * GR.y];
+}
+function renderDesk(){
+  const box = $('#dicons'); if(!box) return;
+  const fav = Object.keys(state.fav).map(id => allStations().find(x => x.id === id)).filter(Boolean);
+  const items = DICONS.map(d => ({ k:d[0], html:'<i>' + d[1] + '</i><span>' + d[2] + '</span>', win:d[0] }))
+    .concat(fav.map(st => ({ k:'st:' + st.id, html:'<i>\u266b</i><span>' + esc(st.short || st.name) + '</span>', st:st })));
+  box.innerHTML = items.map((it, n) => {
+    const q = deskPos(it.k, n);
+    return '<div class="dicon" data-key="' + esc(it.k) + '"' + (it.win ? ' data-win="' + it.win + '"' : ' data-st="' + esc(it.st.id) + '"') + ' style="left:' + q[0] + 'px; top:' + q[1] + 'px;" title="' + (it.st ? 'Двойной клик — включить волну' : 'Двойной клик — открыть') + '">' + it.html + '</div>';
+  }).join('');
+}
+$('#dicons').addEventListener('click', e => {
+  const d = e.target.closest('.dicon'); if(!d) return;
+  $$('#dicons .dicon').forEach(x => x.classList.toggle('sel', x === d));
+});
+$('#dicons').addEventListener('dblclick', e => {
+  const d = e.target.closest('.dicon'); if(!d) return;
+  $$('#dicons .dicon').forEach(x => x.classList.remove('sel'));
+  if(d.dataset.win) wOpen(d.dataset.win);
+  else { const st = allStations().find(x => x.id === d.dataset.st); if(st){ wOpen('playerWin'); playSt(st); } }
+});
+$('#dicons').addEventListener('pointerdown', e => {
+  const d = e.target.closest('.dicon'); if(!d || (e.button && e.button !== 0)) return;
+  e.preventDefault();
+  const ox = e.clientX - d.offsetLeft, oy = e.clientY - d.offsetTop;
+  const mv = ev => {
+    d.style.left = Math.round(clamp(ev.clientX - ox, 14, innerWidth - 110) / GR.x) * GR.x + 'px';
+    d.style.top = Math.round(clamp(ev.clientY - oy, 14, innerHeight - 170) / GR.y) * GR.y + 'px';
+  };
+  const up = () => {
+    removeEventListener('pointermove', mv); removeEventListener('pointerup', up);
+    const k = state.desk[d.dataset.key] = state.desk[d.dataset.key] || {};
+    k.x = parseInt(d.style.left, 10) || 0; k.y = parseInt(d.style.top, 10) || 0;
+    save();
+  };
+  addEventListener('pointermove', mv); addEventListener('pointerup', up);
+});
 $$('.win').forEach(w => {
   const bar = w.querySelector('.winbar'); if(!bar) return;
   bar.addEventListener('pointerdown', e => {
@@ -2110,6 +2085,28 @@ $$('.win').forEach(w => {
       removeEventListener('pointermove', mv); removeEventListener('pointerup', up);
       (state.wins[w.id] = state.wins[w.id] || {}).x = parseInt(w.style.left, 10) || 0;
       state.wins[w.id].y = parseInt(w.style.top, 10) || 0;
+      save();
+    };
+    addEventListener('pointermove', mv); addEventListener('pointerup', up);
+  });
+});
+$$('.win').forEach(w => {
+  const rz = document.createElement('i');
+  rz.className = 'resz';
+  w.appendChild(rz);
+  rz.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    if(e.button && e.button !== 0) return;
+    wFocus(w.id);
+    const sw = w.offsetWidth, sh = w.offsetHeight, sx = e.clientX, sy = e.clientY;
+    const mv = ev => {
+      w.style.width = clamp(sw + ev.clientX - sx, 300, innerWidth - 12) + 'px';
+      w.style.height = clamp(sh + ev.clientY - sy, 150, innerHeight - 60) + 'px';
+    };
+    const up = () => {
+      removeEventListener('pointermove', mv); removeEventListener('pointerup', up);
+      const q = state.wins[w.id] = state.wins[w.id] || {};
+      q.w = parseInt(w.style.width, 10) || 0; q.h = parseInt(w.style.height, 10) || 0;
       save();
     };
     addEventListener('pointermove', mv); addEventListener('pointerup', up);
@@ -2132,6 +2129,7 @@ if(urlSt && findSt(urlSt)){ state.last = urlSt; state.hist = [urlSt].concat(stat
 applyTheme(state.theme === 'light' ? 'light' : 'dark');
 applySide(state.side);
 renderCoverSwitch();
+renderFxRow();
 applyCover(state.cover || '');
 $('#fxBtn').classList.toggle('on', state.fx !== false);
 setTimeout(startProbes, 600);
@@ -2156,6 +2154,7 @@ setInterval(() => {
   }
 }, 5000);
 
+renderDesk();
 tbClock(); tbNp();
 wOpen('playerWin', [64, 72]);
 wOpen('stationsWin', [460, 72]);
