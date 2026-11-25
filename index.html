@@ -511,6 +511,26 @@ html[data-cover="mac"] #startMenu .slabel { color:#86868b; }
 html[data-cover="mac"] #startMenu .smi { border-radius:7px; padding:8px 11px; font-size:13px; }
 html[data-cover="mac"] #startMenu .smi:hover { background:#0a84ff; color:#fff; }
 html[data-cover="mac"] #startMenu .swrow .minibtn:hover { background:#0a84ff; color:#fff; border-color:#0a84ff; }
+
+/* ===== CLI: НАСТОЯЩИЙ ТЕРМИНАЛ ===== */
+#cli { position:fixed; inset:0; z-index:3550; background:#020c05; color:#7dff9e;
+  font-family:var(--mono); display:flex; flex-direction:column; padding:18px 22px 12px; cursor:text; box-shadow:none; }
+#cli[hidden] { display:none !important; }
+#cliOut { flex:1; min-height:0; overflow:auto; font-size:13px; line-height:1.55; }
+#cliOut::-webkit-scrollbar { width:9px; }
+#cliOut::-webkit-scrollbar-thumb { background:#1d4a2c; border-radius:0; }
+#cliOut::-webkit-scrollbar-track { background:#02120a; }
+#cli ::selection { background:#39ff5e; color:#02120a; }
+.clil { min-height:1.55em; white-space:pre-wrap; }
+.c-dim { color:#3fae63; }
+.c-ok { color:#c8ffdb; }
+.c-err { color:#ff8f7a; }
+.c-acc { color:#39ff5e; text-shadow:0 0 9px rgba(57,255,94,.4); }
+.c-in { color:#d6ffe2; }
+#cliRow { flex:none; font-size:13px; line-height:1.55; padding-top:7px; margin-top:8px; border-top:1px dashed #1d4a2c; display:flex; align-items:baseline; }
+#cliPs { color:#39ff5e; text-shadow:0 0 8px rgba(57,255,94,.35); flex:none; }
+#cliBuf { color:#eafff0; }
+#cliCaret { display:inline-block; width:8px; height:1.15em; margin-left:1px; background:#39ff5e; align-self:center; animation:cliblink 1.1s steps(1) infinite; }
 </style>
 </head>
 <body>
@@ -671,6 +691,7 @@ html[data-cover="mac"] #startMenu .swrow .minibtn:hover { background:#0a84ff; co
   <button class="smi" data-win="pmModal">⋯ Ещё · плеер (сон, обложки)</button>
   <button class="smi" data-win="artModal">🖼 Картинка волны</button>
   <button class="smi" data-win="persWin">🎨 Персонализация</button>
+  <button class="smi" data-cli>▸ Терминал · F2</button>
 </div>
 
 <div class="taskbar">
@@ -688,6 +709,11 @@ html[data-cover="mac"] #startMenu .swrow .minibtn:hover { background:#0a84ff; co
 </div>
 
 <div id="toast"></div>
+
+<div id="cli" hidden tabindex="-1">
+  <div id="cliOut"></div>
+  <div id="cliRow"><span id="cliPs"></span><span id="cliBuf"></span><span id="cliCaret"></span></div>
+</div>
 
 <script>
 'use strict';
@@ -1229,7 +1255,7 @@ function renderCards(){
   if(!list.length){ g.innerHTML = '<p class="footnote">Ничего не нашлось — попробуйте другой фильтр или запрос.</p>'; return; }
   g.innerHTML = list.map(s => {
     const f = freqOf(s);
-    return '<div class="card' + (s.cat === 'user' ? ' user-card' : '') + (state.playing && state.current === s.id ? ' playing' : '') + '" data-id="' + s.id + '" data-cat="' + s.cat + '">' +
+    return '<div tabindex="0" class="card' + (s.cat === 'user' ? ' user-card' : '') + (state.playing && state.current === s.id ? ' playing' : '') + '" data-id="' + s.id + '" data-cat="' + s.cat + '">' +
       '<div class="ctop"><span class="covthumb" style="background-image:url(' + artFor(s) + ')"></span><span class="cat">' + (CATS[s.cat] || s.cat) + '</span>' +
       (dead[s.id] ? '<button class="badge-dead" data-reprobe="' + s.id + '" title="Поток не ответил при проверке — нажмите, чтобы попробовать снова">не отвечает ↻</button>' : '') +
       '<span class="ctools">' + 
@@ -1385,6 +1411,7 @@ function applyCover(c){
   if(state.cover){ document.documentElement.dataset.cover = state.cover; r.removeProperty('--accent'); r.removeProperty('--accent-soft'); }
   else { document.documentElement.removeAttribute('data-cover'); r.setProperty('--accent', state.accent); r.setProperty('--accent-soft', state.accent + '2e'); }
   save(); syncThemeColor();
+  cliSync();
   if(window.fxKick) window.fxKick(0.5);
 }
 function renderCoverSwitch(){
@@ -1715,9 +1742,259 @@ $('#ioImport').addEventListener('click', () => {
   }
   toast(importStations($('#ioText').value));
 });
+/* ================= CLI: НАСТОЯЩИЙ ТЕРМИНАЛ ================= */
+const CLI = { cwd:'~', buf:'', hist:[], hi:0, last:[], booted:false };
+const CLICMD = ['help','ls','cd','pwd','cat','play','pause','next','prev','vol','search','fav','unfav','top','hist','skin','fx','theme','clear','motd','gui','exit','echo','date','whoami','uname'];
+function cliPrint(text, cls){
+  const out = $('#cliOut'); if(!out) return;
+  String(text).split('\n').forEach(ln => {
+    const d = document.createElement('div');
+    d.className = 'clil' + (cls ? ' ' + cls : '');
+    d.innerHTML = ln || '&nbsp;';
+    out.appendChild(d);
+  });
+  out.scrollTop = 1e9;
+}
+function cliPromptRender(){
+  $('#cliPs').textContent = 'radio@desk:' + CLI.cwd + '$ ';
+  $('#cliBuf').textContent = CLI.buf;
+}
+function cliEcho(line){ cliPrint('radio@desk:' + CLI.cwd + '$ ' + esc(line), 'c-in'); }
+function cliBoot(){
+  cliPrint('[  OK  ] Диапазон ОС 4.3 — tty1', 'c-dim');
+  cliPrint('')
+  cliPrint('Диапазон FM radio-shell — радио как файловая система', 'c-acc');
+  cliPrint('')
+  cliPrint('login: radio', 'c-in');
+  cliPrint('')
+  cliPrint('password: ████████', 'c-dim');
+  cliPrint('')
+  cliPrint('Добро пожаловать, radio. Волны — это файлы: /stations /fav /user /hist.', 'c-ok');
+  cliPrint('  help — все команды · ls /stations — список · play 3 — слушать · gui — стол (Esc/F2)', 'c-acc');
+}
+function cliShow(){
+  const el = $('#cli'); if(!el) return;
+  el.hidden = false;
+  if(!CLI.booted){ CLI.booted = true; cliBoot(); }
+  cliPromptRender();
+  beep('open');
+  try{ el.focus(); }catch(e){}
+}
+function cliHide(){ const el = $('#cli'); if(el && !el.hidden){ el.hidden = true; beep('close'); } }
+function cliToggle(){ const el = $('#cli'); if(el && el.hidden) cliShow(); else cliHide(); }
+function cliSync(){ if(state.cover === 'cli') cliShow(); else cliHide(); }
+/* --- вирт-ФС --- */
+function cliEntries(cwd){
+  if(cwd === '~'){
+    const nf = STATIONS.filter(x => x.cat !== 'user').length;
+    return CLIDIRS.map(d => ({ name: d[0] + '/', meta: d[1], n: d[0] === 'stations' ? nf : (d[0] === 'fav' ? Object.keys(state.fav).length : (d[0] === 'user' ? state.user.length : state.hist.length)) }));
+  }
+  const d = cwd.slice(2);
+  if(d === 'stations') return STATIONS;
+  if(d === 'fav') return STATIONS.filter(x => state.fav[x.id]);
+  if(d === 'user') return state.user;
+  if(d === 'hist') return state.hist.map(id => findSt(id)).filter(Boolean);
+  return [];
+}
+const CLIDIRS = [['stations','38 волн по жанрам'],['fav','твоё избранное'],['user','свои потоки'],['hist','что играло']];
+function cliMeta(s){ return (s.genre || 'моя волна') + (freqOf(s) ? ' \u00b7 ' + freqOf(s) : ''); }
+function cliFmt(entries, numbered){
+  CLI.last = entries.filter(x => x && x.url) || [];
+  return entries.map((x, i) => {
+    if(x.n !== undefined) return 'drwxr-xr-x  ' + (x.name + ' '.repeat(14)).slice(0, 14) + '  ' + (x.n || 0) + ' \u2014 ' + x.meta;
+    const nm = x.short || x.id;
+    return (numbered ? String(i + 1).padStart(2, ' ') + '  ' : '          ') + (nm + '.fm' + ' '.repeat(14)).slice(0, 14) + '  ' + cliMeta(x);
+  }).join('\n') || '(пусто)';
+}
+function cliNormPath(a){
+  if(!a || a === '.' || a === '~') return '~';
+  if(a === '..') return '~';
+  const t = a.replace(/^~\/?/, '').replace(/^\//, '').replace(/\/$/, '').toLowerCase();
+  return CLIDIRS.some(d => d[0] === t) ? '~/' + t : null;
+}
+function cliResolve(arg){
+  if(!arg) return null;
+  if(/^\d+$/.test(arg)){ const i = +arg - 1; return (CLI.last && CLI.last[i]) || null; }
+  const a = arg.toLowerCase().replace(/\.fm$/, '');
+  const loc = CLI.last.length ? CLI.last : cliEntries(CLI.cwd);
+  return loc.find(x => (x.short || '').toLowerCase() === a) ||
+         allStations().find(x => (x.name + ' ' + (x.short || '')).toLowerCase().indexOf(a) >= 0) || null;
+}
+function cliComplete(buf){
+  const ws = buf.split(/\s+/); const lw = ws[ws.length - 1];
+  if(ws.length <= 1){
+    const m = CLICMD.filter(c => c.startsWith(buf.toLowerCase()));
+    if(m.length > 1) cliPrint(m.join('  '), 'c-dim');
+    return m.length === 1 ? m[0] + ' ' : buf;
+  }
+  const h = ws[0].toLowerCase();
+  let pool = null;
+  if(h === 'skin') pool = COVERS.map(x => x[0] || 'classic');
+  else if(h === 'fx') pool = FXDEF.map(x => x[0]);
+  else if(h === 'theme') pool = ['dark', 'light'];
+  else pool = cliEntries(CLI.cwd).map(x => (x.n !== undefined ? x.name : (x.short || x.id) + '.fm'));
+  const m = pool.filter(x => x.startsWith(lw));
+  if(m.length > 1) cliPrint(m.join('  '), 'c-dim');
+  return m.length === 1 ? ws.slice(0, -1).join(' ') + (ws.length > 2 ? ' ' : ' ') + m[0] + ' ' : buf;
+}
+/* --- команды --- */
+function cliCmd(line){
+  const parts = line.trim().split(/\s+/);
+  const cmd = (parts[0] || '').toLowerCase();
+  const arg = parts.slice(1).join(' ');
+  if(!cmd) return;
+  switch(cmd){
+    case 'help':
+      cliPrint('Диапазон FM radio-shell \u00b7 команды:', 'c-acc');
+      cliPrint([
+        '  ls [каталог]      список волн (/stations /fav /user /hist)',
+        '  cd <каталог>      перейти в каталог (/ .. ~)',
+        '  cat <файл>        рассказать о волне',
+        '  play <n|имя>      включить волну по номеру из ls или имени',
+        '  pause / next / prev   пауза / волна вперёд / назад',
+        '  vol <0..100>      громкость',
+        '  search <текст>    поиск по волнам',
+        '  fav|unfav <n|имя> в избранное / из избранного',
+        '  top / hist        полка результата и журнал',
+        '  skin <имя>        скин ОС (classic day w10 w7 mac cli)',
+        '  fx <имя>          фон (fluid rain paper day)',
+        '  theme dark|light  тема интерфейса',
+        '  clear \u00b7 motd \u00b7 date \u00b7 echo \u00b7 whoami \u00b7 uname',
+        '  gui / exit        вернуться на рабочий стол (Esc, F2)'
+      ].join('\n'));
+      break;
+    case 'ls': {
+      const target = cliNormPath(arg || CLI.cwd);
+      if(arg && !target){ cliPrint('ls: нет такого каталога: ' + arg, 'c-err'); break; }
+      cliPrint(cliFmt(cliEntries(target), true));
+      break;
+    }
+    case 'cd': {
+      const t = cliNormPath(arg || '~');
+      if(!t){ cliPrint('cd: нет такого каталога: ' + arg, 'c-err'); break; }
+      CLI.cwd = t;
+      break;
+    }
+    case 'pwd': cliPrint(CLI.cwd); break;
+    case 'cat': {
+      if(/^readme$/i.test(arg)){
+        cliPrint('Диапазон ОС 4.3 \u2014 интернет-радио виде десктопа.', 'c-acc');
+        cliPrint('Волны — файлы:. /stations — сборка из 38 волн,/fav — выбранное, /user — свои потоки, /hist — журнал. play <номер> — слушать.');
+        break;
+      }
+      const st = cliResolve(arg);
+      if(!st){ cliPrint('cat: ' + (arg || '?') + ': нет такого файла', 'c-err'); break; }
+      cliPrint(esc(st.name) + '   [' + (st.cat || 'network') + ']', 'c-acc');
+      cliPrint('  жанр: ' + esc(st.genre || '\u2014') + '\n  частота: ' + (freqOf(st) || '\u2014') + '\n  поток: ' + esc(st.url || '\u2014'));
+      break;
+    }
+    case 'play': {
+      const st = cliResolve(arg);
+      if(!st){ cliPrint('play: не нашёл волну ' + (arg || '') + ' (ls — список)', 'c-err'); break; }
+      playSt(st);
+      cliPrint('\u25B6 ' + esc(st.name) + ' \u00b7 ' + cliMeta(st), 'c-ok');
+      break;
+    }
+    case 'pause':
+      if(state.playing && curSt()){ togglePlay(curSt()); cliPrint('\u23F8 пауза'); }
+      else cliPrint('pause: ничего не играет');
+      break;
+    case 'next': step(1); break;
+    case 'prev': step(-1); break;
+    case 'vol': {
+      const n = parseFloat(arg);
+      if(isNaN(n)){ cliPrint('vol: число 0..100 (сейчас ' + state.vol + ')', 'c-err'); break; }
+      setVol(n); cliPrint('vol: ' + state.vol + '%');
+      break;
+    }
+    case 'search': {
+      const q = arg.toLowerCase();
+      if(!q){ cliPrint('search: укажи текст', 'c-err'); break; }
+      const res = allStations().filter(x => (x.name + ' ' + (x.short || '') + ' ' + x.genre).toLowerCase().indexOf(q) >= 0).slice(0, 20);
+      CLI.last = res;
+      cliPrint(res.length ? 'найдено: ' + res.length + '\n' + res.map((x, i) => String(i + 1).padStart(2, ' ') + '  ' + esc(x.name) + '  \u00b7 ' + cliMeta(x)).join('\n') : 'search: ничего', res.length ? '' : 'c-err');
+      break;
+    }
+    case 'fav': case 'unfav': {
+      const st = cliResolve(arg);
+      if(!st){ cliPrint(cmd + ': не нашёл волну ' + (arg || ''), 'c-err'); break; }
+      if(cmd === 'fav') state.fav[st.id] = true; else delete state.fav[st.id];
+      save(); paintAll(); renderDesk();
+      cliPrint(cmd === 'fav' ? '\u2605 ' + esc(st.name) + ' \u2014 в избранном' : '\u2606 ' + esc(st.name) + ' \u2014 убрано', 'c-ok');
+      break;
+    }
+    case 'top': {
+      const rows = Object.keys(state.listen).map(id => ({ id: id, t: state.listen[id] })).filter(r => findSt(r.id) && r.t > 0).sort((a, b) => b.t - a.t).slice(0, 5);
+      if(!rows.length){ cliPrint('top: полка пуста \u2014 послушай что-нибудь', 'c-dim'); break; }
+      CLI.last = rows.map(r => findSt(r.id));
+      cliPrint(rows.map((r, i) => { const st2 = findSt(r.id); return String(i + 1).padStart(2, ' ') + '  ' + esc(st2.name) + '  \u00b7 ' + Math.max(1, Math.round(r.t / 60)) + ' мин'; }).join('\n'), 'c-acc');
+      break;
+    }
+    case 'hist': {
+      const list = state.hist.map(id => findSt(id)).filter(Boolean);
+      if(!list.length){ cliPrint('hist: журнал пуст', 'c-dim'); break; }
+      CLI.last = list;
+      cliPrint(list.map((st2, i) => String(i + 1).padStart(2, ' ') + '  ' + esc(st2.name)).join('\n'));
+      break;
+    }
+    case 'skin':
+      if(!arg){ cliPrint(COVERS.map(x => (x[0] || 'classic') + (state.cover === x[0] ? ' *' : '')).join('  '), 'c-acc'); break; }
+      if(!COVERS.some(x => x[0] === (arg === 'classic' ? '' : arg))){ cliPrint('skin: скины: ' + COVERS.map(x => x[0] || 'classic').join(' '), 'c-err'); break; }
+      applyCover(arg === 'classic' ? '' : arg); renderCoverSwitch();
+      cliPrint('skin: ' + arg, 'c-ok');
+      break;
+    case 'fx':
+      if(!arg){ cliPrint(FXDEF.map(x => x[0] + (state.fxKind === x[0] ? ' *' : '')).join('  '), 'c-acc'); break; }
+      if(!FXDEF.some(x => x[0] === arg)){ cliPrint('fx: фоны: ' + FXDEF.map(x => x[0]).join(' '), 'c-err'); break; }
+      state.fxKind = arg; save(); renderFxRow(); if(window.fxKick) window.fxKick(0);
+      cliPrint('fx: ' + arg, 'c-ok');
+      break;
+    case 'theme':
+      if(arg !== 'dark' && arg !== 'light'){ cliPrint('theme: dark | light', 'c-err'); break; }
+      applyTheme(arg); cliPrint('theme: ' + arg, 'c-ok');
+      break;
+    case 'clear': $('#cliOut').innerHTML = ''; break;
+    case 'motd': cliBoot(); break;
+    case 'gui': case 'exit': cliHide(); break;
+    case 'echo': cliPrint(esc(arg)); break;
+    case 'date': cliPrint(new Date().toLocaleString('ru-RU')); break;
+    case 'whoami': cliPrint('radio'); break;
+    case 'uname': cliPrint('Диапазон ОС 4.3 tty1'); break;
+    default:
+      cliPrint('radio-shell: ' + esc(cmd) + ': команда не найдена (help — список)', 'c-err');
+  }
+}
+/* --- клавиатура терминала; true = событие съедено --- */
+function cliHandle(e){
+  const el = $('#cli');
+  const open = el && !el.hidden;
+  if(e.key === 'F2' || (e.ctrlKey && e.code === 'Backquote')){ cliToggle(); e.preventDefault(); return true; }
+  if(!open) return false;
+  if(e.key === 'Shift' || e.key === 'Control' || e.key === 'Alt' || e.key === 'Meta') return true;
+  if(e.ctrlKey && (e.key === 'c' || e.key === 'C')){ cliEcho(CLI.buf + '^C'); CLI.buf = ''; cliPromptRender(); e.preventDefault(); return true; }
+  if(e.ctrlKey && e.key === 'l'){ $('#cliOut').innerHTML = ''; cliPromptRender(); e.preventDefault(); return true; }
+  if(e.key === 'Enter'){
+    const line = CLI.buf;
+    CLI.buf = ''; CLI.last = CLI.last || [];
+    cliEcho(line);
+    if(line.trim()){ CLI.hist.push(line); CLI.hi = CLI.hist.length; cliCmd(line); }
+    cliPromptRender();
+    e.preventDefault(); return true;
+  }
+  if(e.key === 'Escape'){ cliHide(); e.preventDefault(); return true; }
+  if(e.key === 'Backspace'){ CLI.buf = CLI.buf.slice(0, -1); cliPromptRender(); e.preventDefault(); return true; }
+  if(e.key === 'ArrowUp'){ if(CLI.hi > 0){ CLI.hi--; CLI.buf = CLI.hist[CLI.hi] || ''; cliPromptRender(); } e.preventDefault(); return true; }
+  if(e.key === 'ArrowDown'){ if(CLI.hi < CLI.hist.length - 1){ CLI.hi++; CLI.buf = CLI.hist[CLI.hi] || ''; } else { CLI.hi = CLI.hist.length; CLI.buf = ''; } cliPromptRender(); e.preventDefault(); return true; }
+  if(e.key === 'Tab'){ CLI.buf = cliComplete(CLI.buf); cliPromptRender(); e.preventDefault(); return true; }
+  if(e.key.length === 1 && !e.ctrlKey && !e.metaKey){ CLI.buf = (CLI.buf + e.key).slice(0, 300); cliPromptRender(); e.preventDefault(); return true; }
+  if(/^F\d+$/.test(e.key)) return false;
+  return true;
+}
+
 window.addEventListener('keydown', e => {
   const tag = (e.target && e.target.tagName) || '';
   if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if(cliHandle(e)) return;
   const t = curSt() || findSt(state.last) || allStations()[0];
   if(e.code === 'Space' && t){ e.preventDefault(); togglePlay(t); }
   else if(e.key === 'ArrowRight'){ step(1); }
@@ -2219,6 +2496,7 @@ document.addEventListener('click', e => {
   if(wc){ const w = wc.closest('.win'); if(w) wHide(w.id); return; }
   const tb = e.target.closest('.taskbar [data-tb]');
   if(tb){ wToggle(tb.dataset.tb); return; }
+  if(e.target.closest('[data-cli]')){ cliToggle(); $('#startMenu').hidden = true; return; }
   const smi = e.target.closest('#startMenu [data-win]');
   if(smi){ wOpen(smi.dataset.win); $('#startMenu').hidden = true; return; }
   if(e.target.closest('#startBtn')){ const m = $('#startMenu'); m.hidden = !m.hidden; return; }
