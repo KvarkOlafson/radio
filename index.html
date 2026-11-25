@@ -551,6 +551,19 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 .hudbreath .bcr { width:76px; height:76px; border-radius:50%; border:2px solid var(--accent); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--muted); transform:scale(.55); }
 .hudbreath .blb { font-size:12px; color:var(--muted); }
 .hudbreath .wxfb { background:none; border:1px solid var(--border); border-radius:8px; cursor:pointer; color:var(--fg); padding:4px 12px; font-size:12px; }
+/* ===== v3.26: гео-выбор места (города + карта) и тилинг виджетов ===== */
+.geoline { font-size:12.5px; color:var(--muted); display:flex; gap:8px; align-items:center; margin-bottom:6px; }
+.geoline b { color:var(--fg); font-weight:600; }
+.geosearch input { width:100%; background:var(--panel2); border:1px solid var(--border); border-radius:10px; padding:9px 10px; color:var(--fg); font-size:13px; outline:none; box-sizing:border-box; }
+#geoList { display:flex; flex-direction:column; max-height:150px; overflow:auto; }
+.geo-s { display:flex; justify-content:space-between; gap:8px; padding:7px 4px; border:0; border-top:1px solid var(--border); cursor:pointer; font-size:13px; color:var(--fg); background:none; text-align:left; width:100%; }
+.geo-s:first-child { border-top:0; }
+.geo-s small { color:var(--muted); font-size:11px; }
+#geoMap { height:300px; border-radius:12px; overflow:hidden; background:var(--panel2); }
+.arwb { background:none; border:1px solid var(--border); color:var(--muted); border-radius:7px; width:27px; height:25px; cursor:pointer; font-size:10px; line-height:1; padding:0; }
+.arwb:hover { color:var(--fg); border-color:var(--accent); }
+.ncfg-lab { display:flex; align-items:center; justify-content:space-between; flex:1; gap:12px; cursor:pointer; }
+.ncfg-arw { display:flex; gap:4px; flex:none; }
 /* ===== v3.24: раскладки вечернего экрана (Акварель), OSD громкости, дежурный режим, часы-табло ===== */
 #nightHud[data-skin="aquarel"] { background:linear-gradient(160deg,#f7f2e7,#ebe2d0); }
 #nightHud[data-skin="aquarel"]::before {
@@ -733,6 +746,16 @@ body.duty:not(.night)::after { content:""; position:fixed; inset:0; z-index:80; 
   <div class="ncfg-seg" id="ncfgClock"><button data-cm="digits">Цифры</button><button data-cm="flap">Табло</button></div>
   <div class="ncfg-sec">Виджеты</div>
   <div class="ncfg-toggles" id="ncfgW"></div>
+  <div class="ncfg-sec">Место для погоды</div>
+  <div class="geoline" id="geoLine"></div>
+  <div class="geosearch"><input id="geoQ" placeholder="Город: начните вводить…" spellcheck="false"><div id="geoList"></div></div>
+  <button class="wxfb" id="geoMapBtn" style="margin-top:8px;">🗺 На карте</button>
+</div></div>
+<div class="modal small" id="geoModal" hidden><div class="modal-box">
+  <h3>🗺 Место для погоды</h3>
+  <div id="geoMap"></div>
+  <small class="addnote">Клик по карте — поставить метку, затем «Выбрать». Карта загружается с CDN только здесь.</small>
+  <div class="mrowbtn"><button class="addbtn" id="geoPick" disabled>Выбрать</button><button class="iconbtn modal-back" id="geoClose">Закрыть</button></div>
 </div></div>
 <div id="volOsd"></div>
 <div id="toast"></div>
@@ -1778,6 +1801,7 @@ window.addEventListener('keydown', e => {
   else if(e.key === 'ArrowUp'){ setVol(state.vol + 5); e.preventDefault(); }
   else if(e.key === 'ArrowDown'){ setVol(state.vol - 5); e.preventDefault(); }
   else if(e.key === 'Escape' && !$('#nightCfg').hidden){ $('#nightCfg').hidden = true; }
+  else if(e.key === 'Escape' && !$('#geoModal').hidden){ $('#geoModal').hidden = true; }
   else if(e.key === 'Escape' && nightVirtual && !document.fullscreenElement){ nightVirtual = false; applyNight(); }
 });
 if('mediaSession' in navigator){
@@ -2212,6 +2236,10 @@ window.addEventListener('online', () => {
 const NIGHT_LAYOUTS = [['classic','Классика','◫' ],['lighthouse','Маяк','↟'],['disc','Винил','◎'],['aquarel','Акварель','❋']];
 if(state.nightSkin === 'kineskop') state.nightSkin = 'lighthouse';
 state.nightW = Object.assign({ clock:'digits', date:true, sleep:true, session:true, ribbon:true, breath:false, autodim:true, weather:false }, state.nightW || {});
+const NIGHT_WK = ['date','session','sleep','weather','breath'];
+if(!Array.isArray(state.nightW.order)) state.nightW.order = NIGHT_WK.slice();
+state.nightW.order = state.nightW.order.filter(k => NIGHT_WK.indexOf(k) !== -1);
+NIGHT_WK.forEach(k => { if(state.nightW.order.indexOf(k) === -1) state.nightW.order.push(k); });
 let nightStart = 0;
 const hudDayStr = d => ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'][d.getDay()] + ', ' +
   d.getDate() + ' ' + ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'][d.getMonth()];
@@ -2257,7 +2285,8 @@ function hudTick(){
 const WX_CODES = {0:['☀','ясно'],1:['🌤','почти ясно'],2:['⛅','переменно'],3:['☁','пасмурно'],45:['🌫','туман'],48:['🌫','туман'],51:['🌦','морось'],53:['🌦','морось'],55:['🌦','морось'],61:['🌧','дождь'],63:['🌧','дождь'],65:['🌧','ливень'],71:['🌨','снег'],73:['🌨','снег'],75:['❄','снегопад'],80:['🌦','ливни'],81:['🌧','ливни'],82:['⛈','ливни'],95:['⛈','гроза'],96:['⛈','гроза'],99:['⛈','гроза']};
 function ensureWx(){
   const now = Date.now();
-  if(state.wx && now - state.wx.t < 3600000){ nightWx(); return; }
+  const force = !!ensureWx.force; ensureWx.force = false;
+  if(!force && state.wx && now - state.wx.t < 3600000){ nightWx(); return; }
   if(!navigator.geolocation || ensureWx.busy || now - (ensureWx.try0 || 0) < 600000) return;
   ensureWx.busy = true; ensureWx.try0 = now;
   nightWx(true);
@@ -2266,13 +2295,14 @@ function ensureWx(){
     fetchWx(p.coords.latitude, p.coords.longitude);
   }, () => { ensureWx.busy = false; nightWx(); toast('⚠ Геолокация не разрешена — повторить можно по 📍'); }, {timeout:9000, maximumAge:600000});
 }
-function fetchWx(lat, lon){
+function fetchWx(lat, lon, nm){
   const u = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat.toFixed(3) + '&longitude=' + lon.toFixed(3) + '&current=temperature_2m,weather_code&daily=sunrise,sunset&timezone=auto&forecast_days=1';
   fetchT(u, 9000).then(r => { if(!r || !r.ok) throw 0; return r.json(); }).then(j => {
     const c = j && j.current, d = j && j.daily;
     if(!c || !d || !d.sunrise || !d.sunrise[0]) throw 0;
-    state.wx = { t: Date.now(), lat, lon, temp: Math.round(c.temperature_2m), code: c.weather_code || 0, rise: d.sunrise[0], set: d.sunset[0], name: state.wx && state.wx.lat === lat && state.wx.name || '' };
+    state.wx = { t: Date.now(), lat, lon, temp: Math.round(c.temperature_2m), code: c.weather_code || 0, rise: d.sunrise[0], set: d.sunset[0], name: nm || (state.wx && state.wx.lat === lat && state.wx.lon === lon ? state.wx.name : '') };
     save(); nightWx();
+    if(state.wx.name) return null;
     return fetchT('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat.toFixed(3) + '&longitude=' + lon.toFixed(3) + '&localityLanguage=ru', 8000).then(r2 => r2 && r2.ok ? r2.json() : null).then(g => {
       if(g && state.wx && Math.abs(state.wx.lat - lat) < 0.001){ state.wx.name = g.city || g.locality || ''; if(state.wx.name){ save(); nightWx(); } }
     }).catch(() => {});
@@ -2300,6 +2330,79 @@ function nightWx(loading){
     if(ic){ ic.style.left = (p*100).toFixed(1) + '%'; ic.textContent = (p <= 0 || p >= 1) ? '☾' : '☀'; }
   }
 }
+
+/* ===== v3.26: ВЫБОР МЕСТА ДЛЯ ПОГОДЫ: города (Open-Meteo Geocoding) + карта (Leaflet, лениво) ===== */
+let geoT = 0, geoLast = [];
+function renderGeoLine(){
+  const el = $('#geoLine'); if(!el) return;
+  el.innerHTML = state.wx
+    ? 'Место: <b>' + esc(state.wx.name || ('точка ' + state.wx.lat.toFixed(2) + ', ' + state.wx.lon.toFixed(2))) + '</b><button class="wxfb" data-wxuse title="Определить автоматически">📍</button>'
+    : 'Место: не выбрано <button class="wxfb" data-wxuse title="Определить автоматически">📍</button>';
+}
+function geoSuggest(q){
+  const el = $('#geoList'); if(!el) return;
+  el.innerHTML = '<small class="addnote">Ищу «' + esc(q) + '»…</small>';
+  fetchT('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(q) + '&count=8&language=ru&format=json', 8000).then(r => {
+    if(!r || !r.ok) throw 0;
+    return r.json();
+  }).then(j => {
+    geoLast = j && j.results || [];
+    el.innerHTML = geoLast.length
+      ? geoLast.map((g, i) => '<button class="geo-s" data-geo="' + i + '"><b>' + esc(g.name) + '</b><small>' + esc([g.admin1, g.country].filter(Boolean).join(', ')) + '</small></button>').join('')
+      : '<small class="addnote">Ничего не нашлось.</small>';
+  }).catch(() => { el.innerHTML = '<small class="addnote">Поиск городов не отвечает (сеть/провайдер).</small>'; });
+}
+$('#geoQ').addEventListener('input', () => {
+  const v = $('#geoQ').value.trim();
+  clearTimeout(geoT);
+  if(v.length < 2){ geoLast = []; $('#geoList').innerHTML = ''; return; }
+  geoT = setTimeout(() => geoSuggest(v), 350);
+});
+$('#geoList').addEventListener('click', e => {
+  const b = e.target.closest('[data-geo]'); if(!b) return;
+  const g = geoLast[+b.dataset.geo]; if(!g) return;
+  const nm = g.name + (g.country ? ', ' + g.country : '');
+  geoLast = []; $('#geoList').innerHTML = ''; $('#geoQ').value = '';
+  fetchWx(g.latitude, g.longitude, nm);
+  toast('📍 Место: ' + nm);
+});
+$('#geoLine').addEventListener('click', e => {
+  if(e.target.closest('[data-wxuse]')){ ensureWx.force = true; ensureWx(); }
+});
+let geoMapApi = null, geoMarker = null, geoPend = null;
+function loadLeaflet(){
+  return new Promise(res => {
+    if(window.L) return res(true);
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    const s = document.createElement('script'); s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    s.onload = () => res(true); s.onerror = () => res(false);
+    document.head.appendChild(css); document.head.appendChild(s);
+  });
+}
+$('#geoMapBtn').addEventListener('click', () => {
+  $('#geoModal').hidden = false;
+  loadLeaflet().then(ok => {
+    const box = $('#geoMap');
+    if(!ok){ box.innerHTML = '<small class="addnote">Карта недоступна — CDN не отвечает. Используй ввод города или 📍.</small>'; return; }
+    if(geoMapApi) return;
+    geoMapApi = window.L.map('geoMap').setView([55, 37], 3);
+    window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(geoMapApi);
+    geoMapApi.on('click', e => {
+      geoPend = { lat: e.latlng.lat, lon: e.latlng.lng };
+      if(geoMarker) geoMapApi.removeLayer(geoMarker);
+      geoMarker = window.L.marker([geoPend.lat, geoPend.lon]).addTo(geoMapApi);
+      $('#geoPick').disabled = false;
+    });
+  });
+});
+$('#geoPick').addEventListener('click', () => {
+  if(!geoPend) return;
+  $('#geoModal').hidden = true;
+  fetchWx(geoPend.lat, geoPend.lon, '');
+  toast('📍 Место: ' + geoPend.lat.toFixed(2) + ', ' + geoPend.lon.toFixed(2));
+});
+$('#geoClose').addEventListener('click', () => { $('#geoModal').hidden = true; });
+$('#geoModal').addEventListener('click', e => { if(e.target === $('#geoModal')) $('#geoModal').hidden = true; });
 
 /* ===== v3.25: ДЫХАНИЕ 4-7-8 ===== */
 let breathOn = false, breathT0 = 0, breathI = 0;
@@ -2349,16 +2452,22 @@ function renderNight(){
   const session = w.session ? '<div class="hudsession hud-sess">вечер · ' + hudSessionStr() + '</div>' : '';
   const wxHtml = w.weather ? '<div class="hudwx" id="hudWX"></div><div class="hudday" id="hudDay" hidden><span class="fill"></span><i>☀</i></div>' : '';
   const breathHtml = w.breath ? '<div class="hudbreath" id="hudBreath"><div class="bcr"></div><div class="blb"></div><button class="wxfb" data-act="breath">' + (breathOn ? '⏹ остановить' : '〇 дыхание 4-7-8') + '</button></div>' : '';
+  const wmap = {
+    date: w.date ? '<div class="huddate">' + hudDayStr(new Date()) + '</div>' : '',
+    session: session,
+    sleep: (w.sleep && sleepLeft > 0 ? '<div class="hudsession hud-sleep">☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0') + '</div>' : ''),
+    weather: wxHtml,
+    breath: breathHtml
+  };
+  const wstack = (state.nightW.order || []).map(k => wmap[k]).join('');
   if(skin === 'lighthouse' || skin === 'aquarel'){
     hud.innerHTML =
       '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить раскладку">◧</button>' +
       '<button class="iconbtn" data-act="gear" title="Виджеты">⚙</button>' +
       '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
       '<div class="hudclock">' + (() => { const t = hudClockNow(); const h = hudClockHtmlFor(t); hudClockPrev = t; return h; })() + '</div>' +
-      (w.date ? '<div class="huddate">' + hudDayStr(new Date()) + '</div>' : '') +
       (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
-      (w.sleep && sleepLeft > 0 ? '<div class="hudsession hud-sleep">☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0') + '</div>' : '') +
-      session + wxHtml + breathHtml + '<div style="flex:1"></div>' + ribbon + bar;
+      wstack + '<div style="flex:1"></div>' + ribbon + bar;
     if(w.weather) ensureWx();
   } else if(skin === 'disc'){
     const art = st ? artFor(st) : '';
@@ -2368,7 +2477,7 @@ function renderNight(){
       '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
       '<div class="huddisc"' + (art ? ' style="--artl:' + cssUrl(art) + '"' : '') + '></div>' +
       (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
-      session + wxHtml + breathHtml + '<div style="flex:1"></div>' + ribbon + bar;
+      wstack + '<div style="flex:1"></div>' + ribbon + bar;
     if(w.weather) ensureWx();
   }
 }
@@ -2403,8 +2512,14 @@ function openNightCfg(){
     ? 'Классика — пустой экран под фон: слышно радио, видна только кнопка ◧ в углу. Часы и виджеты действуют в других раскладках.'
     : 'Виджеты ниже — общие: работают в любой раскладке с HUD.';
   [...$('#ncfgClock').children].forEach(b => b.classList.toggle('cur', (state.nightW.clock === 'flap') === (b.dataset.cm === 'flap')));
-  const W = [['date','Дата и день недели'],['session','Сессия вечера'],['sleep','Отсчёт Таймера сна'],['ribbon','Лента треков вечера'],['weather','Погода (гео)'],['breath','Дыхание 4-7-8'],['autodim','Дежурный режим после 23:00']];
-  $('#ncfgW').innerHTML = W.map(x => '<label class="ncfg-w">' + x[1] + '<span class="ncfg-t"><input type="checkbox" data-w="' + x[0] + '"' + (state.nightW[x[0]] ? ' checked' : '') + '><i></i></span></label>').join('');
+  const W = [['date','Дата и день недели'],['session','Сессия вечера'],['sleep','Отсчёт Таймера сна'],['weather','Погода (гео)'],['breath','Дыхание 4-7-8'],['autodim','Дежурный режим после 23:00']];
+  const NW = {}; W.forEach(x => NW[x[0]] = x[1]);
+  $('#ncfgW').innerHTML = state.nightW.order.map(k =>
+    '<div class="ncfg-w"><span class="ncfg-lab">' + NW[k] + '<span class="ncfg-t"><input type="checkbox" data-w="' + k + '"' + (state.nightW[k] ? ' checked' : '') + '><i></i></span></span>' +
+    '<span class="ncfg-arw"><button class="arwb" data-up="' + k + '" title="Выше">▲</button><button class="arwb" data-dn="' + k + '" title="Ниже">▼</button></span></div>'
+  ).join('') +
+    '<div class="ncfg-w"><span class="ncfg-lab">' + NW.autodim + '<span class="ncfg-t"><input type="checkbox" data-w="autodim"' + (state.nightW.autodim ? ' checked' : '') + '><i></i></span></span></div>';
+  renderGeoLine();
   $('#nightCfg').hidden = false;
 }
 $('#hudSkinBtn').addEventListener('click', openNightCfg);
@@ -2419,6 +2534,13 @@ $('#nightCfg').addEventListener('click', e => {
   }
   const cm = e.target.closest('[data-cm]');
   if(cm){ state.nightW.clock = cm.dataset.cm === 'flap' ? 'flap' : 'digits'; save(); openNightCfg(); renderNight(); return; }
+  const up = e.target.closest('[data-up]'), dn = e.target.closest('[data-dn]');
+  if(up || dn){
+    const src = up || dn, k = src.dataset.up || src.dataset.dn, ar = state.nightW.order;
+    const i = ar.indexOf(k), j = up ? i - 1 : i + 1;
+    if(i > -1 && j > -1 && j < ar.length){ ar[i] = ar[j]; ar[j] = k; save(); openNightCfg(); renderNight(); }
+    return;
+  }
 });
 $('#nightCfg').addEventListener('change', e => {
   const w = e.target.closest('[data-w]');
