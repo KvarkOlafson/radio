@@ -469,47 +469,97 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
   .card .covthumb { width:34px; height:34px; border-radius:8px; }
 }
 /* П7: вечерний фуллскрин — вольготнее */
-/* ===== NIGHT HUD: скины полноэкранного режима ===== */
+/* ===== v3.27: ночной экран — тилинг-сетка (плитки), темы, режим редактирования ===== */
 #nightHud {
-  position:fixed; inset:0; z-index:85; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  background:var(--page-bg); gap:10px; padding:24px 20px;
+  position:fixed; inset:0; z-index:85; overflow:auto;
+  display:flex; flex-direction:column; align-items:center;
+  background:rgba(7,8,12,.52); gap:14px; padding:64px 16px 26px;
 }
 #nightHud[hidden] { display:none; }
+#nightHud[data-theme="paper"] { background:linear-gradient(160deg,#f7f2e7,#ebe2d0); }
+#nightHud[data-theme="paper"]::before {
+  content:""; position:fixed; inset:0; pointer-events:none;
+  background:
+    radial-gradient(closest-side at 18% 24%, rgba(58,90,160,.15), transparent 70%),
+    radial-gradient(closest-side at 80% 72%, rgba(160,58,90,.13), transparent 70%),
+    radial-gradient(closest-side at 55% 15%, rgba(55,135,85,.11), transparent 70%),
+    radial-gradient(closest-side at 30% 85%, rgba(200,140,50,.10), transparent 70%);
+}
 .hudcorner { position:absolute; top:16px; right:16px; display:flex; gap:8px; }
 .hudcorner .iconbtn { background:var(--panel2); border:1px solid var(--border); min-width:40px; min-height:40px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
-.hudbar button { min-width:38px; min-height:38px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
-.hudclock { font-family:var(--mono); font-size:min(17vw,150px); line-height:1; color:var(--fg); letter-spacing:4px; }
+#hudDot { position:fixed; top:16px; right:16px; z-index:86; }
+#hudDot .iconbtn { background:var(--panel2); border:1px solid var(--border); }
+.hudgrid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; width:min(760px,94vw); }
+.hudtile {
+  position:relative; overflow:hidden;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  background:rgba(16,18,24,.55); border:1px solid var(--border); border-radius:18px;
+  padding:14px 16px; min-height:72px; box-shadow:0 10px 30px rgba(0,0,0,.24);
+}
+.hudtile.w2 { grid-column:span 2; }
+#nightHud[data-theme="paper"] .hudtile { background:rgba(255,255,255,.55); border-color:rgba(60,50,30,.18); box-shadow:0 10px 26px rgba(60,50,30,.16); }
+.npname { font-size:15px; font-weight:700; color:var(--fg); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hudclock { font-family:var(--mono); font-size:min(11vw,96px); line-height:1; color:var(--fg); letter-spacing:4px; }
 .huddate { color:var(--muted); font-size:14px; letter-spacing:1px; }
-.hudnp { font-size:15px; color:var(--accent); max-width:86vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; }
-.hudribbon { font-family:var(--mono); font-size:11px; color:var(--muted); max-width:86vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hudnp { font-size:14px; color:var(--accent); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; }
+.nph { font-size:12px; color:var(--muted); text-align:center; }
+.hudribbon { font-family:var(--mono); font-size:11px; color:var(--muted); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; }
 .hudsession { font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:1px; }
 .hudbar {
   display:flex; align-items:center; gap:14px; padding:9px 14px;
-  background:var(--panel2); border:1px solid var(--border); border-radius:999px; max-width:94vw;
+  background:var(--panel2); border:1px solid var(--border); border-radius:999px; max-width:100%;
 }
 .hudbar b { font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:24vw; }
-.hudbar button { background:none; border:0; font-size:18px; color:var(--muted); cursor:pointer; padding:6px 8px; }
+.hudbar button { min-width:38px; min-height:38px; background:none; border:0; font-size:18px; color:var(--muted); cursor:pointer; padding:6px 8px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
 .hudbar button:hover { color:var(--fg); }
 .hudbar .bigplaylink { width:46px; height:46px; border-radius:50%; border:0; font-size:18px; font-weight:800; color:#161616;
   background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, #fff), var(--accent)); box-shadow:0 4px 14px var(--accent-soft); }
 .hudstar.on { color:var(--accent) !important; }
-.huddisc {
-  width:min(56vh,56vw); height:min(56vh,56vw); border-radius:50%; position:relative; flex:none;
-  background:repeating-radial-gradient(circle at 50% 50%, #14141a 0 2px, #26262f 2px 4px);
-  border:1px solid var(--border); box-shadow:0 24px 70px rgba(0,0,0,.5);
+.hudwx { font-size:15px; color:var(--fg); opacity:.92; display:flex; gap:9px; align-items:center; }
+.hudwx small { color:var(--muted); font-size:12px; }
+.hudwx .wxfb { background:none; border:1px solid var(--border); border-radius:8px; cursor:pointer; color:var(--fg); padding:2px 8px; font-size:13px; }
+.hudday { width:min(300px,86%); height:6px; border-radius:999px; background:rgba(128,128,128,.28); position:relative; margin:8px auto 0; }
+.hudday .fill { position:absolute; left:0; top:0; bottom:0; border-radius:999px; background:var(--accent); opacity:.38; }
+.hudday i { position:absolute; top:50%; transform:translate(-50%,-50%); font-size:17px; line-height:1; }
+.hudbreath { display:flex; flex-direction:column; align-items:center; gap:8px; }
+.hudbreath .bcr { width:76px; height:76px; border-radius:50%; border:2px solid var(--accent); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--muted); transform:scale(.55); }
+.hudbreath .blb { font-size:12px; color:var(--muted); }
+.hudbreath .wxfb { background:none; border:1px solid var(--border); border-radius:8px; cursor:pointer; color:var(--fg); padding:4px 12px; font-size:12px; }
+.editbar { position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:87;
+  display:flex; align-items:center; gap:12px; background:var(--panel); border:1px solid var(--accent); border-radius:999px;
+  padding:8px 10px 8px 16px; box-shadow:0 12px 34px rgba(0,0,0,.5); }
+.editbar b { font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--accent); }
+.editbar .nph { max-width:32vw; }
+.editbar button { border:0; border-radius:999px; padding:8px 16px; cursor:pointer; font-weight:800; font-size:13px; background:var(--accent); color:#161616; }
+.tiletools { position:absolute; top:6px; right:8px; display:none; gap:4px; z-index:3; }
+#nightHud.edit .tiletools { display:flex; }
+#nightHud.edit .hudtile { cursor:grab; touch-action:none; }
+.ted { background:var(--panel2); border:1px solid var(--border); color:var(--muted); border-radius:8px; cursor:pointer; padding:3px 8px; font-size:12px; line-height:1; }
+.ted:hover { color:var(--fg); border-color:var(--accent); }
+.dragging { opacity:.45; pointer-events:none; }
+.tadd { display:flex; align-items:center; justify-content:center; min-height:64px;
+  border:1.5px dashed var(--border); border-radius:18px; background:none; color:var(--muted); cursor:pointer;
+  font-size:13px; padding:10px; text-align:center; }
+.tadd:hover { color:var(--accent); border-color:var(--accent); }
+.hudco { animation:hudblink 2s steps(1) infinite; }
+@keyframes hudblink { 0%,49%{opacity:1} 50%,100%{opacity:.28} }
+.hudclock .flapd {
+  display:inline-block; position:relative; padding:0 .06em; margin:0 .045em;
+  background:linear-gradient(#2c2c30,#17171a); border:1px solid rgba(255,255,255,.14); border-radius:6px;
+  box-shadow:0 6px 16px rgba(0,0,0,.4);
 }
-.huddisc::after {
-  content:""; position:absolute; inset:17%; border-radius:50%;
-  background-image:var(--artl); background-size:cover; background-position:center;
-  box-shadow:0 0 0 5px #0a0a0e, 0 0 0 7px rgba(255,255,255,.3);
-}
-.huddisc::before {
-  content:""; position:absolute; left:50%; top:50%; width:9px; height:9px; margin:-4.5px; border-radius:50%;
-  background:#0b0b10; box-shadow:0 0 0 2px rgba(255,255,255,.4); z-index:2;
-}
-.playing .huddisc { animation:spinslow 3.4s linear infinite; }
-#hudDot { position:fixed; top:16px; right:16px; z-index:86; }
-#hudDot .iconbtn { background:var(--panel2); border:1px solid var(--border); }
+.hudclock .flapd::after { content:""; position:absolute; left:0; right:0; top:50%; height:1px; background:rgba(0,0,0,.65); }
+.hudclock .flapd.flip { animation:flapflip .25s ease-in; transform-origin:top center; }
+@keyframes flapflip { 0%{transform:rotateX(72deg); opacity:.3} 100%{transform:rotateX(0); opacity:1} }
+#nightHud[data-theme="paper"] .hudclock { color:#2b2933; font-family:Georgia,'Times New Roman',serif; letter-spacing:2px; }
+#nightHud[data-theme="paper"] .huddate, #nightHud[data-theme="paper"] .hudnp, #nightHud[data-theme="paper"] .hudsession,
+#nightHud[data-theme="paper"] .hudribbon, #nightHud[data-theme="paper"] .nph, #nightHud[data-theme="paper"] .npname { color:#5c5a66; }
+#nightHud[data-theme="paper"] .hudcorner .iconbtn { background:rgba(255,255,255,.72); border-color:rgba(60,50,30,.18); color:#5c5a66; }
+#nightHud[data-theme="paper"] .hudbar { background:rgba(255,255,255,.62); border-color:rgba(60,50,30,.16); }
+#nightHud[data-theme="paper"] .hudbar b { color:#2b2933; }
+#nightHud[data-theme="paper"] .hudbar button { color:#5c5a66; }
+#nightHud[data-theme="paper"] .hudclock .flapd { background:linear-gradient(#eae3d3,#d7cdb7); border-color:rgba(60,50,30,.22); box-shadow:0 3px 9px rgba(60,50,30,.18); }
+#nightHud[data-theme="paper"] .hudclock .flapd::after { background:rgba(60,50,30,.3); }
 #nightCfg { position:fixed; inset:0; z-index:88; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:20px; }
 #nightCfg[hidden] { display:none; }
 .ncfg-box {
@@ -530,9 +580,7 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 .ncfg-seg { display:flex; gap:6px; }
 .ncfg-seg button { flex:1; padding:8px; border-radius:10px; border:1px solid var(--border); background:var(--panel2); color:var(--fg); cursor:pointer; font-size:13px; }
 .ncfg-seg button.cur { border-color:var(--accent); color:var(--accent); }
-.ncfg-toggles { display:flex; flex-direction:column; }
-.ncfg-w { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 2px; font-size:13px; color:var(--fg); cursor:pointer; }
-.ncfg-w + .ncfg-w { border-top:1px solid var(--border); }
+.ncfg-w { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 2px 0; font-size:13px; color:var(--fg); }
 .ncfg-t { position:relative; width:38px; height:22px; flex:none; }
 .ncfg-t input { position:absolute; opacity:0; inset:0; margin:0; cursor:pointer; }
 .ncfg-t i { position:absolute; inset:0; border-radius:999px; background:rgba(128,128,128,.35); transition:background .15s; }
@@ -540,18 +588,6 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 .ncfg-t input:checked + i { background:var(--accent); }
 .ncfg-t input:checked + i::after { transform:translateX(16px); }
 .ncfg-hint { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.45; }
-/* ===== v3.25: виджеты вечернего экрана: погода, прогресс дня, дыхание 4-7-8 ===== */
-.hudwx { font-size:15px; color:var(--fg); opacity:.92; display:flex; gap:9px; align-items:center; margin-top:12px; }
-.hudwx small { color:var(--muted); font-size:12px; }
-.hudwx .wxfb { background:none; border:1px solid var(--border); border-radius:8px; cursor:pointer; color:var(--fg); padding:2px 8px; font-size:13px; }
-.hudday { width:min(440px,72vw); height:6px; border-radius:999px; background:rgba(128,128,128,.28); position:relative; margin:12px auto 0; }
-.hudday .fill { position:absolute; left:0; top:0; bottom:0; border-radius:999px; background:var(--accent); opacity:.38; }
-.hudday i { position:absolute; top:50%; transform:translate(-50%,-50%); font-size:17px; line-height:1; }
-.hudbreath { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:12px; }
-.hudbreath .bcr { width:76px; height:76px; border-radius:50%; border:2px solid var(--accent); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--muted); transform:scale(.55); }
-.hudbreath .blb { font-size:12px; color:var(--muted); }
-.hudbreath .wxfb { background:none; border:1px solid var(--border); border-radius:8px; cursor:pointer; color:var(--fg); padding:4px 12px; font-size:12px; }
-/* ===== v3.26: гео-выбор места (города + карта) и тилинг виджетов ===== */
 .geoline { font-size:12.5px; color:var(--muted); display:flex; gap:8px; align-items:center; margin-bottom:6px; }
 .geoline b { color:var(--fg); font-weight:600; }
 .geosearch input { width:100%; background:var(--panel2); border:1px solid var(--border); border-radius:10px; padding:9px 10px; color:var(--fg); font-size:13px; outline:none; box-sizing:border-box; }
@@ -560,38 +596,6 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 .geo-s:first-child { border-top:0; }
 .geo-s small { color:var(--muted); font-size:11px; }
 #geoMap { height:300px; border-radius:12px; overflow:hidden; background:var(--panel2); }
-.arwb { background:none; border:1px solid var(--border); color:var(--muted); border-radius:7px; width:27px; height:25px; cursor:pointer; font-size:10px; line-height:1; padding:0; }
-.arwb:hover { color:var(--fg); border-color:var(--accent); }
-.ncfg-lab { display:flex; align-items:center; justify-content:space-between; flex:1; gap:12px; cursor:pointer; }
-.ncfg-arw { display:flex; gap:4px; flex:none; }
-/* ===== v3.24: раскладки вечернего экрана (Акварель), OSD громкости, дежурный режим, часы-табло ===== */
-#nightHud[data-skin="aquarel"] { background:linear-gradient(160deg,#f7f2e7,#ebe2d0); }
-#nightHud[data-skin="aquarel"]::before {
-  content:""; position:absolute; inset:0; pointer-events:none;
-  background:
-    radial-gradient(closest-side at 18% 24%, rgba(58,90,160,.15), transparent 70%),
-    radial-gradient(closest-side at 80% 72%, rgba(160,58,90,.13), transparent 70%),
-    radial-gradient(closest-side at 55% 15%, rgba(55,135,85,.11), transparent 70%),
-    radial-gradient(closest-side at 30% 85%, rgba(200,140,50,.10), transparent 70%);
-}
-#nightHud[data-skin="aquarel"] .hudclock { color:#2b2933; font-family:Georgia,'Times New Roman',serif; letter-spacing:2px; }
-#nightHud[data-skin="aquarel"] .huddate, #nightHud[data-skin="aquarel"] .hudnp, #nightHud[data-skin="aquarel"] .hudsession, #nightHud[data-skin="aquarel"] .hudribbon { color:#5c5a66; }
-#nightHud[data-skin="aquarel"] .hudcorner .iconbtn { background:rgba(255,255,255,.72); border-color:rgba(60,50,30,.18); color:#5c5a66; }
-#nightHud[data-skin="aquarel"] .hudbar { background:rgba(255,255,255,.62); border-color:rgba(60,50,30,.16); }
-#nightHud[data-skin="aquarel"] .hudbar b { color:#2b2933; }
-#nightHud[data-skin="aquarel"] .hudbar button { color:#5c5a66; }
-.hudco { animation:hudblink 2s steps(1) infinite; }
-@keyframes hudblink { 0%,49%{opacity:1} 50%,100%{opacity:.28} }
-.hudclock .flapd {
-  display:inline-block; position:relative; padding:0 .06em; margin:0 .045em;
-  background:linear-gradient(#2c2c30,#17171a); border:1px solid rgba(255,255,255,.14); border-radius:6px;
-  box-shadow:0 6px 16px rgba(0,0,0,.4);
-}
-.hudclock .flapd::after { content:""; position:absolute; left:0; right:0; top:50%; height:1px; background:rgba(0,0,0,.65); }
-.hudclock .flapd.flip { animation:flapflip .25s ease-in; transform-origin:top center; }
-@keyframes flapflip { 0%{transform:rotateX(72deg); opacity:.3} 100%{transform:rotateX(0); opacity:1} }
-#nightHud[data-skin="aquarel"] .hudclock .flapd { background:linear-gradient(#eae3d3,#d7cdb7); border-color:rgba(60,50,30,.22); box-shadow:0 3px 9px rgba(60,50,30,.18); }
-#nightHud[data-skin="aquarel"] .hudclock .flapd::after { background:rgba(60,50,30,.3); }
 #volOsd {
   position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:86;
   background:rgba(10,10,14,.78); color:#fff; font-weight:800; font-size:44px; letter-spacing:2px;
@@ -736,16 +740,17 @@ body.duty:not(.night)::after { content:""; position:fixed; inset:0; z-index:80; 
   <button class="mplay" id="mPlay">▶</button>
 </div>
 <div id="nightHud" hidden></div>
-<div id="hudDot" hidden><button class="iconbtn" id="hudSkinBtn" title="Раскладки и виджеты вечернего экрана">◧</button></div>
+<div id="hudDot" hidden><button class="iconbtn" id="hudSkinBtn" title="Вечерний экран — темы и сетка">◧</button></div>
 <div id="nightCfg" hidden><div class="ncfg-box">
   <div class="ncfg-head"><b>Вечерний экран</b><button class="iconbtn" id="ncfgClose" title="Закрыть">✕</button></div>
-  <div class="ncfg-sec">Раскладка</div>
+  <div class="ncfg-sec">Экран</div>
   <div class="ncfg-skins" id="ncfgSkins"></div>
   <div class="ncfg-hint" id="ncfgHint"></div>
   <div class="ncfg-sec">Часы</div>
   <div class="ncfg-seg" id="ncfgClock"><button data-cm="digits">Цифры</button><button data-cm="flap">Табло</button></div>
-  <div class="ncfg-sec">Виджеты</div>
-  <div class="ncfg-toggles" id="ncfgW"></div>
+  <div class="ncfg-w"><span>Дежурный режим после 23:00</span><span class="ncfg-t"><input type="checkbox" id="ncfgAuto" data-w="autodim"><i></i></span></div>
+  <div class="ncfg-sec">Сетка</div>
+  <div class="mrowbtn"><button class="addbtn" data-netact="edit">Редактировать сетку</button><button class="addbtn" data-netact="reset">Сбросить</button></div>
   <div class="ncfg-sec">Место для погоды</div>
   <div class="geoline" id="geoLine"></div>
   <div class="geosearch"><input id="geoQ" placeholder="Город: начните вводить…" spellcheck="false"><div id="geoList"></div></div>
@@ -831,7 +836,7 @@ const freqOf = st => (typeof st.freq === 'number' && st.freq >= 87.5 && st.freq 
 /* ================= STORE ================= */
 const LSKEY = 'dipfm3';
 function freshState(){
-  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, current:null, playing:false, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, alive:false, cruise:false, nightSkin:'classic', nightW:{clock:'digits',date:true,sleep:true,session:true,ribbon:true,breath:false,autodim:true,weather:false}, wx:null };
+  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, current:null, playing:false, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, alive:false, cruise:false, nightSkin:'classic', nightTiles:null, nightW:{clock:'digits',autodim:true}, wx:null };
 }
 function load(){
   let d = null;
@@ -856,8 +861,8 @@ let saveT = 0;
 function save(){ clearTimeout(saveT); saveT = setTimeout(flushSave, 2000); }
 function flushSave(){
   clearTimeout(saveT);
-  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,nightSkin,nightW,wx} = state;
-  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,nightSkin,nightW,wx})); }catch(e){}
+  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,nightSkin,nightTiles,nightW,wx} = state;
+  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,nightSkin,nightTiles,nightW,wx})); }catch(e){}
 }
 window.addEventListener('beforeunload', flushSave);
 
@@ -1729,7 +1734,7 @@ $('#pVol').addEventListener('input', e => setVol(+e.target.value));
 let nightVirtual = false;
 function applyNight(){
   const on = !!document.fullscreenElement || nightVirtual;
-  if(!on){ nightStart = 0; breathStop(); }
+  if(!on){ nightStart = 0; breathStop(); nightEdit = false; }
   document.body.classList.toggle('night', on);
   renderNight();
   tickClock();
@@ -1761,7 +1766,7 @@ $('#ioBtn').addEventListener('click', () => { $('#ioModal').hidden = false; });
 $('#ioClose').addEventListener('click', () => { $('#ioModal').hidden = true; });
 $('#ioModal').addEventListener('click', e => { if(e.target === $('#ioModal')) $('#ioModal').hidden = true; });
 $('#ioExport').addEventListener('click', async () => {
-  const data = JSON.stringify({ app:'Диапазон FM', v:3, profile:true, user:state.user, fav:state.fav, listen:state.listen, arts:state.arts, set:{ vol:state.vol, theme:state.theme, accent:state.accent, side:state.side, cover:state.cover, nightSkin:state.nightSkin, nightW:state.nightW } }, null, 1);
+  const data = JSON.stringify({ app:'Диапазон FM', v:3, profile:true, user:state.user, fav:state.fav, listen:state.listen, arts:state.arts, set:{ vol:state.vol, theme:state.theme, accent:state.accent, side:state.side, cover:state.cover, nightSkin:state.nightSkin, nightTiles:state.nightTiles, nightW:{clock:state.nightW.clock, autodim:state.nightW.autodim} } }, null, 1);
   $('#ioText').value = data;
   try { await navigator.clipboard.writeText(data); toast('⇅ Профиль в буфере обмена — сохраните его в файл'); }
   catch(e){ toast('⇅ JSON профиля готов в поле ниже'); }
@@ -1778,9 +1783,9 @@ $('#ioImport').addEventListener('click', () => {
     if(s.vol != null) state.vol = Math.round(Math.max(0, Math.min(100, s.vol)));
     if(s.theme === 'light' || s.theme === 'dark') state.theme = s.theme;
     if(s.accent) state.accent = s.accent;
-    if(typeof NIGHT_LAYOUTS !== 'undefined' && NIGHT_LAYOUTS.some(function(x){ return x[0] === s.nightSkin; })) state.nightSkin = s.nightSkin;
-    if(s.nightSkin === 'kineskop') state.nightSkin = 'lighthouse';
-    if(s.nightW && typeof s.nightW === 'object' && !Array.isArray(s.nightW)) state.nightW = Object.assign(state.nightW, s.nightW);
+    if(s.nightSkin){ state.nightSkin = s.nightSkin; state.nightSkin = themeName(); }
+    if(Array.isArray(s.nightTiles) && s.nightTiles.length){ state.nightTiles = normTiles(s.nightTiles); if(!state.nightTiles.length) state.nightTiles = defTiles(); }
+    if(s.nightW && typeof s.nightW === 'object' && !Array.isArray(s.nightW)){ state.nightW.clock = s.nightW.clock === 'flap' ? 'flap' : 'digits'; if(typeof s.nightW.autodim === 'boolean') state.nightW.autodim = s.nightW.autodim; }
     flushSave(); applyTheme(state.theme === 'light' ? 'light' : 'dark'); applyAccent(state.accent);
     $('#customColor').value = state.accent;
     applySide(s.side || state.side); applyCover(s.cover || '');
@@ -1800,6 +1805,7 @@ window.addEventListener('keydown', e => {
   else if(e.key === 'ArrowLeft'){ step(-1); }
   else if(e.key === 'ArrowUp'){ setVol(state.vol + 5); e.preventDefault(); }
   else if(e.key === 'ArrowDown'){ setVol(state.vol - 5); e.preventDefault(); }
+  else if(e.key === 'Escape' && nightEdit){ doneEdit(); }
   else if(e.key === 'Escape' && !$('#nightCfg').hidden){ $('#nightCfg').hidden = true; }
   else if(e.key === 'Escape' && !$('#geoModal').hidden){ $('#geoModal').hidden = true; }
   else if(e.key === 'Escape' && nightVirtual && !document.fullscreenElement){ nightVirtual = false; applyNight(); }
@@ -2233,13 +2239,45 @@ window.addEventListener('online', () => {
 });
 
 /* ===== ВЕЧЕРНИЙ РЕЖИМ: СКИНЫ ФУЛЛСКРИНА ===== */
-const NIGHT_LAYOUTS = [['classic','Классика','◫' ],['lighthouse','Маяк','↟'],['disc','Винил','◎'],['aquarel','Акварель','❋']];
-if(state.nightSkin === 'kineskop') state.nightSkin = 'lighthouse';
-state.nightW = Object.assign({ clock:'digits', date:true, sleep:true, session:true, ribbon:true, breath:false, autodim:true, weather:false }, state.nightW || {});
-const NIGHT_WK = ['date','session','sleep','weather','breath'];
-if(!Array.isArray(state.nightW.order)) state.nightW.order = NIGHT_WK.slice();
-state.nightW.order = state.nightW.order.filter(k => NIGHT_WK.indexOf(k) !== -1);
-NIGHT_WK.forEach(k => { if(state.nightW.order.indexOf(k) === -1) state.nightW.order.push(k); });
+const NIGHT_THEMES = [['night','\u0421\u0442\u0435\u043a\u043b\u043e','\u2749'],['paper','\u0411\u0443\u043c\u0430\u0433\u0430','\u270e'],['classic','\u0411\u0435\u0437 \u044d\u043a\u0440\u0430\u043d\u0430','\u25eb']];
+/* \u0421\u0442\u0430\u0440\u044b\u0435 \u0440\u0430\u0441\u043a\u043b\u0430\u0434\u043a\u0438 (lighthouse/disc/kineskop => night, aquarel => paper) \u043f\u0435\u0440\u0435\u0435\u0445\u0430\u043b\u0438 \u0432 \u0442\u0435\u043c\u044b */
+function themeName(){
+  const s = state.nightSkin;
+  if(s === 'kineskop' || s === 'lighthouse' || s === 'disc') return 'night';
+  if(s === 'aquarel') return 'paper';
+  return NIGHT_THEMES.some(x => x[0] === s) ? s : 'night';
+}
+if(['kineskop','lighthouse','disc','aquarel'].indexOf(state.nightSkin) > -1) state.nightSkin = themeName();
+state.nightW = Object.assign({ clock:'digits', autodim:true }, state.nightW || {});
+/* ===== v3.27: \u0442\u0430\u0439\u043b\u044b \u0432\u0435\u0447\u0435\u0440\u043d\u0435\u0433\u043e \u044d\u043a\u0440\u0430\u043d\u0430 \u2014 \u0441\u043e\u0441\u0442\u0430\u0432/\u043f\u043e\u0440\u044f\u0434\u043e\u043a/\u0448\u0438\u0440\u0438\u043d\u0430, \u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u0441\u0435\u0442\u043a\u0438 ===== */
+const TILE_LIST = ['clock','np','bar','date','session','sleep','weather','breath','ribbon'];
+const TILE_META = {
+  clock:['\u0427\u0430\u0441\u044b',2], np:['\u0421\u0442\u0430\u043d\u0446\u0438\u044f',2], bar:['\u0423\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435',2],
+  date:['\u0414\u0430\u0442\u0430',1], session:['\u0421\u0435\u0441\u0441\u0438\u044f',1], sleep:['\u0422\u0430\u0439\u043c\u0435\u0440 \u0441\u043d\u0430',1],
+  weather:['\u041f\u043e\u0433\u043e\u0434\u0430',1], breath:['\u0414\u044b\u0445\u0430\u043d\u0438\u0435',1], ribbon:['\u041b\u0435\u043d\u0442\u0430 \u0442\u0440\u0435\u043a\u043e\u0432',2]
+};
+function defTiles(){
+  const w = state.nightW || {};
+  const t = ['clock','np','bar','date','session'];
+  if(w.ribbon) t.push('ribbon');
+  if(w.weather) t.push('weather');
+  if(w.breath) t.push('breath');
+  return t.map(k => ({ k, w: TILE_META[k][1] }));
+}
+function normTiles(t){
+  const seen = {};
+  return (Array.isArray(t) ? t : []).map(x => {
+    const k = (x && typeof x === 'object') ? x.k : x;
+    if(!TILE_META[k] || seen[k]) return null;
+    seen[k] = 1;
+    const w = (x && typeof x === 'object' && (x.w === 1 || x.w === 2)) ? x.w : TILE_META[k][1];
+    return { k, w: w === 2 ? 2 : 1 };
+  }).filter(Boolean);
+}
+if(state.nightTiles) state.nightTiles = normTiles(state.nightTiles);
+if(!state.nightTiles || !state.nightTiles.length) state.nightTiles = defTiles();
+function tileList(){ return state.nightTiles.map(x => x.k); }
+let nightEdit = false;
 let nightStart = 0;
 const hudDayStr = d => ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'][d.getDay()] + ', ' +
   d.getDate() + ' ' + ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'][d.getMonth()];
@@ -2269,16 +2307,15 @@ function hudClockHtmlFor(txt){
 /* деликатный тик: обновляем только часы HUD, НЕ пересобирая кнопки (иначе клик теряется) */
 function hudTick(){
   const clock = $('#nightHud .hudclock');
-  if(!clock) return;
-  const txt = hudClockNow();
-  if(hudClockPrev !== txt){ clock.innerHTML = hudClockHtmlFor(txt); hudClockPrev = txt; }
+  if(clock){
+    const txt = hudClockNow();
+    if(hudClockPrev !== txt){ clock.innerHTML = hudClockHtmlFor(txt); hudClockPrev = txt; }
+  }
   const sesEl = $('#nightHud .hud-sess'), slpEl = $('#nightHud .hud-sleep');
   if(sesEl) sesEl.textContent = 'вечер · ' + hudSessionStr();
-  if(slpEl){
-    if(sleepLeft > 0) slpEl.textContent = '☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0');
-    else slpEl.remove();
-  }
-  if(state.nightW && state.nightW.weather) nightWx();
+  if(slpEl && sleepLeft > 0) slpEl.textContent = '☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0');
+  const hud = $('#nightHud');
+  if(hud && !hud.hidden && tileList().indexOf('weather') > -1) nightWx();
 }
 
 /* ===== v3.25: ПОГОДА И ПРОГРЕСС ДНЯ (Open-Meteo, без ключей; кэш 1ч) ===== */
@@ -2423,70 +2460,136 @@ function breathTick(){
   c.style.transform = 'scale(' + (t < 4 ? 0.55 + t/4*0.45 : t < 11 ? 1 : 1 - (t-11)/8*0.45).toFixed(3) + ')';
   c.textContent = Math.ceil(t < 4 ? 4 - t : t < 11 ? 11 - t : 19 - t);
 }
+function tileInner(k){
+  const st = curSt();
+  if(k === 'clock'){ const t = hudClockNow(), h = hudClockHtmlFor(t); hudClockPrev = t; return '<div class="hudclock">' + h + '</div>'; }
+  if(k === 'np'){ const s = hudNpStr(); return '<div class="npname">' + (st ? esc(st.name) : '\u2014') + '</div>' + (s ? '<div class="hudnp hud-np">' + esc(s) + '</div>' : '<div class="hudnp hud-np" hidden></div><span class="nph">\u043c\u0435\u0442\u0430 \u043f\u043e\u044f\u0432\u0438\u0442\u0441\u044f \u0432 \u044d\u0444\u0438\u0440\u0435</span>'); }
+  if(k === 'bar'){
+    if(!st) return '<span class="nph">\u0432\u043e\u043b\u043d\u0430 \u043d\u0435 \u0432\u044b\u0431\u0440\u0430\u043d\u0430</span>';
+    const fav = !!state.fav[st.id];
+    return '<div class="hudbar"><b>' + esc(st.name) + '</b>' +
+      '<button data-act="prev" title="\u041f\u0440\u0435\u0434\u044b\u0434\u0443\u0449\u0430\u044f">\u23ee</button>' +
+      '<button class="bigplaylink" data-act="play" title="\u041f\u0443\u0441\u043a/\u043f\u0430\u0443\u0437\u0430">' + (state.playing ? '\u23f8' : '\u25b6') + '</button>' +
+      '<button data-act="next" title="\u0421\u043b\u0435\u0434\u0443\u044e\u0449\u0430\u044f">\u23ed</button>' +
+      '<button class="hudstar' + (fav ? ' on' : '') + '" data-act="star" title="\u0412 \u0438\u0437\u0431\u0440\u0430\u043d\u043d\u043e\u0435">' + (fav ? '\u2605' : '\u2606') + '</button>' +
+      '<button data-act="luck" title="\u0423\u0434\u0438\u0432\u0438 \u043c\u0435\u043d\u044f \u2014 \u0441\u043b\u0443\u0447\u0430\u0439\u043d\u0430\u044f \u0432\u043e\u043b\u043d\u0430">\U0001f3b2</button>' +
+      '</div>';
+  }
+  if(k === 'date') return '<div class="huddate">' + hudDayStr(new Date()) + '</div>';
+  if(k === 'session') return '<div class="hudsession hud-sess">\u0432\u0435\u0447\u0435\u0440 \u00b7 ' + hudSessionStr() + '</div>';
+  if(k === 'sleep') return '<div class="hudsession hud-sleep">' + (sleepLeft > 0
+    ? '\u263e \u0441\u043e\u043d \u0447\u0435\u0440\u0435\u0437 ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0')
+    : '\u263e \u0442\u0430\u0439\u043c\u0435\u0440 \u0441\u043d\u0430 \u043d\u0435 \u0437\u0430\u0434\u0430\u043d') + '</div>';
+  if(k === 'weather') return '<div class="hudwx" id="hudWX"></div><div class="hudday" id="hudDay" hidden><span class="fill"></span><i>\u2600</i></div>';
+  if(k === 'breath') return '<div class="hudbreath" id="hudBreath"><div class="bcr"></div><div class="blb"></div><button class="wxfb" data-act="breath">' + (breathOn ? '\u23f9 \u043e\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u044c' : '\u3007 \u0434\u044b\u0445\u0430\u043d\u0438\u0435 4-7-8') + '</button></div>';
+  if(k === 'ribbon') return trackLog.length
+    ? '<div class="hudribbon">' + trackLog.slice(0, 4).map(x => esc(x.t)).join('   \u00b7   ') + '</div>'
+    : '<div class="hudribbon">\u043b\u0435\u043d\u0442\u0430 \u043f\u0443\u0441\u0442\u0430 \u2014 \u0432\u043a\u043b\u044e\u0447\u0438 \u044d\u0444\u0438\u0440</div>';
+  return '';
+}
+/* v3.27: рендер ночного экрана — темы (data-theme) + тилинг-сетка state.nightTiles */
 function renderNight(){
   const hud = $('#nightHud'); if(!hud) return;
   const on = document.body.classList.contains('night');
-  const skin = state.nightSkin === 'kineskop' ? 'lighthouse' : (NIGHT_LAYOUTS.some(x => x[0] === state.nightSkin) ? state.nightSkin : 'classic');
-  state.nightSkin = skin;
-  hud.dataset.skin = skin;
-  hud.hidden = !(on && skin !== 'classic');
-  $('#bigpanel').classList.toggle('hud-off', on && skin !== 'classic');
+  const th = themeName();
+  state.nightSkin = th;
+  hud.dataset.theme = th;
+  hud.classList.toggle('edit', nightEdit);
+  hud.hidden = !(on && th !== 'classic');
+  $('#bigpanel').classList.toggle('hud-off', on && th !== 'classic');
   const dot = $('#hudDot');
-  if(dot) dot.hidden = !on || skin !== 'classic';
+  if(dot) dot.hidden = !on || th !== 'classic';
   const cfg = $('#nightCfg');
   if(cfg && !on) cfg.hidden = true;
-  if(hud.hidden) return;
-  const st = curSt();
-  const fav = st ? !!state.fav[st.id] : false;
-  const bar = st
-    ? '<div class="hudbar"><b>' + esc(st.name) + '</b>' +
-      '<button data-act="prev" title="Предыдущая">⏮</button>' +
-      '<button class="bigplaylink" data-act="play" title="Пуск/пауза">' + (state.playing ? '⏸' : '▶') + '</button>' +
-      '<button data-act="next" title="Следующая">⏭</button>' +
-      '<button class="hudstar' + (fav ? ' on' : '') + '" data-act="star" title="В избранное">' + (fav ? '★' : '☆') + '</button>' +
-      '<button data-act="luck" title="Удиви меня — случайная волна">🎲</button>' +
-      '</div>' : '';
-  const w = state.nightW || {};
-  const ribbon = w.ribbon && trackLog.length
-    ? '<div class="hudribbon">' + trackLog.slice(0, 4).map(x => esc(x.t)).join('   ·   ') + '</div>' : '';
-  const session = w.session ? '<div class="hudsession hud-sess">вечер · ' + hudSessionStr() + '</div>' : '';
-  const wxHtml = w.weather ? '<div class="hudwx" id="hudWX"></div><div class="hudday" id="hudDay" hidden><span class="fill"></span><i>☀</i></div>' : '';
-  const breathHtml = w.breath ? '<div class="hudbreath" id="hudBreath"><div class="bcr"></div><div class="blb"></div><button class="wxfb" data-act="breath">' + (breathOn ? '⏹ остановить' : '〇 дыхание 4-7-8') + '</button></div>' : '';
-  const wmap = {
-    date: w.date ? '<div class="huddate">' + hudDayStr(new Date()) + '</div>' : '',
-    session: session,
-    sleep: (w.sleep && sleepLeft > 0 ? '<div class="hudsession hud-sleep">☾ сон через ' + Math.floor(sleepLeft/60) + ':' + String(sleepLeft%60).padStart(2,'0') + '</div>' : ''),
-    weather: wxHtml,
-    breath: breathHtml
-  };
-  const wstack = (state.nightW.order || []).map(k => wmap[k]).join('');
-  if(skin === 'lighthouse' || skin === 'aquarel'){
-    hud.innerHTML =
-      '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить раскладку">◧</button>' +
-      '<button class="iconbtn" data-act="gear" title="Виджеты">⚙</button>' +
-      '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
-      '<div class="hudclock">' + (() => { const t = hudClockNow(); const h = hudClockHtmlFor(t); hudClockPrev = t; return h; })() + '</div>' +
-      (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
-      wstack + '<div style="flex:1"></div>' + ribbon + bar;
-    if(w.weather) ensureWx();
-  } else if(skin === 'disc'){
-    const art = st ? artFor(st) : '';
-    hud.innerHTML =
-      '<div class="hudcorner"><button class="iconbtn" data-act="skin" title="Сменить раскладку">◧</button>' +
-      '<button class="iconbtn" data-act="gear" title="Виджеты">⚙</button>' +
-      '<button class="iconbtn" data-act="exit" title="Выйти из полного экрана (Esc)">✕</button></div>' +
-      '<div class="huddisc"' + (art ? ' style="--artl:' + cssUrl(art) + '"' : '') + '></div>' +
-      (hudNpStr() ? '<div class="hudnp">' + esc(hudNpStr()) + '</div>' : '') +
-      wstack + '<div style="flex:1"></div>' + ribbon + bar;
-    if(w.weather) ensureWx();
-  }
+  if(hud.hidden){ nightEdit = false; return; }
+  const corner = nightEdit ? '' :
+    '<div class="hudcorner"><button class="iconbtn" data-act="gear" title="\u0412\u0435\u0447\u0435\u0440\u043d\u0438\u0439 \u044d\u043a\u0440\u0430\u043d">\u2699</button>' +
+    '<button class="iconbtn" data-act="exit" title="\u0412\u044b\u0439\u0442\u0438 \u0438\u0437 \u043f\u043e\u043b\u043d\u043e\u0433\u043e \u044d\u043a\u0440\u0430\u043d\u0430 (Esc)">\u2715</button></div>';
+  const tiles = state.nightTiles.map(t =>
+    '<div class="hudtile' + (t.w === 2 ? ' w2' : '') + '" data-tile="' + t.k + '">' +
+    (nightEdit ? '<span class="tiletools"><button class="ted" data-tsz="1" title="\u0428\u0438\u0440\u0438\u043d\u0430">' + (t.w === 2 ? '\u25eb' : '\u25e7') + '</button><button class="ted" data-tx="1" title="\u0423\u0431\u0440\u0430\u0442\u044c \u043f\u043b\u0438\u0442\u043a\u0443">\u2715</button></span>' : '') +
+    tileInner(t.k) + '</div>').join('');
+  const adds = nightEdit
+    ? '<div class="hudgrid" style="margin-top:2px">' + TILE_LIST.filter(k => tileList().indexOf(k) < 0).map(k =>
+        '<button class="tadd" data-tadd="' + k + '">+ ' + TILE_META[k][0] + '</button>').join('') + '</div>'
+    : '';
+  hud.innerHTML = corner +
+    '<div class="editbar"' + (nightEdit ? '' : ' hidden') + '><b>\u0420\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u0441\u0435\u0442\u043a\u0438</b><span class="nph">\u0442\u044f\u043d\u0438 \u043f\u043b\u0438\u0442\u043a\u0443</span><button data-act="edone">\u2713 \u0413\u043e\u0442\u043e\u0432\u043e</button></div>' +
+    '<div class="hudgrid" id="hudGrid">' + tiles + '</div>' + adds + '<div style="flex:1"></div>';
+  if(state.nightTiles.some(t => t.k === 'weather')){ ensureWx(); nightWx(); }
 }
+/* редактор сетки: ширина/удаление/возврат/сброс, drag перенесён в nightDrag ниже */
+function doneEdit(){ nightEdit = false; renderNight(); }
+function startEdit(){ const c = $('#nightCfg'); if(c) c.hidden = true; nightEdit = true; renderNight(); }
+function tileWidth(k){ const t = state.nightTiles.find(x => x.k === k); if(!t) return; t.w = t.w === 2 ? 1 : 2; save(); renderNight(); }
+function removeTile(k){ state.nightTiles = state.nightTiles.filter(x => x.k !== k); save(); renderNight(); }
+function addTile(k){ if(!TILE_META[k] || tileList().indexOf(k) > -1) return; state.nightTiles.push({ k, w: TILE_META[k][1] }); save(); renderNight(); }
+function resetTiles(){ state.nightTiles = defTiles(); save(); renderNight(); }
+function tileMove(k, idx){
+  const i = state.nightTiles.findIndex(x => x.k === k); if(i < 0) return false;
+  const x = state.nightTiles.splice(i, 1)[0];
+  state.nightTiles.splice(clamp(idx, 0, state.nightTiles.length), 0, x);
+  save(); renderNight();
+  return true;
+}
+/* drag плиток: pointer (fallback mouse), живой insertBefore по центрам остальных плиток */
+(function nightDrag(){
+  const hud = $('#nightHud'); if(!hud) return;
+  let drag = null, dragSup = 0;
+  function down(e){
+    if(!nightEdit || drag) return;
+    const t = e.target && e.target.closest ? e.target.closest('.hudtile') : null;
+    if(!t || (e.target.closest && (e.target.closest('.ted') || e.target.closest('.hudbar')))) return;
+    drag = { t, fx: e.clientX || 0, fy: e.clientY || 0, moved: false };
+    if(e.cancelable) e.preventDefault();
+  }
+  function move(e){
+    if(!drag) return;
+    if(!drag.moved){
+      const dx = (e.clientX || 0) - drag.fx, dy = (e.clientY || 0) - drag.fy;
+      if(Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      drag.moved = true; drag.t.classList.add('dragging');
+    }
+    const gl = document.getElementById('hudGrid'); if(!gl) return;
+    const el = document.elementFromPoint(e.clientX || 0, e.clientY || 0);
+    const over = el && el.closest ? el.closest('.hudtile') : null;
+    const rest = Array.prototype.slice.call(gl.querySelectorAll('.hudtile')).filter(x => x !== drag.t);
+    if(over && over !== drag.t && over.dataset.tile && rest.indexOf(over) > -1){
+      const r = over.getBoundingClientRect();
+      if(e.clientY < r.top + r.height/2 || (e.clientY < r.bottom && e.clientX < r.left + r.width/2)) gl.insertBefore(drag.t, over);
+      else gl.insertBefore(drag.t, over.nextSibling);
+    } else if(!rest.length){ gl.appendChild(drag.t); }
+  }
+  function up(){
+    if(!drag) return;
+    const d = drag; drag = null;
+    d.t.classList.remove('dragging');
+    if(!d.moved) return;
+    dragSup = Date.now() + 400;
+    const gl = document.getElementById('hudGrid'); if(!gl) return;
+    state.nightTiles = normTiles(Array.prototype.map.call(gl.querySelectorAll('.hudtile'), x => x.dataset.tile));
+    if(!state.nightTiles.length) state.nightTiles = defTiles();
+    save(); renderNight();
+  }
+  window.suppressNightClick = () => Date.now() < dragSup;
+  const kind = window.PointerEvent ? 'pointer' : 'mouse';
+  hud.addEventListener(kind + 'down', down);
+  document.addEventListener(kind + 'move', move);
+  document.addEventListener(kind + 'up', up);
+  document.addEventListener(kind + 'cancel', up);
+})();
 $('#nightHud').addEventListener('click', e => {
-  const cb = e.target.closest('[data-w]');
-  if(cb){ state.nightW[cb.dataset.w] = cb.checked; save(); renderNight(); return; }
+  if(window.suppressNightClick && suppressNightClick()) return;
+  const gl = e.target.closest('[data-tadd]');
+  if(gl){ addTile(gl.dataset.tadd); return; }
+  const tz = e.target.closest('[data-tsz]');
+  if(tz){ const tt = tz.closest('.hudtile'); if(tt) tileWidth(tt.dataset.tile); return; }
+  const tx = e.target.closest('[data-tx]');
+  if(tx){ const tt2 = tx.closest('.hudtile'); if(tt2) removeTile(tt2.dataset.tile); return; }
   const b = e.target.closest('[data-act]');
   if(!b) return;
   const act = b.dataset.act;
+  if(act === 'edone'){ doneEdit(); return; }
   if(act === 'exit'){
     if(document.fullscreenElement && document.exitFullscreen){ document.exitFullscreen().catch(() => {}); }
     else { nightVirtual = false; applyNight(); }
@@ -2507,18 +2610,13 @@ $('#nightHud').addEventListener('click', e => {
   }
 });
 function openNightCfg(){
-  $('#ncfgSkins').innerHTML = NIGHT_LAYOUTS.map(s => '<button class="ncfg-skin' + (state.nightSkin === s[0] ? ' cur' : '') + '" data-sk="' + s[0] + '"><span class="ics">' + s[2] + '</span>' + s[1] + '</button>').join('');
-  $('#ncfgHint').textContent = state.nightSkin === 'classic'
-    ? 'Классика — пустой экран под фон: слышно радио, видна только кнопка ◧ в углу. Часы и виджеты действуют в других раскладках.'
-    : 'Виджеты ниже — общие: работают в любой раскладке с HUD.';
+  const th = themeName();
+  $('#ncfgSkins').innerHTML = NIGHT_THEMES.map(s => '<button class="ncfg-skin' + (th === s[0] ? ' cur' : '') + '" data-sk="' + s[0] + '"><span class="ics">' + s[2] + '</span>' + s[1] + '</button>').join('');
+  $('#ncfgHint').textContent = th === 'classic'
+    ? '\u0411\u0435\u0437 \u044d\u043a\u0440\u0430\u043d\u0430: \u0441\u043b\u044b\u0448\u043d\u043e \u0440\u0430\u0434\u0438\u043e, \u0432\u0438\u0434\u043d\u0430 \u0442\u043e\u043b\u044c\u043a\u043e \u043a\u043d\u043e\u043f\u043a\u0430 \u0432 \u0443\u0433\u043b\u0443. \u041f\u043b\u0438\u0442\u043a\u0438 \u0441\u043e\u0431\u0438\u0440\u0430\u044e\u0442\u0441\u044f \u0432 \u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440\u0435.'
+    : '\u041f\u043e\u0440\u044f\u0434\u043e\u043a \u0438 \u0441\u043e\u0441\u0442\u0430\u0432 \u043f\u043b\u0438\u0442\u043e\u043a \u043d\u0430\u0441\u0442\u0440\u0430\u0438\u0432\u0430\u0435\u0442\u0441\u044f \u0432 \u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440\u0435 \u0441\u0435\u0442\u043a\u0438 (\u043d\u0438\u0436\u0435).';
   [...$('#ncfgClock').children].forEach(b => b.classList.toggle('cur', (state.nightW.clock === 'flap') === (b.dataset.cm === 'flap')));
-  const W = [['date','Дата и день недели'],['session','Сессия вечера'],['sleep','Отсчёт Таймера сна'],['weather','Погода (гео)'],['breath','Дыхание 4-7-8'],['autodim','Дежурный режим после 23:00']];
-  const NW = {}; W.forEach(x => NW[x[0]] = x[1]);
-  $('#ncfgW').innerHTML = state.nightW.order.map(k =>
-    '<div class="ncfg-w"><span class="ncfg-lab">' + NW[k] + '<span class="ncfg-t"><input type="checkbox" data-w="' + k + '"' + (state.nightW[k] ? ' checked' : '') + '><i></i></span></span>' +
-    '<span class="ncfg-arw"><button class="arwb" data-up="' + k + '" title="Выше">▲</button><button class="arwb" data-dn="' + k + '" title="Ниже">▼</button></span></div>'
-  ).join('') +
-    '<div class="ncfg-w"><span class="ncfg-lab">' + NW.autodim + '<span class="ncfg-t"><input type="checkbox" data-w="autodim"' + (state.nightW.autodim ? ' checked' : '') + '><i></i></span></span></div>';
+  const ad = $('#ncfgAuto'); if(ad) ad.checked = state.nightW.autodim !== false;
   renderGeoLine();
   $('#nightCfg').hidden = false;
 }
@@ -2529,35 +2627,30 @@ $('#nightCfg').addEventListener('click', e => {
   const sk = e.target.closest('[data-sk]');
   if(sk){
     state.nightSkin = sk.dataset.sk; save(); openNightCfg(); renderNight();
-    toast('◨ Раскладка: ' + (NIGHT_LAYOUTS.find(x => x[0] === state.nightSkin) || ['','?'])[1]);
+    toast('\u2749 \u0422\u0435\u043c\u0430: ' + (NIGHT_THEMES.find(x => x[0] === state.nightSkin) || ['','?'])[1]);
     return;
   }
   const cm = e.target.closest('[data-cm]');
-  if(cm){ state.nightW.clock = cm.dataset.cm === 'flap' ? 'flap' : 'digits'; save(); openNightCfg(); renderNight(); return; }
-  const up = e.target.closest('[data-up]'), dn = e.target.closest('[data-dn]');
-  if(up || dn){
-    const src = up || dn, k = src.dataset.up || src.dataset.dn, ar = state.nightW.order;
-    const i = ar.indexOf(k), j = up ? i - 1 : i + 1;
-    if(i > -1 && j > -1 && j < ar.length){ ar[i] = ar[j]; ar[j] = k; save(); openNightCfg(); renderNight(); }
-    return;
+  if(cm){ state.nightW.clock = cm.dataset.cm === 'flap' ? 'flap' : 'digits'; save(); renderNight(); return; }
+  const na = e.target.closest('[data-netact]');
+  if(na){
+    if(na.dataset.netact === 'edit') startEdit();
+    else { resetTiles(); toast('\u21ba \u0421\u0435\u0442\u043a\u0430 \u0441\u0431\u0440\u043e\u0448\u0435\u043d\u0430 \u043f\u043e \u0443\u043c\u043e\u043b\u0447\u0430\u043d\u0438\u044e'); }
   }
 });
 $('#nightCfg').addEventListener('change', e => {
   const w = e.target.closest('[data-w]');
   if(!w) return;
   state.nightW[w.dataset.w] = w.checked;
-  save(); renderNight();
+  save(); applyDuty();
 });
 window.nightNp = function(){
-  if($('#nightHud').hidden || !$('#nightHud')) return;
-  const el = $('#nightHud .hudnp');
+  const hud = $('#nightHud'); if(!hud || hud.hidden){ return; }
+  const nm = document.querySelector('#nightHud .npname');
+  if(nm && !nm.closest('.hudbar')){ const st0 = curSt(); const t0 = st0 ? st0.name : '—'; if(nm.textContent !== t0) nm.textContent = t0; }
+  const el = document.querySelector('#nightHud .hud-np');
   const s = hudNpStr();
-  if(el){ const h = s ? esc(s) : ''; if(el.innerHTML !== h){ el.innerHTML = h; el.hidden = !s; } }
-  const rb = $('#nightHud .hudribbon');
-  if(rb){
-    const rr = trackLog.length ? trackLog.slice(0, 4).map(x => esc(x.t)).join('   ·   ') : '';
-    if(rb.textContent !== rr){ rb.textContent = rr; rb.hidden = !rr; }
-  }
+  if(el){ const h = esc(s); if(el.innerHTML !== h){ el.innerHTML = h; el.hidden = !s; } }
 };
 
 /* ================= СТАРТ ================= */
