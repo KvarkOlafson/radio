@@ -359,11 +359,65 @@ body { padding-bottom:0; }
 .wbody::-webkit-scrollbar, .rblist::-webkit-scrollbar, .artgrid::-webkit-scrollbar { width:9px; }
 .wbody::-webkit-scrollbar-thumb, .rblist::-webkit-scrollbar-thumb, .artgrid::-webkit-scrollbar-thumb { background:var(--border); border-radius:5px; border:2px solid transparent; background-clip:content-box; }
 .wbody::-webkit-scrollbar-thumb:hover, .rblist::-webkit-scrollbar-thumb:hover, .artgrid::-webkit-scrollbar-thumb:hover { background:var(--accent); background-clip:content-box; }
+
+/* ===== СКИНЫ ОС ===== */
+html[data-cover="w10"] { --accent:#2b88d8; --page-bg:#1b2430; --page-bg2:#121924; --panel:#222b38; --panel2:#1a222d; --card2:#1f2937; --fg:#f3f6fa; --muted:#9fb0c3; --border:#39465a; }
+html[data-cover="w10"] body { background:linear-gradient(165deg,#20303f,#141d28 55%,#0f141c) !important; }
+html[data-cover="w10"] .win { border-radius:8px; border-color:#4a5a72; }
+html[data-cover="w10"] .winbar { background:linear-gradient(180deg,#2b3646,#232d3b); }
+html[data-cover="w10"] .taskbar { background:#101722; border-radius:0; }
+html[data-cover="w10"] .taskbar::before { opacity:0; }
+html[data-cover="w10"] .card, html[data-cover="w10"] .bigplayer, html[data-cover="w10"] .addstation { border-radius:4px; }
+html[data-cover="w7"] { --accent:#2f7fd0; --page-bg:#cfe4f6; --page-bg2:#a9cbe8; --panel:#ffffffd8; --panel2:#f2f9ffcc; --card2:#ffffffb8; --fg:#14293e; --muted:#4a6a84; --border:#8fb4d4; }
+html[data-cover="w7"] body { background:radial-gradient(1100px 600px at 30% 0%,#e8f4fd,#9cc3e6 60%,#7fa8cf) !important; }
+html[data-cover="w7"] .win { border-radius:7px; border:1px solid rgba(255,255,255,.6); box-shadow:0 0 0 1px rgba(20,50,80,.45), 0 18px 46px rgba(10,30,60,.45), inset 0 0 24px rgba(200,235,255,.35); }
+html[data-cover="w7"] .winbar { background:linear-gradient(180deg,#9fd0f0,#5e9cd0); border-bottom-color:rgba(255,255,255,.55); }
+html[data-cover="w7"] .winbar .wt { color:#0d2337; text-shadow:0 1px 2px rgba(255,255,255,.5); }
+html[data-cover="w7"] .taskbar { background:rgba(20,45,75,.72); border-top-color:rgba(160,200,235,.5); }
+html[data-cover="w7"] .tb-start { background:rgba(255,255,255,.2); border-color:rgba(255,255,255,.4); color:#eaf5ff; }
+html[data-cover="w7"] .tbb, html[data-cover="w7"] .tb-np { color:#cfe6f8; }
+html[data-cover="w7"] .tb-clock { background:rgba(255,255,255,.14); color:#cfe6f8; }
+html[data-cover="mac"] { --accent:#0a84ff; --page-bg:#e9ebef; --page-bg2:#f7f8fa; --panel:#ffffffd9; --panel2:#ffffffb3; --card2:#ffffffcc; --fg:#1d1d1f; --muted:#6e6e73; --border:#d9d9de; }
+html[data-cover="mac"] body { background:linear-gradient(170deg,#f2f4f8,#dfe3ea 70%,#d3d8e0) !important; }
+html[data-cover="mac"] body, html[data-cover="mac"] .card h3 { font-family:-apple-system,'SF Pro Text','Segoe UI',system-ui,sans-serif; }
+html[data-cover="mac"] .win { border-radius:12px; border:0; box-shadow:0 22px 60px rgba(30,40,60,.28), 0 0 0 1px rgba(0,0,0,.06); }
+html[data-cover="mac"] .winbar { position:relative; padding-left:86px; background:rgba(246,247,249,.85); }
+html[data-cover="mac"] .winbar::before { content:''; position:absolute; left:14px; top:50%; width:12px; height:12px; margin-top:-6px; border-radius:50%; background:#ff5f57; box-shadow:-18px 0 0 #febc2e, -36px 0 0 #28c840; }
+html[data-cover="mac"] .taskbar { left:50%; right:auto; bottom:10px; transform:translateX(-50%); width:auto; max-width:94vw; border-radius:17px; border:1px solid rgba(255,255,255,.45); background:rgba(255,255,255,.55); box-shadow:0 14px 40px rgba(20,30,50,.22); }
+html[data-cover="mac"] .taskbar::before { opacity:0; }
+html[data-cover="mac"] #dicons { inset:14px 14px 78px 14px; }
+html[data-cover="mac"] #toast { bottom:80px; }
+/* загрузчик ОС */
+#setup { position:fixed; inset:0; z-index:3000; display:flex; align-items:center; justify-content:center; background:radial-gradient(1100px 600px at 50% 20%,#20232c,#0b0c10 78%); }
+#setup[hidden] { display:none !important; }
+.setup-box { width:min(760px,94vw); text-align:center; }
+.setup-box h2 { font-size:26px; margin:6px 0 20px; color:var(--fg); }
+.setup-grid { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.setup-grid button { width:132px; padding:12px 8px 10px; border-radius:14px; border:1px solid var(--border); background:var(--panel); color:var(--fg); cursor:pointer; }
+.setup-grid button:hover { border-color:var(--accent); }
+.setup-grid .pv { display:block; height:64px; border-radius:8px; margin-bottom:8px; border:1px solid var(--border); position:relative; overflow:hidden; }
+.setup-grid .pv::after { content:''; position:absolute; left:8px; right:8px; bottom:6px; height:10px; border-radius:3px; }
+.pv.pv-classic { background:linear-gradient(160deg,#20202a,#14141a); } .pv.pv-classic::after { background:#2d2d3a; }
+.pv.pv-day { background:linear-gradient(160deg,#eef7fd,#cfe8f6); } .pv.pv-day::after { background:#ffffffcc; }
+.pv.pv-w10 { background:linear-gradient(160deg,#1b2430,#10161f); } .pv.pv-w10::after { background:#222b38; border-radius:0; }
+.pv.pv-w7 { background:linear-gradient(160deg,#2b5a8c,#132b47); } .pv.pv-w7::after { background:rgba(190,225,255,.75); }
+.pv.pv-mac { background:linear-gradient(160deg,#e8eaee,#f8f9fb); } .pv.pv-mac::after { background:#ffffffd9; border-radius:6px; left:20px; right:20px; }
+.setup-skip { margin-top:14px; color:var(--muted); }
+.setup-skip a { color:var(--accent); }
 </style>
 </head>
 <body>
 <canvas id="bgfx"></canvas>
 <div class="deskhint">ДВОЙНОЙ КЛИК ПО ИКОНКЕ — ОТКРЫТЬ ОКНО · ПЕРЕТАСКИВАЙТЕ ЗА ЗАГОЛОВОК</div>
+
+<div id="setup" hidden>
+  <div class="setup-box">
+    <div class="slabel">Диапазон ОС 4.3 · первая настройка</div>
+    <h2>Выберите свою ОС</h2>
+    <div class="setup-grid" id="setupGrid"></div>
+    <small class="setup-skip">Сменить позже: Пуск → 🎨 Персонализация → Скин ОС · <a href="#" id="setupSkip">пропустить</a></small>
+  </div>
+</div>
 
 <div id="dicons"></div>
 
@@ -486,8 +540,8 @@ body { padding-bottom:0; }
 <section class="win" id="persWin" hidden style="width:min(360px, calc(100vw - 48px));">
   <div class="winbar"><span class="wt">🎨 Персонализация</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
   <div class="wbody pad">
-    <div class="slabel">Личность интерфейса</div>
-    <div class="mode-switch" id="coverSwitch" title="Личность интерфейса"></div>
+    <div class="slabel">Скин ОС</div>
+    <div class="mode-switch" id="coverSwitch" title="Скин ОС"></div>
     <div class="slabel">Тема</div>
     <div class="pmrow"><button class="iconbtn" id="persTheme" title="Светлая и тёмная тема">◑</button><span>Светлая / тёмная тема</span></div>
     <div class="pmrow"><button class="iconbtn" id="persNight" title="Вечер: во весь экран">⛶</button><span>Вечер · во весь экран</span></div>
@@ -1193,7 +1247,7 @@ function importStations(txt){
 }
 
 /* ================= ЛИЧНОСТИ И ПАНЕЛЬ ПЛЕЕРА ================= */
-const COVERS = [['','Классика','КЛ'],['day','День','ДН']];
+const COVERS = [['','Классика','КЛ'],['day','День','День'],['w10','Win 10/11','W10'],['w7','Win 7','W7'],['mac','macOS','macOS']];
 function applySide(s){
   state.side = (s === 'left') ? 'left' : 'right';
   save();
@@ -1224,6 +1278,18 @@ $('#fxRow').addEventListener('click', e => {
   const b = e.target.closest('[data-fx]');
   if(b){ state.fxKind = b.dataset.fx; save(); renderFxRow(); if(window.fxKick) window.fxKick(0); toast('Фон: ' + (FXDEF.find(x => x[0] === b.dataset.fx) || ['',''])[1]); }
 });
+const SETUPDESC = ['Текущий дизайн', 'Мягкий светлый', 'Плоский и аккуратный', 'Aero-стекло', 'Люмен и док'];
+function renderSetup(){
+  const g = $('#setupGrid'); if(!g) return;
+  g.innerHTML = COVERS.map(x => '<button data-cov="' + x[0] + '"><i class="pv pv-' + (x[0] || 'classic') + '"></i><b>' + x[1] + '</b><span>' + SETUPDESC[COVERS.indexOf(x)] + '</span></button>').join('');
+}
+$('#setupGrid').addEventListener('click', e => {
+  const b = e.target.closest('[data-cov]'); if(!b) return;
+  applyCover(b.dataset.cov);
+  renderCoverSwitch();
+  $('#setup').hidden = true;
+});
+$('#setupSkip').addEventListener('click', e => { e.preventDefault(); $('#setup').hidden = true; });
 function surprise(){
   const pool = allStations().filter(s => !dead[s.id]);
   if(!pool.length){ toast('Все волны не отвечают — эфир молчит'); return; }
@@ -2132,6 +2198,7 @@ renderCoverSwitch();
 renderFxRow();
 applyCover(state.cover || '');
 $('#fxBtn').classList.toggle('on', state.fx !== false);
+if(!localStorage.getItem(LSKEY)){ renderSetup(); $('#setup').hidden = false; }
 setTimeout(startProbes, 600);
 renderSwatches();
 applyAccent(state.accent);
