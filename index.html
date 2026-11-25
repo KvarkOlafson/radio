@@ -376,6 +376,7 @@ body { padding-bottom:0; }
 .win { position:fixed; z-index:100; display:flex; flex-direction:column; min-width:300px;
   background:color-mix(in srgb, var(--panel) 96%, transparent); backdrop-filter:blur(14px) saturate(1.2);
   border:1px solid var(--border); border-radius:13px; overflow:hidden;
+  max-height:calc(100vh - 64px); max-width:calc(100vw - 16px);
   box-shadow:0 24px 70px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.03), 0 0 0 1px var(--accent-soft); }
 .win[hidden] { display:none !important; }
 .winbar { display:flex; align-items:center; gap:7px; flex:none; cursor:move; user-select:none;
@@ -388,7 +389,7 @@ body { padding-bottom:0; }
 .wbody.pad { padding:16px 18px; }
 
 /* панель задач */
-.taskbar { position:fixed; left:0; right:0; bottom:0; z-index:900; display:flex; align-items:center; gap:7px;
+.taskbar { position:fixed; left:0; right:0; bottom:0; z-index:2000; display:flex; align-items:center; gap:7px;
   padding:6px 10px; border-top:1px solid var(--border);
   background:color-mix(in srgb, var(--panel) 90%, transparent); backdrop-filter:blur(16px) saturate(1.3);
   box-shadow:0 -8px 26px rgba(0,0,0,.35); }
@@ -405,7 +406,7 @@ body { padding-bottom:0; }
 .tb-clock { flex:none; font-family:var(--mono); font-size:12.5px; letter-spacing:1px; color:var(--fg); background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-variant-numeric:tabular-nums; }
 
 /* меню Пуск */
-#startMenu { position:fixed; left:10px; bottom:52px; z-index:950; width:262px; padding:9px;
+#startMenu { position:fixed; left:10px; bottom:52px; z-index:2001; width:262px; padding:9px;
   background:color-mix(in srgb, var(--panel) 97%, transparent); backdrop-filter:blur(18px) saturate(1.3);
   border:1px solid var(--border); border-radius:13px; box-shadow:0 20px 60px rgba(0,0,0,.5); }
 #startMenu[hidden] { display:none !important; }
@@ -461,7 +462,6 @@ body { padding-bottom:0; }
         <button id="pNext" title="Следующая волна">⏭</button>
       </div>
       <div class="pvolrow"><span>🔊</span><input type="range" id="pVol" min="0" max="100" value="70"><b id="pVolVal">70</b></div>
-      <div class="mode-switch" id="coverSwitch" title="Личность интерфейса"></div>
     </section>
   </div>
 </section>
@@ -564,6 +564,20 @@ body { padding-bottom:0; }
   </div>
 </section>
 
+<section class="win" id="persWin" hidden style="width:min(360px, calc(100vw - 48px));">
+  <div class="winbar"><span class="wt">🎨 Персонализация</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
+  <div class="wbody pad">
+    <div class="slabel">Личность интерфейса</div>
+    <div class="mode-switch" id="coverSwitch" title="Личность интерфейса"></div>
+    <div class="slabel">Тема</div>
+    <div class="pmrow"><button class="iconbtn" id="persTheme" title="Светлая и тёмная тема">◑</button><span>Светлая / тёмная тема</span></div>
+    <div class="pmrow"><button class="iconbtn" id="persNight" title="Вечер: во весь экран">⛶</button><span>Вечер · во весь экран</span></div>
+    <div class="pmrow"><button class="iconbtn" id="persFx" title="Живой фон вкл/выкл">✨</button><span>Живой фон вкл/выкл</span></div>
+    <div class="slabel">Акцент</div>
+    <div class="swrow"><div class="swatches" id="swatches"></div><input type="color" id="customColor" value="#e6a23c" title="Свой акцентный цвет"></div>
+  </div>
+</section>
+
 <div id="startMenu" hidden>
   <div class="slabel">Пуск · Диапазон ОС 4.0</div>
   <button class="smi" data-win="playerWin">♪ Плеер</button>
@@ -573,11 +587,7 @@ body { padding-bottom:0; }
   <button class="smi" data-win="topModal">📊 Полка · топ-5</button>
   <button class="smi" data-win="pmModal">⋯ Ещё · плеер (сон, обложки)</button>
   <button class="smi" data-win="artModal">🖼 Картинка волны</button>
-  <div class="slabel">Оформление</div>
-  <button class="smi" data-act="theme">◐ Светлая/тёмная тема</button>
-  <button class="smi" data-act="fx">✨ Фоновая анимация вкл/выкл</button>
-  <button class="smi" data-act="night">⛶ Во весь экран</button>
-  <div class="swrow"><div class="swatches" id="swatches"></div><input type="color" id="customColor" value="#e6a23c" title="Свой акцентный цвет"></div>
+  <button class="smi" data-win="persWin">🎨 Персонализация</button>
 </div>
 
 <div class="taskbar">
@@ -2020,11 +2030,15 @@ window.addEventListener('online', () => {
 const WINDEF = {
   playerWin:['♪','Плеер'], stationsWin:['▦','Живой эфир'], pmModal:['⋯','Ещё · плеер'],
   rbModal:['🌐','Глобальный поиск'], artModal:['🖼','Картинка волны'], histModal:['🕐','Недавние волны'],
-  topModal:['📊','Полка · топ-5'], trkModal:['📼','Журнал треков'], ioModal:['⇅','Профиль']
+  topModal:['📊','Полка · топ-5'], trkModal:['📼','Журнал треков'], ioModal:['⇅','Профиль'], persWin:['🎨','Персонализация']
 };
 let wTop = 10;
 const wEl = id => document.getElementById(id);
 function wFocus(id){ const el = wEl(id); if(el) el.style.zIndex = String(100 + (++wTop)); }
+['#persTheme:#themeBtn', '#persNight:#nightBtn', '#persFx:#fxBtn'].forEach(pair => {
+  const [a, b] = pair.split(':'); const ax = $(a), bx = $(b);
+  if(ax && bx) ax.addEventListener('click', () => bx.click());
+});
 function wOpen(id, pos){
   const el = wEl(id); if(!el) return;
   if(el.hidden){
@@ -2035,6 +2049,9 @@ function wOpen(id, pos){
     const cy = p.y != null ? p.y : (pos ? pos[1] : Math.max(16, Math.round((innerHeight - 360) / 2 - 24)));
     el.style.left = cx + 'px'; el.style.top = cy + 'px';
     el.hidden = false;
+    const ww = el.offsetWidth, wh = el.offsetHeight;
+    if(ww && cx + ww > innerWidth - 8) el.style.left = clamp(innerWidth - ww - 10, 12, Math.max(12, innerWidth - 140)) + 'px';
+    if(wh && cy + wh > innerHeight - 54) el.style.top = Math.max(6, innerHeight - wh - 54) + 'px';
   }
   wFocus(id); wSync(); save();
 }
@@ -2069,9 +2086,7 @@ document.addEventListener('click', e => {
   if(tb){ wToggle(tb.dataset.tb); return; }
   const smi = e.target.closest('#startMenu [data-win]');
   if(smi){ wOpen(smi.dataset.win); $('#startMenu').hidden = true; return; }
-  const act = e.target.closest('#startMenu [data-act]');
-  if(act){ const m = { theme:'#themeBtn', fx:'#fxBtn', night:'#nightBtn' }; const b = m[act.dataset.act] && $(m[act.dataset.act]); if(b) b.click(); $('#startMenu').hidden = true; return; }
-  if(e.target.id === 'startBtn'){ const m = $('#startMenu'); m.hidden = !m.hidden; return; }
+  if(e.target.closest('#startBtn')){ const m = $('#startMenu'); m.hidden = !m.hidden; return; }
   if(!e.target.closest('#startMenu')) $('#startMenu').hidden = true;
 });
 $$('.dicon').forEach(d => d.addEventListener('click', () => {
