@@ -608,6 +608,7 @@ html[data-cover="mac"] #startMenu .swrow .minibtn:hover { background:#0a84ff; co
     <div class="pmrow"><button class="iconbtn" id="persTheme" title="Светлая и тёмная тема">◑</button><span>Светлая / тёмная тема</span></div>
     <div class="pmrow"><button class="iconbtn" id="persNight" title="Вечер: во весь экран">⛶</button><span>Вечер · во весь экран</span></div>
     <div class="pmrow"><button class="iconbtn" id="persFx" title="Живой фон вкл/выкл">✨</button><span>Живой фон вкл/выкл</span></div>
+    <div class="pmrow"><button class="iconbtn" id="persSnd" title="Звуки интерфейса вкл/выкл">🔔</button><span>Звуки интерфейса вкл/выкл</span></div>
     <div class="slabel">Фон</div>
     <div class="swrow" id="fxRow"></div>
     <div class="slabel">Акцент</div>
@@ -714,7 +715,7 @@ const freqOf = st => (typeof st.freq === 'number' && st.freq >= 87.5 && st.freq 
 /* ================= STORE ================= */
 const LSKEY = 'dipfm3';
 function freshState(){
-  return { v:3, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, current:null, playing:false, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, fxKind:'fluid', desk:{}, alive:false, cruise:false };
+  return { v:3, snd:true, vol:70, theme:'dark', accent:'#e6a23c', f:'all', q:'', last:null, current:null, playing:false, side:'right', cover:'', fav:{}, hist:[], user:[], listen:{}, arts:{}, fx:true, fxKind:'fluid', desk:{}, alive:false, cruise:false };
 }
 function load(){
   let d = null;
@@ -744,8 +745,8 @@ let saveT = 0;
 function save(){ clearTimeout(saveT); saveT = setTimeout(flushSave, 2000); }
 function flushSave(){
   clearTimeout(saveT);
-  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,fxKind,desk,alive,cruise,wins} = state;
-  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,fxKind,desk,alive,cruise,wins})); }catch(e){}
+  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,fxKind,desk,alive,cruise,wins,snd} = state;
+  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,fxKind,desk,alive,cruise,wins,snd})); }catch(e){}
 }
 window.addEventListener('beforeunload', flushSave);
 
@@ -1247,12 +1248,31 @@ function syncThemeColor(){
   const mc = document.querySelector('meta[name="theme-color"]');
   if(mc){ const c = (getComputedStyle(document.documentElement).getPropertyValue('--accent') || '').trim(); if(c) mc.setAttribute('content', c); }
 }
+let sndCtx = null;
+function beep(kind){
+  if(state.snd === false) return;
+  try{
+    sndCtx = sndCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if(sndCtx.state === 'suspended') sndCtx.resume();
+    const o = sndCtx.createOscillator(), g = sndCtx.createGain(), t = sndCtx.currentTime;
+    const F = { open:[620,920,'sine',.11], close:[520,340,'sine',.11], toast:[880,1240,'triangle',.14], err:[240,150,'sawtooth',.2] }[kind] || [740,740,'sine',.08];
+    o.type = F[2];
+    o.frequency.setValueAtTime(F[0], t);
+    o.frequency.exponentialRampToValueAtTime(F[1], t + F[3] * 0.6);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(kind === 'err' ? 0.05 : 0.032, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + F[3]);
+    o.connect(g); g.connect(sndCtx.destination);
+    o.start(t); o.stop(t + F[3] + 0.05);
+  }catch(e){}
+}
 function toast(text){
   const t = $('#toast');
   t.textContent = text;
   t.classList.add('show');
   clearTimeout(toast._t);
   toast._t = setTimeout(() => t.classList.remove('show'), 3800);
+  beep(/(не отвечает|ошибка|не удалось|нет связи)/i.test(text) ? 'err' : 'toast');
 }
 
 /* ================= СВОИ СТАНЦИИ: ДОБАВЛЕНИЕ ================= */
@@ -1675,6 +1695,11 @@ $('#fxBtn') && $('#fxBtn').addEventListener('click', () => {
   $('#fxBtn').classList.toggle('on', state.fx);
   if(window.fxKick) window.fxKick(0);
   toast(state.fx ? '✨ Фоновая анимация включена' : '✨ Фоновая анимация выключена');
+});
+$('#persSnd').addEventListener('click', () => {
+  state.snd = state.snd === false; save();
+  toast(state.snd ? '🔔 Звуки интерфейса включены' : '🔔 Звуки интерфейса выключены');
+  if(state.snd) beep('toast');
 });
 (function bgFx(){
   const c = $('#bgfx');
@@ -2111,6 +2136,7 @@ function wOpen(id, pos){
     const cy = p.y != null ? p.y : (pos ? pos[1] : Math.max(16, Math.round((innerHeight - 360) / 2 - 24)));
     el.style.left = cx + 'px'; el.style.top = cy + 'px';
     el.hidden = false;
+    beep('open');
     if(p.w) el.style.width = p.w + 'px';
     if(p.h) el.style.height = p.h + 'px';
     const ww = el.offsetWidth, wh = el.offsetHeight;
@@ -2119,7 +2145,7 @@ function wOpen(id, pos){
   }
   wFocus(id); wSync(); save();
 }
-function wHide(id){ const el = wEl(id); if(el) el.hidden = true; wSync(); save(); }
+function wHide(id){ const el = wEl(id); if(el) el.hidden = true; beep('close'); wSync(); save(); }
 function wToggle(id){
   const el = wEl(id); if(!el) return;
   if(el.hidden){ wOpen(id); return; }
