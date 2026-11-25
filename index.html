@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Диапазон FM — интернет-радио</title>
-<meta name="description" content="Диапазон FM — живой список интернет-радиостанций: 38 волн, свои станции, избранное и большой плеер">
+<title>Диапазон FM — живой десктоп</title>
+<meta name="description" content="Диапазон FM — интернет-радио в виде рабочего стола: 38 волн, свои станции, окна, панель задач и живой фон">
 <meta name="theme-color" content="#17171d">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2317171d'/%3E%3Ctext x='32' y='46' font-size='38' text-anchor='middle' fill='%23e6a23c'%3E%E2%88%BF%3C/text%3E%3C/svg%3E">
 <style>
-/* ============ ТОКЕНЫ ============ */
+
+
 * { margin:0; padding:0; box-sizing:border-box; }
 :root {
   --accent:#e6a23c; --accent-soft:rgba(230,162,60,.18);
@@ -40,26 +41,10 @@ body::before {
 html { overflow-x:hidden; overflow-x:clip; }
 button { font-family:inherit; cursor:pointer; color:var(--fg); }
 input, select, textarea { font-family:inherit; color:var(--fg); }
-main, header.topbar { position:relative; z-index:1; }
-.topbar {
-  position:sticky; top:0; z-index:50;
-  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-  padding:11px 18px;
-  background:color-mix(in srgb, var(--panel) 84%, transparent);
-  backdrop-filter: blur(10px) saturate(1.25);
-  border-bottom:1px solid var(--border); box-shadow:0 10px 28px rgba(0,0,0,.28);
-}
-.topbar::after {
-  content:""; position:absolute; left:0; right:0; bottom:-2px; height:2px;
-  background:linear-gradient(90deg, transparent 4%, var(--accent) 30%, var(--accent) 70%, transparent 96%);
-  opacity:.75; pointer-events:none;
-}
 .brand { display:flex; align-items:center; gap:8px; font-weight:800; font-size:15px; letter-spacing:3px; white-space:nowrap; }
 .brand::before { content:"∿"; color:var(--accent); font-size:19px; animation:sweep 3.2s ease-in-out infinite; }
 @keyframes sweep { 0%,100%{opacity:.55; transform:scaleY(.7)} 50%{opacity:1; transform:scaleY(1.15)} }
 .brand .accentdot { background:var(--accent); color:#161616; padding:1px 7px 2px; border-radius:6px; font-size:11px; letter-spacing:1px; }
-/* переключатель личности — стихийно рядом с акцентами */
-.topbar .spacer { flex:1; }
 .iconbtn {
   background:var(--panel2); border:1px solid var(--border); border-radius:10px;
   padding:7px 11px; font-size:15px; transition:border-color .2s, box-shadow .2s;
@@ -70,14 +55,6 @@ main, header.topbar { position:relative; z-index:1; }
 .swatch:hover { transform:scale(1.25); }
 .swatch.sel { border-color:var(--fg); box-shadow:0 0 8px var(--accent-soft); }
 input[type="color"] { width:27px; height:27px; border:1px solid var(--border); border-radius:8px; background:var(--panel2); padding:2px; cursor:pointer; }
-
-/* ============ СПИСОК ============ */
-main { max-width:1240px; margin:0 auto; padding:18px 16px 110px; }
-#ws { display:flex; gap:18px; align-items:flex-start; }
-#ws .bigplayer { flex:0 0 320px; position:sticky; top:70px; }
-#ws[data-side="left"] #bigpanel { order:-1; }
-#ws[data-side="right"] #viewList { order:-1; }
-#ws .shelf { flex:1; min-width:0; }
 .pagehead h1 { font-size:24px; letter-spacing:.5px; margin-bottom:4px; }
 .pagehead p { color:var(--muted); font-size:13px; margin-bottom:14px; }
 .histwrap { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 14px; }
@@ -214,7 +191,7 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
 }
 .addnote { font-size:11.5px; color:var(--muted); margin-top:8px; }
 
-/* ============ КРУПНЫЙ ПЛЕЕР ============ */
+
 .bigplayer {
   background:color-mix(in srgb, var(--panel) 92%, transparent);
   border:1px solid var(--border); border-radius:20px;
@@ -264,17 +241,6 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
 .pvolrow input { flex:1; accent-color:var(--accent); cursor:pointer; height:4px; }
 
 
-/* ============ МОДАЛКА ИМПОРТА/ЭКСПОРТА ============ */
-.modal { position:fixed; inset:0; z-index:90; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.5); padding:16px; }
-.modal[hidden] { display:none; }
-.modal.small .modal-box { width:min(430px,94%); }
-.modal-box { width:min(560px,100%); background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:18px; display:flex; flex-direction:column; gap:10px; box-shadow:0 24px 60px rgba(0,0,0,.55); }
-.modal-box h3 { font-size:15px; letter-spacing:.4px; }
-.modal-box textarea { width:100%; height:160px; background:var(--panel2); border:1px solid var(--border); border-radius:10px; padding:10px; font-size:11.5px; font-family:var(--mono); outline:none; resize:vertical; }
-.modal-box .mrowbtn { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-.modal-box small { color:var(--muted); font-size:11px; line-height:1.5; }
-
-/* панель плеера: утилиты */
 #bgfx { position:fixed; inset:0; z-index:0; pointer-events:none; }
 .phead { display:flex; gap:8px; width:100%; justify-content:flex-end; margin-bottom:4px; }
 .phead .iconbtn { padding:5px 9px; font-size:13px; }
@@ -292,7 +258,7 @@ html[data-cover="neon"] .card h3 { font-size:16px; }
 .mode-switch button { background:transparent; color:var(--muted); border:0; padding:7px 10px; font-size:12px; font-weight:600; }
 .mode-switch button.active { background:var(--accent); color:#161616; }
 .mode-switch .cshort { display:none; }
-/* ЛИЧНОСТИ: обложка интерфейса поверх темы и акцента (не скины-аппараты) */
+
 html[data-cover="paper"] body { font-family:Georgia,"Times New Roman",serif; }
 html[data-cover="paper"] .card, html[data-cover="paper"] .bigplayer, html[data-cover="paper"] .addstation,
 html[data-cover="paper"] .chipf, html[data-cover="paper"] .histchip { border-radius:18px; }
@@ -308,8 +274,8 @@ html[data-cover="paper"] {
   --accent:#a5702f; --accent-soft:rgba(165,112,47,.16);
 }
 html[data-cover="paper"] body { background:radial-gradient(800px 420px at 85% -6%, rgba(165,112,47,.1), transparent 62%), var(--page-bg) !important; }
-html[data-cover="paper"] .topbar { border-bottom-color:#c4b184; box-shadow:0 4px 14px rgba(90,70,30,.16), 0 1px 0 #fffdf2 inset; }
-html[data-cover="paper"] .topbar::after { opacity:.3; }
+html[data-cover="paper"] .taskbar { border-bottom-color:#c4b184; box-shadow:0 4px 14px rgba(90,70,30,.16), 0 1px 0 #fffdf2 inset; }
+html[data-cover="paper"] .taskbar::after { opacity:.3; }
 html[data-cover="paper"] .card { box-shadow:0 2px 9px rgba(90,70,30,.13); }
 html[data-cover="paper"] .card:hover { box-shadow:0 10px 24px rgba(90,70,30,.22); }
 html[data-cover="paper"] .brand { font-size:16px; }
@@ -323,8 +289,8 @@ html[data-cover="term"] body { background:var(--page-bg) !important; }
 html[data-cover="term"] body::before {
   background:repeating-linear-gradient(0deg, transparent 0 37px, rgba(57,255,94,.05) 37px 38px) !important;
 }
-html[data-cover="term"] .topbar { background:rgba(8,19,10,.92); border-bottom-color:#1e4023; }
-html[data-cover="term"] .topbar::after { opacity:.18; }
+html[data-cover="term"] .taskbar { background:rgba(8,19,10,.92); border-bottom-color:#1e4023; }
+html[data-cover="term"] .taskbar::after { opacity:.18; }
 html[data-cover="term"] .brand { letter-spacing:5px; color:var(--accent); text-transform:lowercase; }
 html[data-cover="term"] .card { border-radius:0; border-color:#1e4023; }
 html[data-cover="term"] .card::before { width:2.5px; }
@@ -345,8 +311,8 @@ html[data-cover="neon"] body {
     radial-gradient(900px 500px at 12% -10%, rgba(77,139,255,.13), transparent 65%),
     var(--page-bg) !important;
 }
-html[data-cover="neon"] .topbar { background:rgba(30,16,50,.88); border-bottom-color:#3d2464; }
-html[data-cover="neon"] .topbar::after { background:linear-gradient(90deg, transparent 4%, #4d8bff 30%, #ff3ec8 70%, transparent 96%); }
+html[data-cover="neon"] .taskbar { background:rgba(30,16,50,.88); border-bottom-color:#3d2464; }
+html[data-cover="neon"] .taskbar::after { background:linear-gradient(90deg, transparent 4%, #4d8bff 30%, #ff3ec8 70%, transparent 96%); }
 html[data-cover="neon"] .card:hover { box-shadow:0 0 18px var(--accent-soft); }
 html[data-cover="neon"] .pagehead h1 { text-transform:uppercase; letter-spacing:2px; }
 html[data-cover="day"] {
@@ -355,12 +321,11 @@ html[data-cover="day"] {
   --accent:#e8891d; --accent-soft:rgba(232,137,29,.2);
 }
 html[data-cover="day"] body { background:linear-gradient(180deg, var(--page-bg2), var(--page-bg)) !important; }
-html[data-cover="day"] .topbar { background:rgba(255,255,255,.5); border-bottom-color:rgba(40,60,80,.16); box-shadow:0 6px 22px rgba(40,70,110,.14); }
+html[data-cover="day"] .taskbar { background:rgba(255,255,255,.5); border-bottom-color:rgba(40,60,80,.16); box-shadow:0 6px 22px rgba(40,70,110,.14); }
 html[data-cover="day"] .card, html[data-cover="day"] .bigplayer { background:rgba(255,255,255,.52); backdrop-filter:blur(8px); box-shadow:0 8px 26px rgba(40,70,110,.13); }
 html[data-cover="day"] .card.playing { box-shadow:0 0 0 1px var(--accent), 0 10px 30px rgba(232,137,29,.2); }
 html[data-cover="day"] .brand::before { content:"☀"; }
 html[data-cover] .swatches, html[data-cover] #customColor { display:none; }
-.modal-back { margin-left:auto; }
 .rbrow { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .rbrow input { flex:1; min-width:180px; background:var(--card2); color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; outline:none; }
 .rbrow input:focus { border-color:var(--accent); }
@@ -376,35 +341,8 @@ html[data-cover] .swatches, html[data-cover] #customColor { display:none; }
 .rb-hit .n { flex:1; min-width:0; }
 .rb-hit .n b { display:block; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .rb-hit .n span { font-size:11px; color:var(--muted); }
-.nightclock { display:none; font-family:var(--mono); font-size:15px; color:var(--muted); letter-spacing:1px; }
-body.night .topbar, body.night #ws .shelf { display:none; }
-body.night #ws { justify-content:center; align-items:center; min-height:100vh; }
-body.night .bigplayer { position:static; width:min(640px, 92vw); }
-body.night .npart { width:320px; height:320px; font-size:124px; }
-body.night .bigplayer h2 { font-size:34px; }
-body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-align:center; }
 
-/* ============ МОБИЛЬНАЯ КАПЛЯ-ПЛЕЕР ============ */
-.mbar {
-  position:fixed; left:10px; right:10px; bottom:10px; z-index:60;
-  align-items:center; gap:10px; padding:9px 12px;
-  background:color-mix(in srgb, var(--panel) 88%, transparent);
-  backdrop-filter:blur(12px) saturate(1.2);
-  border:1px solid var(--border); border-radius:14px;
-  box-shadow:0 12px 30px rgba(0,0,0,.4);
-}
-.mbar:not([hidden]) { display:flex; }
-.mbar .mart { width:38px; height:38px; border-radius:9px; border:1px solid var(--border); background:linear-gradient(135deg, var(--accent-soft), var(--panel2)) center/cover; flex:none; }
-.mbar .minfo { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
-.mbar .minfo b { font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.mbar .minfo i { font-style:normal; font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:var(--mono); }
-.mbar .mplay {
-  width:40px; height:40px; border-radius:50%; border:0; flex:none;
-  background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, #fff), var(--accent));
-  color:#161616; font-size:15px; font-weight:800;
-}
 
-/* ============ ТОСТ ============ */
 #toast {
   position:fixed; left:50%; bottom:74px; transform:translateX(-50%) translateY(16px);
   z-index:99; max-width:min(480px, calc(100vw - 24px));
@@ -414,101 +352,124 @@ body.night .nightclock { display:block; font-size:34px; color:var(--fg); text-al
 }
 #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-@media (max-width:900px){
-  #ws { flex-direction:column; }
-  body:not(.night) #ws .bigplayer {
-    position:relative; flex:none; width:100%; order:-1;
-    padding:14px 12px 16px; gap:8px;
-  }
-  #ws .phead { flex-wrap:wrap; justify-content:center; }
-  body:not(.night) #ws .npart { width:112px; height:112px; font-size:40px; }
-  body:not(.night) #ws .bigplayer h2 { font-size:18px; }
-  #ws .npbig { white-space:normal; overflow:visible; text-overflow:clip; line-height:1.35; }
-  body:not(.night) #ws .pctl { gap:13px; }
-  body:not(.night) #ws .pctl .bigplay { width:54px; height:54px; font-size:20px; }
-  #ws:not(.player-open) #bigpanel { display:none; }
-}
-@media (max-width:720px){
-  .grid { grid-template-columns:1fr; }
-  .search { width:100%; margin-left:0; }
-  .topbar { padding:8px 10px; gap:10px; }
-  #coverSwitch { order:9; flex:none; width:100%; }
-  #coverSwitch button { flex:1; padding:10px 6px; font-size:12px; }
-  /* палитра акцентов видимой строкой по центру (в v3.13 была зря спрятана) */
-  .swatches { order:10; margin-left:auto; margin-top:2px; gap:16px; }
-  .swatch { width:23px; height:23px; }
-  #customColor { order:11; margin-right:auto; margin-left:14px; margin-top:2px; width:31px; height:31px; }
-  .brand { font-size:13px; letter-spacing:2px; }
-  .brand .bfull { display:none; }
-  /* больше воздуха для списка: плеер над списком, но без мёртвых полос */
-  .pagehead h1 { font-size:19px; margin:0 0 2px; }
-  .pagehead p { display:none; }
-  .pagehead { margin-bottom:8px; }
-  .pagehead .rndbtn { margin-bottom:0; padding:8px 11px; font-size:11.5px; }
-  #ws .bigplayer { padding:10px 10px 12px; gap:6px; }
-  /* П3: на мобиле не нужны */
-  #sideBtn, #nightBtn { display:none; }
-  /* П5: громкость системными кнопками */
-  .pvolrow { display:none; }
-  /* П6: тач-таргеты ~40px */
-  .iconbtn { padding:8px 11px; font-size:15px; }
-  .chipf { padding:9px 14px; font-size:12.5px; }
-  .minibtn { padding:5px 11px; font-size:12px; }
-  .mode-switch { border-radius:8px; }
-  .mode-switch button { padding:7px 8px; font-size:11px; }
-  .cfull { display:none; }
-  .cshort { display:inline; }
-  .card { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:2px 10px; padding:9px 12px; }
-  .card .ctop { grid-column:1 / 4; grid-row:1; }
-  .card h3 { grid-column:2; grid-row:2; font-size:14px; }
-  .card .genre { grid-column:2; grid-row:3; }
-  .card .np { grid-column:2; grid-row:4; min-height:0; }
-  .card .playbtn { grid-column:3; grid-row:2; margin-top:0; align-self:center; padding:7px 12px; }
-  .card .cvu { display:none; }
-  .card .covthumb { width:34px; height:34px; border-radius:8px; }
-}
-/* П7: вечерний фуллскрин — вольготнее */
-body.night .pctl .bigplay { width:80px; height:80px; font-size:28px; }
-body.night .npbig { white-space:normal; overflow:visible; text-overflow:clip; line-height:1.35; }
+/* ===== ОКНО ПЛЕЕРА ===== */
+.win .bigplayer { position:relative; flex:none; width:100%; height:100%; border:0; border-radius:0; box-shadow:none; padding:18px 20px 20px; }
+.win #coverSwitch { margin-top:4px; }
+
+/* ============ ОБОЛОЧКА: РАБОЧИЙ СТОЛ ============ */
+html, body { height:100%; overflow:hidden; }
+body { padding-bottom:0; }
+#bgfx { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+.deskhint { position:fixed; left:22px; bottom:64px; z-index:1; font-family:var(--mono); font-size:10px; letter-spacing:1.5px; color:var(--muted); opacity:.7; pointer-events:none; }
+
+/* иконки рабочего стола */
+#dicons { position:fixed; left:18px; top:18px; z-index:1; display:flex; flex-direction:column; gap:6px; }
+.dicon { width:88px; padding:10px 6px 8px; border-radius:10px; border:1px solid transparent; text-align:center; cursor:pointer; user-select:none; }
+.dicon i { display:block; font-style:normal; font-size:26px; margin-bottom:5px; filter:drop-shadow(0 3px 8px rgba(0,0,0,.5)); }
+.dicon span { display:block; font-size:11px; color:var(--fg); text-shadow:0 1px 4px rgba(0,0,0,.6); word-break:break-word; }
+.dicon:hover { background:var(--accent-soft); border-color:color-mix(in srgb, var(--accent) 40%, var(--border)); }
+.dicon.sel { background:color-mix(in srgb, var(--accent) 18%, transparent); border-color:var(--accent); }
+.dicon:active i { transform:scale(.92); }
+
+/* окна */
+.win { position:fixed; z-index:100; display:flex; flex-direction:column; min-width:300px;
+  background:color-mix(in srgb, var(--panel) 96%, transparent); backdrop-filter:blur(14px) saturate(1.2);
+  border:1px solid var(--border); border-radius:13px; overflow:hidden;
+  box-shadow:0 24px 70px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.03), 0 0 0 1px var(--accent-soft); }
+.win[hidden] { display:none !important; }
+.winbar { display:flex; align-items:center; gap:7px; flex:none; cursor:move; user-select:none;
+  padding:7px 8px 7px 12px; background:linear-gradient(180deg, var(--panel2), color-mix(in srgb, var(--panel2) 70%, var(--panel)));
+  border-bottom:1px solid var(--border); touch-action:none; }
+.winbar .wt { flex:1; min-width:0; font-size:12.5px; font-weight:700; letter-spacing:.4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.winbar .wbtn { flex:none; width:24px; height:22px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:11px; line-height:1; padding:0; }
+.winbar .wbtn:hover { color:var(--fg); border-color:var(--accent); background:var(--accent-soft); }
+.wbody { flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; }
+.wbody.pad { padding:16px 18px; }
+
+/* панель задач */
+.taskbar { position:fixed; left:0; right:0; bottom:0; z-index:900; display:flex; align-items:center; gap:7px;
+  padding:6px 10px; border-top:1px solid var(--border);
+  background:color-mix(in srgb, var(--panel) 90%, transparent); backdrop-filter:blur(16px) saturate(1.3);
+  box-shadow:0 -8px 26px rgba(0,0,0,.35); }
+.taskbar::before { content:""; position:absolute; left:0; right:0; top:-2px; height:2px;
+  background:linear-gradient(90deg, transparent 4%, var(--accent) 30%, var(--accent) 70%, transparent 96%); opacity:.6; pointer-events:none; }
+.tb-start { flex:none; font-weight:800; font-size:13px; letter-spacing:1px; color:var(--fg);
+  background:var(--accent-soft); border:1px solid var(--border); border-radius:9px; padding:7px 13px; }
+.tb-start:hover { border-color:var(--accent); box-shadow:0 0 12px var(--accent-soft); }
+.tbb { flex:none; background:transparent; border:1px solid transparent; border-radius:8px; padding:7px 11px; font-size:12px; font-weight:600; color:var(--muted); white-space:nowrap; }
+.tbb:hover { color:var(--fg); border-color:var(--border); }
+.tbb.open { color:var(--accent); border-color:color-mix(in srgb, var(--accent) 55%, var(--border)); background:var(--accent-soft); }
+.tb-np { flex:1; min-width:0; font-family:var(--mono); font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }
+.tb-sp { flex:1 0 24px; }
+.tb-clock { flex:none; font-family:var(--mono); font-size:12.5px; letter-spacing:1px; color:var(--fg); background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-variant-numeric:tabular-nums; }
+
+/* меню Пуск */
+#startMenu { position:fixed; left:10px; bottom:52px; z-index:950; width:262px; padding:9px;
+  background:color-mix(in srgb, var(--panel) 97%, transparent); backdrop-filter:blur(18px) saturate(1.3);
+  border:1px solid var(--border); border-radius:13px; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+#startMenu[hidden] { display:none !important; }
+.slabel { font-family:var(--mono); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:9px 5px 5px; }
+.smi { display:block; width:100%; text-align:left; background:transparent; border:0; border-radius:8px; cursor:pointer;
+  padding:8px 10px; font-size:12.5px; color:var(--fg); }
+.smi:hover { background:var(--accent-soft); }
+.smi + .smi { margin-top:1px; }
+.swrow { display:flex; align-items:center; gap:10px; padding:4px 6px 6px; flex-wrap:wrap; }
+
+/* карточки в сетке окна Эфира немного крупнее не нужно — оставляем компакт */
+.wbody .grid { padding:0 4px 6px; }
+.wbody .footnote { padding:2px 6px 16px; }
+.wbody .pagehead { padding:14px 6px 0; }
+.wbody .pagehead h1 { font-size:20px; }
+.wbody .pagehead p { font-size:12px; }
+.wbody .filters { padding:0 6px; }
+.wbody .addstation { margin:12px 6px; }
+.wbody .histwrap { padding:0 6px; }
+
+/* тост чуть выше панели задач */
+#toast { bottom:60px; }
+
+/* скроллбар как у ОС */
+.wbody::-webkit-scrollbar, .rblist::-webkit-scrollbar, .artgrid::-webkit-scrollbar { width:9px; }
+.wbody::-webkit-scrollbar-thumb, .rblist::-webkit-scrollbar-thumb, .artgrid::-webkit-scrollbar-thumb { background:var(--border); border-radius:5px; border:2px solid transparent; background-clip:content-box; }
+.wbody::-webkit-scrollbar-thumb:hover, .rblist::-webkit-scrollbar-thumb:hover, .artgrid::-webkit-scrollbar-thumb:hover { background:var(--accent); background-clip:content-box; }
 </style>
 </head>
 <body>
 <canvas id="bgfx"></canvas>
+<div class="deskhint">ДВОЙНОЙ КЛИК ПО ИКОНКЕ — ОТКРЫТЬ ОКНО · ПЕРЕТАСКИВАЙТЕ ЗА ЗАГОЛОВОК</div>
 
-<header class="topbar">
-  <div class="brand"><span class="bfull">ДИАПАЗОН </span><span class="accentdot">FM</span></div>
-  <div class="spacer"></div>
-  <div class="swatches" id="swatches"></div>
-  <input type="color" id="customColor" value="#e6a23c" title="Свой акцентный цвет">
-  <div class="mode-switch" id="coverSwitch" title="Личность интерфейса"></div>
-  <button id="themeBtn" class="iconbtn" title="Светлая и тёмная тема">◐</button>
-  <button id="globBtn" class="iconbtn" title="Глобальный поиск станций (RadioBrowser)">🌐</button>
-  <button id="ioBtn" class="iconbtn" title="Профиль: импорт и экспорт">⇅</button>
-</header>
+<div id="dicons">
+  <div class="dicon" data-win="playerWin" title="Двойной клик — плеер"><i>♪</i><span>Плеер</span></div>
+  <div class="dicon" data-win="stationsWin" title="Двойной клик — эфир"><i>▦</i><span>Эфир</span></div>
+  <div class="dicon" data-win="rbModal" title="Двойной клик — поиск"><i>🌐</i><span>Поиск</span></div>
+  <div class="dicon" data-win="trkModal" title="Двойной клик — журнал"><i>📼</i><span>Журнал</span></div>
+  <div class="dicon" data-win="topModal" title="Двойной клик — полка"><i>📊</i><span>Полка</span></div>
+</div>
 
-<main id="ws" data-side="right">
+<section class="win" id="playerWin" style="left:64px; top:70px; width:344px;">
+  <div class="winbar"><span class="wt">♪ Плеер · Диапазон FM</span><button class="wbtn" id="pmBtn" title="Ещё: сон, обложки, журнал">⋯</button><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
+  <div class="wbody">
+    <section id="bigpanel" class="bigplayer">
+      <div class="npart" id="pArt">∿</div>
+      <div class="pnamer"><h2 id="pName">—</h2><button class="pfaved" id="pFav" title="В избранное">☆</button></div>
+      <div class="npgenre" id="pGenre"></div>
+      <div class="npbig" id="pNp"></div>
+      <div class="pctl">
+        <button id="pPrev" title="Предыдущая волна">⏮</button>
+        <button class="bigplay" id="pPlay">▶</button>
+        <button id="pNext" title="Следующая волна">⏭</button>
+      </div>
+      <div class="pvolrow"><span>🔊</span><input type="range" id="pVol" min="0" max="100" value="70"><b id="pVolVal">70</b></div>
+      <div class="mode-switch" id="coverSwitch" title="Личность интерфейса"></div>
+    </section>
+  </div>
+</section>
 
-  <section id="bigpanel" class="bigplayer">
-    <div class="phead">
-      <button class="iconbtn" id="sideBtn" title="Плеер: слева или справа">⇄</button>
-      <button class="iconbtn" id="nightBtn" title="Вечерний режим: плеер на весь экран">⛶</button>
-      <button class="iconbtn" id="pmBtn" title="Ещё: сон, фон, журнал, обложки">⋯</button>
-    </div>
-    <div class="npart" id="pArt">∿</div>
-    <div class="pnamer"><h2 id="pName">—</h2><button class="pfaved" id="pFav" title="В избранное">☆</button></div>
-    <div class="npgenre" id="pGenre"></div>
-    <div class="npbig" id="pNp"></div>
-    <div class="nightclock" id="pClock"></div>
-    <div class="pctl">
-      <button id="pPrev" title="Предыдущая волна">⏮</button>
-      <button class="bigplay" id="pPlay">▶</button>
-      <button id="pNext" title="Следующая волна">⏭</button>
-    </div>
-    <div class="pvolrow"><span>🔈</span><input type="range" id="pVol" min="0" max="100" value="70"><b id="pVolVal">70</b></div>
-  </section>
-
-  <section id="viewList" class="shelf">
-    <div class="pagehead"><button class="rndbtn" id="cruiseBtn" title="Круиз: ⏮/⏭ листают живое избранное">🚗 Круиз</button><button class="rndbtn" id="surpriseBtn" title="Случайная живая волна">🎲 Удиви меня</button><h1>Живой эфир</h1><p>38 волн из России, Европы, Японии и игровых сетей — плюс те, что добавите вы</p><span id="resumeSlot"></span></div>
+<section class="win" id="stationsWin" style="left:464px; top:70px; width:min(880px, calc(100vw - 64px));">
+  <div class="winbar"><span class="wt">▦ Живой эфир — все волны</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
+  <section id="viewList" class="wbody">
+    <div class="pagehead"><button class="rndbtn" id="cruiseBtn" title="Круиз: ⏮/⏭ листают живое избранное">🚗 Круиз</button><button class="rndbtn" id="surpriseBtn" title="Случайная живая волна">🎲 Удиви меня</button><span id="resumeSlot"></span></div>
     <div class="filters" id="filters"></div>
     <details class="addstation">
       <summary>＋ Своя станция — добавить поток</summary>
@@ -516,95 +477,123 @@ body.night .npbig { white-space:normal; overflow:visible; text-overflow:clip; li
         <label>Название<input id="usName" placeholder="Моя волна"></label>
         <label>Ссылка на поток<input id="usUrl" placeholder="https://…" style="min-width:260px"></label>
         <label>Жанр<input id="usGenre" placeholder="необязательно"></label>
-        <button class="addbtn" id="usAdd">Добавить</button>
+        <button class="addbtn" id="usAdd" style="flex:none">Добавить</button>
       </div>
       <div class="addnote" id="usNote">Поток должен быть публичным (mp3, aac, ogg — плейлист m3u не подойдёт).</div>
     </details>
     <div class="grid" id="grid"></div>
-    <p class="footnote">Диапазон FM v3 · прямые эфиры принадлежат их вещателям · свои станции хранятся только у вас в браузере</p>
+    <p class="footnote">Диапазон FM v4 · Диапазон ОС · прямые эфиры принадлежат их вещателям · свои станции хранятся только у вас в браузере</p>
   </section>
+</section>
 
-</main>
-
-<div class="modal" id="ioModal" hidden>
-  <div class="modal-box">
-    <h3>Профиль · импорт и экспорт</h3>
+<section class="win" id="ioModal" hidden style="width:min(620px, calc(100vw - 48px));">
+  <div class="winbar"><span class="wt">⇅ Профиль · импорт и экспорт</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
+  <div class="wbody pad">
     <textarea id="ioText" spellcheck="false" placeholder="Вставьте JSON со своими станциями и нажмите «Импортировать»"></textarea>
     <div class="mrowbtn">
       <button class="addbtn" id="ioImport">Импортировать</button>
       <button class="iconbtn" id="ioExport">Экспортировать</button>
-      <button class="iconbtn modal-back" id="ioClose">Закрыть</button>
+      <button class="iconbtn" id="ioClose">Закрыть</button>
     </div>
-    <small id="ioNote">Экспорт — весь профиль: свои станции, избранное, полка и настройки одним JSON (перенос между браузерами). Также принимается одельный массив станций ({name, url, genre, freq}), экспорт «Диапазона FM v3» и блок userStations классики (LSKEY «dipfm»).</small>
+    <small id="ioNote">Экспорт — весь профиль: свои станции, избранное, полка и настройки одним JSON (перенос между браузерами). Также принимается отдельный массив станций ({name, url, genre, freq}), экспорт «Диапазона FM v3» и блок userStations классики (LSKEY «dipfm»).</small>
   </div>
-</div>
+</section>
 
-<div class="modal" id="rbModal" hidden>
-  <div class="modal-box">
-    <h3>🌐 Глобальный поиск · RadioBrowser</h3>
+<section class="win" id="rbModal" hidden style="width:min(560px, calc(100vw - 48px));">
+  <div class="winbar"><span class="wt">🌐 Глобальный поиск · RadioBrowser</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
+  <div class="wbody pad">
     <div class="rbrow">
       <input id="rbQ" placeholder="название станции…" spellcheck="false">
       <button class="addbtn" id="rbGo">Искать</button>
-      <button class="iconbtn modal-back" id="rbClose">Закрыть</button>
+      <button class="iconbtn" id="rbClose">Закрыть</button>
     </div>
     <div id="rbList" class="rblist"><small class="addnote">Открытая база тысяч живых потоков. Клик по результату — добавить в «Мои» и включить; ＋ — только добавить.</small></div>
   </div>
-</div>
+</section>
 
 <input type="file" id="artFile" accept="image/*" hidden>
-<div class="modal small" id="artModal" hidden>
-  <div class="modal-box">
-    <h3>🖼 Картинка волны</h3>
+<section class="win" id="artModal" hidden style="width:min(460px, calc(100vw - 48px));">
+  <div class="winbar"><span class="wt">🖼 Картинка волны</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
+  <div class="wbody pad">
     <div class="rbrow">
       <input id="artQ" placeholder="что ищем — по умолчанию название" spellcheck="false">
       <button class="addbtn" id="artGo">Искать</button>
-      <button class="iconbtn modal-back" id="artClose">Закрыть</button>
+      <button class="iconbtn" id="artClose">Закрыть</button>
     </div>
-    <div id="artList" class="artgrid"><small class="addnote">Клик по картинке — поставить её волне; 🔎 ищет в базе станций, Википедии и по домену; 🖼 — свой файл, Shift+клик — сброс.</small></div>
+    <div id="artList" class="artgrid"><small class="addnote">Клик по картинке — поставить её волне; 🔎 ищет в базах станций, Википедии и по домену; 🖼 — свой файл, Shift+клик — сброс.</small></div>
   </div>
-</div>
-<div class="modal small" id="pmModal" hidden>
-  <div class="modal-box">
-    <h3>Ещё · плеер</h3>
+</section>
+
+<section class="win" id="pmModal" hidden style="width:430px;">
+  <div class="winbar"><span class="wt">⋯ Ещё · плеер</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
+  <div class="wbody pad">
     <div class="pmrow" id="trkRow"><button class="iconbtn" id="trackBtn" title="Найти текущий трек" hidden>⌕</button><span>Найти текущий трек в YouTube</span></div>
-    <div class="pmrow"><button class="iconbtn" id="shareBtn" title="Скопировать ссылку на волну">⧉</button><span>Скопировать ссылку на волну</span></div>
+    <div class="pmrow"><button class="iconbtn" id="shareBtn" title="Скопировать ссылку на волну">⏻</button><span>Скопировать ссылку на волну</span></div>
     <div class="pmrow"><button class="iconbtn" id="sleepBtn" title="Сон: 15/30/60 мин циклом">☾</button><span>Таймер сна 15/30/60 мин</span></div>
     <div class="pmrow"><button class="iconbtn" id="pLuck" title="Удиви меня: случайная живая волна">🎲</button><span>Удиви меня — случайная волна</span></div>
-    <div class="pmrow"><button class="iconbtn" id="fxBtn" title="Фоновая анимация вкл/выкл">✨</button><span>Фоновая анимация вкл/выкл</span></div>
     <div class="pmrow"><button class="iconbtn" id="pArtBtn2" title="Найти логотип станции в интернете">🔎</button><span>Найти логотип станции</span></div>
     <div class="pmrow"><button class="iconbtn" id="pArtBtn" title="Своё изображение волны (Shift+клик — вернуть сгенерированное)">🖼</button><span>Своё изображение волны</span></div>
-    <div class="pmrow"><button class="iconbtn" id="logBtn" title="Журнал: что играло в этой сессии">📜</button><span>Что играло в этой сессии</span></div>
+    <div class="pmrow"><button class="iconbtn" id="logBtn" title="Журнал: что играло в этой сессии">📼</button><span>Что играло в этой сессии</span></div>
     <div class="pmrow"><button class="iconbtn" id="histBtn" title="Недавние волны">🕐</button><span>Недавние волны</span></div>
     <div class="pmrow"><button class="iconbtn" id="topBtn" title="Полка · топ-5">📊</button><span>Полка · топ-5 по времени</span></div>
-    <button class="iconbtn modal-back" id="pmClose">Закрыть</button>
+    <button class="iconbtn" id="pmClose">Закрыть</button>
   </div>
-</div>
-<div class="modal small" id="histModal" hidden>
-  <div class="modal-box">
-    <h3>🕐 Недавние волны</h3>
+</section>
+
+<section class="win" id="histModal" hidden style="width:min(460px, calc(100vw - 48px));">
+  <div class="winbar"><span class="wt">🕐 Недавние волны</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
+  <div class="wbody pad">
     <div class="histwrap" id="histWrap"></div>
-    <button class="iconbtn modal-back" id="histClose">Закрыть</button>
+    <button class="iconbtn" id="histClose">Закрыть</button>
   </div>
-</div>
-<div class="modal small" id="topModal" hidden>
-  <div class="modal-box">
-    <h3>📊 Полка · топ-5 по времени</h3>
+</section>
+
+<section class="win" id="topModal" hidden style="width:min(460px, calc(100vw - 48px));">
+  <div class="winbar"><span class="wt">📊 Полка · топ-5 по времени</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
+  <div class="wbody pad">
     <div id="topShelf"></div>
-    <button class="iconbtn modal-back" id="topClose">Закрыть</button>
+    <button class="iconbtn" id="topClose">Закрыть</button>
   </div>
-</div>
-<div class="modal small" id="trkModal" hidden>
-  <div class="modal-box">
-    <h3>📜 Что играло</h3>
+</section>
+
+<section class="win" id="trkModal" hidden style="width:min(520px, calc(100vw - 48px));">
+  <div class="winbar"><span class="wt">📼 Что играло</span><button class="wbtn" data-wclose title="Закрыть">✕</button></div>
+  <div class="wbody pad">
     <div id="trkList"><small class="addnote">Пока ничего — включи эфир.</small></div>
-    <button class="iconbtn modal-back" id="trkClose">Закрыть</button>
+    <button class="iconbtn" id="trkClose">Закрыть</button>
   </div>
+</section>
+
+<div id="startMenu" hidden>
+  <div class="slabel">Пуск · Диапазон ОС 4.0</div>
+  <button class="smi" data-win="playerWin">♪ Плеер</button>
+  <button class="smi" data-win="stationsWin">▦ Живой эфир</button>
+  <button class="smi" data-win="trkModal">📼 Журнал треков</button>
+  <button class="smi" data-win="histModal">🕐 Недавние волны</button>
+  <button class="smi" data-win="topModal">📊 Полка · топ-5</button>
+  <button class="smi" data-win="pmModal">⋯ Ещё · плеер (сон, обложки)</button>
+  <button class="smi" data-win="artModal">🖼 Картинка волны</button>
+  <div class="slabel">Оформление</div>
+  <button class="smi" data-act="theme">◐ Светлая/тёмная тема</button>
+  <button class="smi" data-act="fx">✨ Фоновая анимация вкл/выкл</button>
+  <button class="smi" data-act="night">⛶ Во весь экран</button>
+  <div class="swrow"><div class="swatches" id="swatches"></div><input type="color" id="customColor" value="#e6a23c" title="Свой акцентный цвет"></div>
 </div>
-<div class="mbar" id="mbar" hidden>
-  <span class="mart" id="mArt"></span>
-  <span class="minfo"><b id="mName"></b><i id="mMeta"></i></span>
-  <button class="mplay" id="mPlay">▶</button>
+
+<div class="taskbar">
+  <button id="startBtn" class="tb-start">⌽ <b>Пуск</b></button>
+  <button class="tbb" data-tb="playerWin">♪ Плеер</button>
+  <button class="tbb" data-tb="stationsWin">▦ Эфир</button>
+  <button class="tbb" data-tb="rbModal">🌐 Поиск</button>
+  <button class="tbb" data-tb="ioModal">⇅ Профиль</button>
+  <span class="tb-np" id="tbNp"></span>
+  <span class="tb-sp"></span>
+  <button class="tbb" id="themeBtn" title="Светлая и тёмная тема">◐</button>
+  <button class="tbb" id="nightBtn" title="Во весь экран">⛶</button>
+  <button class="tbb" id="fxBtn" title="Фоновая анимация вкл/выкл">✨</button>
+  <span class="tb-clock" id="tbClock">00:00</span>
 </div>
+
 <div id="toast"></div>
 
 <script>
@@ -699,12 +688,13 @@ function load(){
   return st;
 }
 let state = load();
+state.wins = (state.wins && typeof state.wins === 'object' && !Array.isArray(state.wins)) ? state.wins : {};
 let saveT = 0;
 function save(){ clearTimeout(saveT); saveT = setTimeout(flushSave, 2000); }
 function flushSave(){
   clearTimeout(saveT);
-  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise} = state;
-  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise})); }catch(e){}
+  const {v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,wins} = state;
+  try{ localStorage.setItem(LSKEY, JSON.stringify({v,vol,theme,accent,f,q,last,side,cover,fav,hist,user,listen,arts,fx,alive,cruise,wins})); }catch(e){}
 }
 window.addEventListener('beforeunload', flushSave);
 
@@ -736,7 +726,6 @@ function rbSearch(){
       $('#rbList').innerHTML = '<small class="addnote">⚠ RadioBrowser не ответил — попробуйте ещё раз.</small>';
     });
 }
-$('#globBtn').addEventListener('click', () => { $('#rbModal').hidden = false; $('#rbQ').focus(); });
 $('#pArtBtn2').addEventListener('click', () => {
   const st = curSt();
   if(!st) { toast('⚠ Сначала включите волну'); return; }
@@ -1181,11 +1170,6 @@ function paintAll(){
   pushMedia(npText);
   paintMbar();
 }
-function openPlayer(){
-  $('#ws').classList.add('player-open');
-  if(window.matchMedia && window.matchMedia('(max-width:900px)').matches) window.scrollTo(0, 0);
-}
-
 /* ================= РОУТЕР ТЕМЫ И АКЦЕНТА ================= */
 const ACCENTS = ['#e6a23c','#ff5340','#37c96c','#4d8bff','#c65ef0','#39ffd0'];
 function applyAccent(v){
@@ -1277,7 +1261,6 @@ function importStations(txt){
 const COVERS = [['','Обычный','Об'],['paper','Бумага','Бум'],['term','Терм','Терм'],['neon','Неон','Неон'],['day','День','День']];
 function applySide(s){
   state.side = (s === 'left') ? 'left' : 'right';
-  $('#ws').dataset.side = state.side;
   save();
 }
 function applyCover(c){
@@ -1304,7 +1287,6 @@ function surprise(){
 }
 $('#surpriseBtn').addEventListener('click', surprise);
 $('#pLuck').addEventListener('click', surprise);
-$('#sideBtn').addEventListener('click', () => applySide(state.side === 'right' ? 'left' : 'right'));
 $('#shareBtn').addEventListener('click', async () => {
   const st = curSt(); if(!st) return;
   const url = location.origin + location.pathname + '?st=' + encodeURIComponent(st.id);
@@ -1552,8 +1534,6 @@ $('#swatches').addEventListener('click', e => {
   if(b){ applyAccent(b.dataset.c); $('#customColor').value = b.dataset.c; }
 });
 $('#pPlay').addEventListener('click', () => { if(curSt()) togglePlay(curSt()); });
-$('#mPlay').addEventListener('click', () => { if(curSt()) togglePlay(curSt()); });
-$('#mbar').addEventListener('click', e => { if(e.target.id !== 'mPlay') window.scrollTo({ top:0, behavior:'smooth' }); });
 $('#pPrev').addEventListener('click', () => step(-1));
 $('#pNext').addEventListener('click', () => step(1));
 $('#cruiseBtn').addEventListener('click', () => {
@@ -1568,18 +1548,6 @@ $('#nightBtn').addEventListener('click', () => {
   const p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
   if(p && p.catch) p.catch(() => toast('⛶ Полный экран недоступен в этом браузере'));
 });
-document.addEventListener('fullscreenchange', () => {
-  const on = !!document.fullscreenElement;
-  document.body.classList.toggle('night', on);
-  if(on) tickClock();
-});
-function tickClock(){
-  const el = $('#pClock');
-  const now = new Date();
-  if(el) el.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-}
-setInterval(() => { if(document.body.classList.contains('night')) tickClock(); }, 10000);
-$('#ioBtn').addEventListener('click', () => { $('#ioModal').hidden = false; });
 $('#ioClose').addEventListener('click', () => { $('#ioModal').hidden = true; });
 $('#ioModal').addEventListener('click', e => { if(e.target === $('#ioModal')) $('#ioModal').hidden = true; });
 $('#ioExport').addEventListener('click', async () => {
@@ -2047,6 +2015,102 @@ window.addEventListener('online', () => {
   if(state.playing && curSt()){ clearTimeout(retryT); retryN = 0; paintStatus('эфир · сеть вернулась…'); engine.play(curSt()); }
 });
 
+
+/* ================= РАБОЧИЙ СТОЛ: ОКНА И ПАНЕЛЬ ЗАДАЧ ================= */
+const WINDEF = {
+  playerWin:['♪','Плеер'], stationsWin:['▦','Живой эфир'], pmModal:['⋯','Ещё · плеер'],
+  rbModal:['🌐','Глобальный поиск'], artModal:['🖼','Картинка волны'], histModal:['🕐','Недавние волны'],
+  topModal:['📊','Полка · топ-5'], trkModal:['📼','Журнал треков'], ioModal:['⇅','Профиль']
+};
+let wTop = 10;
+const wEl = id => document.getElementById(id);
+function wFocus(id){ const el = wEl(id); if(el) el.style.zIndex = String(100 + (++wTop)); }
+function wOpen(id, pos){
+  const el = wEl(id); if(!el) return;
+  if(el.hidden){
+    const p = state.wins[id] || {};
+    if(p.x != null) p.x = clamp(p.x, 12, Math.max(12, innerWidth - 140));
+    if(p.y != null) p.y = clamp(p.y, 6, Math.max(6, innerHeight - 80));
+    const cx = p.x != null ? p.x : (pos ? pos[0] : Math.max(16, Math.round((innerWidth - (el.offsetWidth || 480)) / 2)));
+    const cy = p.y != null ? p.y : (pos ? pos[1] : Math.max(16, Math.round((innerHeight - 360) / 2 - 24)));
+    el.style.left = cx + 'px'; el.style.top = cy + 'px';
+    el.hidden = false;
+  }
+  wFocus(id); wSync(); save();
+}
+function wHide(id){ const el = wEl(id); if(el) el.hidden = true; wSync(); save(); }
+function wToggle(id){
+  const el = wEl(id); if(!el) return;
+  if(el.hidden){ wOpen(id); return; }
+  const zp = el.style.zIndex || '0';
+  const topWin = $$('.win').filter(w => !w.hidden).sort((a, b) => (+a.style.zIndex || 0) - (+b.style.zIndex || 0)).pop();
+  if(topWin === el && +zp >= 100){ wHide(id); } else { wFocus(id); }
+  wSync();
+}
+function wSync(){ $$('.taskbar [data-tb]').forEach(b => { const el = wEl(b.dataset.tb); if(el) b.classList.toggle('open', !el.hidden); }); }
+function tbClock(){
+  const now = new Date();
+  const el = $('#tbClock');
+  if(el) el.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+}
+function tbNp(){
+  const el = $('#tbNp'); if(!el) return;
+  const st = curSt();
+  if(!st){ el.textContent = state.playing ? '' : 'эфиры онлайн · свои станции · фон-анимация'; return; }
+  const meta = (npText && npText.indexOf('эфир') !== 0 && npText.indexOf('⚠') !== 0) ? ' · ' + npText : '';
+  el.textContent = (state.playing ? '▶ ' : '❚❚ ') + (st.short || st.name) + meta;
+}
+setInterval(tbClock, 10000);
+setInterval(tbNp, 1500);
+document.addEventListener('click', e => {
+  const wc = e.target.closest('[data-wclose]');
+  if(wc){ const w = wc.closest('.win'); if(w) wHide(w.id); return; }
+  const tb = e.target.closest('.taskbar [data-tb]');
+  if(tb){ wToggle(tb.dataset.tb); return; }
+  const smi = e.target.closest('#startMenu [data-win]');
+  if(smi){ wOpen(smi.dataset.win); $('#startMenu').hidden = true; return; }
+  const act = e.target.closest('#startMenu [data-act]');
+  if(act){ const m = { theme:'#themeBtn', fx:'#fxBtn', night:'#nightBtn' }; const b = m[act.dataset.act] && $(m[act.dataset.act]); if(b) b.click(); $('#startMenu').hidden = true; return; }
+  if(e.target.id === 'startBtn'){ const m = $('#startMenu'); m.hidden = !m.hidden; return; }
+  if(!e.target.closest('#startMenu')) $('#startMenu').hidden = true;
+});
+$$('.dicon').forEach(d => d.addEventListener('click', () => {
+  $$('.dicon').forEach(x => x.classList.toggle('sel', x === d));
+}));
+$$('.dicon').forEach(d => d.addEventListener('dblclick', () => {
+  $$('.dicon').forEach(x => x.classList.remove('sel'));
+  wOpen(d.dataset.win);
+}));
+$$('.win').forEach(w => {
+  const bar = w.querySelector('.winbar'); if(!bar) return;
+  bar.addEventListener('pointerdown', e => {
+    if(e.target.closest('button') || (e.button && e.button !== 0)) return;
+    wFocus(w.id);
+    const ox = e.clientX - w.offsetLeft, oy = e.clientY - w.offsetTop;
+    const mv = ev => {
+      w.style.left = clamp(ev.clientX - ox, 60 - w.offsetWidth, innerWidth - 90) + 'px';
+      w.style.top = clamp(ev.clientY - oy, 0, innerHeight - 50) + 'px';
+    };
+    const up = () => {
+      removeEventListener('pointermove', mv); removeEventListener('pointerup', up);
+      (state.wins[w.id] = state.wins[w.id] || {}).x = parseInt(w.style.left, 10) || 0;
+      state.wins[w.id].y = parseInt(w.style.top, 10) || 0;
+      save();
+    };
+    addEventListener('pointermove', mv); addEventListener('pointerup', up);
+  });
+});
+window.addEventListener('resize', () => {
+  let touched = false;
+  $$('.win').forEach(w => {
+    if(w.hidden) return;
+    const p = state.wins[w.id] = state.wins[w.id] || {};
+    if(w.offsetLeft > innerWidth - 90){ p.x = Math.max(12, innerWidth - 260); w.style.left = p.x + 'px'; touched = true; }
+    if(w.offsetTop > innerHeight - 60){ p.y = Math.max(6, innerHeight - 140); w.style.top = p.y + 'px'; touched = true; }
+  });
+  if(touched) save();
+});
+function openPlayer(){ wOpen('playerWin'); }
 /* ================= СТАРТ ================= */
 const urlSt = new URLSearchParams(location.search).get('st');
 if(urlSt && findSt(urlSt)){ state.last = urlSt; state.hist = [urlSt].concat(state.hist.filter(x => x !== urlSt)).slice(0,12); }
@@ -2076,6 +2140,11 @@ setInterval(() => {
     save();
   }
 }, 5000);
+
+tbClock(); tbNp();
+wOpen('playerWin', [64, 72]);
+wOpen('stationsWin', [460, 72]);
+wSync();
 </script>
 </body>
 </html>
