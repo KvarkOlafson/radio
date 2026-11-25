@@ -361,32 +361,59 @@ body { padding-bottom:0; }
 .wbody::-webkit-scrollbar-thumb:hover, .rblist::-webkit-scrollbar-thumb:hover, .artgrid::-webkit-scrollbar-thumb:hover { background:var(--accent); background-clip:content-box; }
 
 /* ===== СКИНЫ ОС ===== */
-html[data-cover="w10"] { --accent:#2b88d8; --page-bg:#1b2430; --page-bg2:#121924; --panel:#222b38; --panel2:#1a222d; --card2:#1f2937; --fg:#f3f6fa; --muted:#9fb0c3; --border:#39465a; }
-html[data-cover="w10"] body { background:linear-gradient(165deg,#20303f,#141d28 55%,#0f141c) !important; }
-html[data-cover="w10"] .win { border-radius:8px; border-color:#4a5a72; }
-html[data-cover="w10"] .winbar { background:linear-gradient(180deg,#2b3646,#232d3b); }
-html[data-cover="w10"] .taskbar { background:#101722; border-radius:0; }
+/* --- Windows 10/11: Mica-фон, акриловая панель с ЦЕНТРОМ (как Win 11), плоские окна, логотип-квадраты --- */
+html[data-cover="w10"] { --accent:#4cc2ff; --accent-soft:rgba(76,194,255,.16); --page-bg:#0b1e33; --page-bg2:#081422; --panel:#20242c; --panel2:#1a1e26; --card2:#242832; --fg:#f2f4f8; --muted:#9aa8b8; --border:#3a414e; }
+html[data-cover="w10"] body { background:radial-gradient(1100px 500px at 65% -8%,rgba(76,150,255,.34),rgba(10,25,45,0) 62%),radial-gradient(900px 600px at 20% 110%,rgba(40,110,200,.26),rgba(8,20,34,0) 60%),linear-gradient(160deg,#0d2136,#0a1726 58%,#071120) !important; }
+html[data-cover="w10"] .win { border-radius:8px; border:1px solid rgba(255,255,255,.08); box-shadow:0 24px 60px rgba(0,0,0,.55); }
+html[data-cover="w10"] .winbar { background:transparent; border-bottom:1px solid rgba(255,255,255,.06); }
+html[data-cover="w10"] .card, html[data-cover="w10"] .bigplayer, html[data-cover="w10"] .addstation { border-radius:8px; border-color:#333a46; }
+html[data-cover="w10"] .taskbar { background:rgba(24,26,32,.86); backdrop-filter:blur(28px) saturate(1.25); border-top:1px solid rgba(255,255,255,.08); border-radius:0; box-shadow:none; }
 html[data-cover="w10"] .taskbar::before { opacity:0; }
-html[data-cover="w10"] .card, html[data-cover="w10"] .bigplayer, html[data-cover="w10"] .addstation { border-radius:4px; }
-html[data-cover="w7"] { --accent:#2f7fd0; --page-bg:#cfe4f6; --page-bg2:#a9cbe8; --panel:#ffffffd8; --panel2:#f2f9ffcc; --card2:#ffffffb8; --fg:#14293e; --muted:#4a6a84; --border:#8fb4d4; }
-html[data-cover="w7"] body { background:radial-gradient(1100px 600px at 30% 0%,#e8f4fd,#9cc3e6 60%,#7fa8cf) !important; }
-html[data-cover="w7"] .win { border-radius:7px; border:1px solid rgba(255,255,255,.6); box-shadow:0 0 0 1px rgba(20,50,80,.45), 0 18px 46px rgba(10,30,60,.45), inset 0 0 24px rgba(200,235,255,.35); }
-html[data-cover="w7"] .winbar { background:linear-gradient(180deg,#9fd0f0,#5e9cd0); border-bottom-color:rgba(255,255,255,.55); }
-html[data-cover="w7"] .winbar .wt { color:#0d2337; text-shadow:0 1px 2px rgba(255,255,255,.5); }
-html[data-cover="w7"] .taskbar { background:rgba(20,45,75,.72); border-top-color:rgba(160,200,235,.5); }
-html[data-cover="w7"] .tb-start { background:rgba(255,255,255,.2); border-color:rgba(255,255,255,.4); color:#eaf5ff; }
-html[data-cover="w7"] .tbb, html[data-cover="w7"] .tb-np { color:#cfe6f8; }
-html[data-cover="w7"] .tb-clock { background:rgba(255,255,255,.14); color:#cfe6f8; }
-html[data-cover="mac"] { --accent:#0a84ff; --page-bg:#e9ebef; --page-bg2:#f7f8fa; --panel:#ffffffd9; --panel2:#ffffffb3; --card2:#ffffffcc; --fg:#1d1d1f; --muted:#6e6e73; --border:#d9d9de; }
-html[data-cover="mac"] body { background:linear-gradient(170deg,#f2f4f8,#dfe3ea 70%,#d3d8e0) !important; }
+html[data-cover="w10"] .tb-np { display:none; }
+html[data-cover="w10"] .tb-sp { flex:none; width:26px; }
+html[data-cover="w10"] .tb-start { margin-left:auto; font-size:0; letter-spacing:0; padding:8px 11px; border-radius:6px; border-color:transparent; background:transparent; color:var(--fg); }
+html[data-cover="w10"] .tb-start::before { content:''; display:block; width:5px; height:5px; margin:0 auto; background:#4cc2ff; box-shadow:6px 0 0 #4cc2ff, 0 6px 0 #4cc2ff, 6px 6px 0 #4cc2ff; }
+html[data-cover="w10"] .tb-start:hover { border-color:transparent; background:rgba(255,255,255,.09); box-shadow:none; }
+html[data-cover="w10"] .tbb { border-radius:6px; }
+html[data-cover="w10"] .tbb:hover { border-color:transparent; background:rgba(255,255,255,.09); }
+html[data-cover="w10"] .tbb.open { border-color:transparent; background:rgba(255,255,255,.08); box-shadow:inset 0 -3px 0 rgba(255,255,255,.6); }
+html[data-cover="w10"] .tb-clock { background:transparent; border:0; font-variant-numeric:tabular-nums; }
+html[data-cover="w10"] #toast { bottom:56px; }
+/* --- Windows 7: Aero — тёмные обои с заревом, стекло в рамках окон, круглый орб «Пуск», стеклянная панель --- */
+html[data-cover="w7"] { --accent:#2f7fd0; --page-bg:#0d3057; --page-bg2:#0a2038; --panel:#ffffffd8; --panel2:#f2f9ffcc; --card2:#ffffffb8; --fg:#14293e; --muted:#4a6a84; --border:#8fb4d4; }
+html[data-cover="w7"] body { background:radial-gradient(1100px 460px at 50% 88%,rgba(190,235,255,.66),rgba(70,140,210,.30) 48%,rgba(10,40,80,0) 74%),radial-gradient(700px 420px at 12% 0%,rgba(140,200,245,.25),rgba(10,40,80,0) 70%),linear-gradient(180deg,#0a2542,#0d3057 55%,#0a2038) !important; }
+html[data-cover="w7"] .win { border-radius:9px 9px 4px 4px; border:1px solid rgba(255,255,255,.55);
+  box-shadow:0 0 0 5px rgba(120,170,215,.35), 0 0 0 6px rgba(20,60,100,.5), 0 22px 50px rgba(8,28,56,.55), inset 0 0 22px rgba(220,240,255,.28); }
+html[data-cover="w7"] .winbar { background:linear-gradient(180deg,rgba(215,238,255,.92),rgba(140,192,236,.82) 52%,rgba(96,155,208,.9)); border-bottom-color:rgba(255,255,255,.55); }
+html[data-cover="w7"] .winbar .wt { color:#fff; text-shadow:0 0 6px #fff, 0 0 16px rgba(170,225,255,.95); }
+html[data-cover="w7"] .winbar .wbtn[data-wclose] { background:linear-gradient(180deg,#ff9c8b,#e04e35 55%,#b52a15); border-color:#8f1d12; color:#fff; }
+html[data-cover="w7"] .winbar .wbtn[data-wclose]:hover { background:linear-gradient(180deg,#ffb0a0,#f06040 55%,#cc3520); }
+html[data-cover="w7"] .taskbar { background:linear-gradient(180deg,rgba(130,185,232,.38),rgba(28,70,120,.55) 50%,rgba(16,45,85,.62)); backdrop-filter:blur(16px) saturate(1.3); border-top-color:rgba(200,235,255,.55); }
+html[data-cover="w7"] .tb-start { width:40px; height:40px; margin:-10px 6px -4px; padding:0; border-radius:50%; border:0; font-size:0; letter-spacing:0;
+  background:radial-gradient(circle at 50% 32%,#bfe3ff,#3e7fc4 52%,#123f73 92%); box-shadow:inset 0 0 0 2px rgba(255,255,255,.35), 0 0 14px rgba(90,170,255,.55); color:#fff; }
+html[data-cover="w7"] .tb-start::before { content:''; display:block; width:5px; height:5px; margin:0 auto; background:#fff; box-shadow:6px 0 0 #fff, 0 6px 0 #fff, 6px 6px 0 #fff; opacity:.95; }
+html[data-cover="w7"] .tb-start:hover { border-color:transparent; box-shadow:inset 0 0 0 2px rgba(255,255,255,.55), 0 0 22px rgba(120,190,255,.85); }
+html[data-cover="w7"] .tbb { border-radius:4px; border-color:transparent; background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.08)); box-shadow:inset 0 0 0 1px rgba(255,255,255,.35); color:#eaf5ff; }
+html[data-cover="w7"] .tbb:hover { border-color:rgba(255,255,255,.55); background:linear-gradient(180deg,rgba(255,255,255,.48),rgba(180,215,245,.22)); color:#fff; }
+html[data-cover="w7"] .tbb.open { border-color:rgba(255,255,255,.6); background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(140,190,235,.30)); color:#fff; box-shadow:inset 0 0 12px rgba(200,235,255,.55); }
+html[data-cover="w7"] .tb-np { color:#eaf5ff; text-shadow:0 0 6px rgba(160,220,255,.6); }
+html[data-cover="w7"] .tb-clock { background:rgba(255,255,255,.16); color:#eaf5ff; box-shadow:inset 0 0 0 1px rgba(255,255,255,.3); }
+/* --- macOS: обои Sonoma (сине-фиолетовые пятна), верхняя строка меню, стеклянный док с точками, светофор --- */
+html[data-cover="mac"] { --accent:#0a84ff; --page-bg:#141633; --page-bg2:#0e0f28; --panel:rgba(255,255,255,.88); --panel2:rgba(255,255,255,.72); --card2:rgba(255,255,255,.8); --fg:#1d1d1f; --muted:#6e6e73; --border:#d9d9de; }
+html[data-cover="mac"] body { background:radial-gradient(900px 620px at 18% 6%,rgba(126,94,224,.5),rgba(20,22,51,0) 62%),radial-gradient(1000px 700px at 84% 18%,rgba(224,84,160,.4),rgba(20,22,51,0) 64%),radial-gradient(1200px 700px at 50% 108%,rgba(40,100,210,.45),rgba(14,15,40,0) 66%),linear-gradient(180deg,#191a3c,#0e0f28) !important; }
 html[data-cover="mac"] body, html[data-cover="mac"] .card h3 { font-family:-apple-system,'SF Pro Text','Segoe UI',system-ui,sans-serif; }
-html[data-cover="mac"] .win { border-radius:12px; border:0; box-shadow:0 22px 60px rgba(30,40,60,.28), 0 0 0 1px rgba(0,0,0,.06); }
-html[data-cover="mac"] .winbar { position:relative; padding-left:86px; background:rgba(246,247,249,.85); }
+html[data-cover="mac"] body::before { content:'✦ Диапазон ОС'; position:fixed; top:0; left:0; right:0; z-index:2100; height:26px; padding-top:5px; padding-left:16px; box-sizing:border-box; font-size:12.5px; font-weight:600; color:#f5f5f7; background:rgba(24,24,28,.55); backdrop-filter:blur(24px); box-shadow:0 1px 0 rgba(255,255,255,.08); }
+html[data-cover="mac"] .win { border-radius:11px; border:0; box-shadow:0 24px 64px rgba(6,8,24,.55), 0 0 0 1px rgba(255,255,255,.14); }
+html[data-cover="mac"] .winbar { position:relative; padding-left:86px; background:rgba(250,250,252,.78); }
 html[data-cover="mac"] .winbar::before { content:''; position:absolute; left:14px; top:50%; width:12px; height:12px; margin-top:-6px; border-radius:50%; background:#ff5f57; box-shadow:-18px 0 0 #febc2e, -36px 0 0 #28c840; }
-html[data-cover="mac"] .taskbar { left:50%; right:auto; bottom:10px; transform:translateX(-50%); width:auto; max-width:94vw; border-radius:17px; border:1px solid rgba(255,255,255,.45); background:rgba(255,255,255,.55); box-shadow:0 14px 40px rgba(20,30,50,.22); }
+html[data-cover="mac"] .taskbar { left:50%; right:auto; bottom:10px; transform:translateX(-50%); width:auto; max-width:94vw; padding:6px 10px; border-radius:22px; border:1px solid rgba(255,255,255,.5); background:rgba(255,255,255,.34); backdrop-filter:blur(30px) saturate(1.5); box-shadow:0 18px 44px rgba(6,8,24,.45), inset 0 1px 0 rgba(255,255,255,.55); }
 html[data-cover="mac"] .taskbar::before { opacity:0; }
-html[data-cover="mac"] #dicons { inset:14px 14px 78px 14px; }
-html[data-cover="mac"] #toast { bottom:80px; }
+html[data-cover="mac"] .tbb { position:relative; border-radius:12px; }
+html[data-cover="mac"] .tbb.open { border-color:transparent; background:rgba(0,0,0,.12); }
+html[data-cover="mac"] .tbb.open::after { content:''; position:absolute; left:50%; bottom:1px; width:4px; height:4px; margin-left:-2px; border-radius:50%; background:currentColor; }
+html[data-cover="mac"] .tb-clock { background:rgba(0,0,0,.06); }
+html[data-cover="mac"] #dicons { inset:36px 14px 78px 14px; }
+html[data-cover="mac"] #toast { bottom:84px; }
 /* --- CLI: терминал/TUI --- */
 html[data-cover="cli"] { --accent:#39ff5e; --accent-soft:rgba(57,255,94,.14);
   --page-bg:#010803; --page-bg2:#000401; --panel:#041409; --panel2:#061b0e; --card2:#04170c;
@@ -486,13 +513,13 @@ html[data-cover="mac"] ::-webkit-scrollbar-thumb { border-radius:4px; background
 html[data-cover="mac"] ::-webkit-scrollbar-track { background:transparent; }
 
 /* ===== ПУСК — ОСЕВЫЕ ТЕМЫ ===== */
-/* --- Win 10/11: сплошная тёмная плита, прижата к левому нижнему углу --- */
-html[data-cover="w10"] #startMenu { left:0; bottom:40px; padding:6px 0; width:266px;
-  border-radius:0; border:1px solid #0c121b; border-left:0; border-bottom:0;
-  background:#1f2833; backdrop-filter:none; box-shadow:0 10px 34px rgba(0,0,0,.6); }
-html[data-cover="w10"] #startMenu .slabel { padding:0 12px 0; margin:6px 0 4px; color:#7d8fa3; }
-html[data-cover="w10"] #startMenu .smi { border-radius:0; padding:9px 12px; margin:0; font-size:12.5px; border-left:3px solid transparent; }
-html[data-cover="w10"] #startMenu .smi:hover { background:rgba(43,136,216,.28); border-left-color:var(--accent); }
+/* --- Win 11: акриловая плита по центру над панелью --- */
+html[data-cover="w10"] #startMenu { left:50%; transform:translateX(-50%); bottom:56px; padding:7px; width:290px;
+  border-radius:12px; border:1px solid rgba(255,255,255,.09); background:rgba(34,36,44,.94);
+  backdrop-filter:blur(34px) saturate(1.3); box-shadow:0 24px 60px rgba(0,0,0,.6); }
+html[data-cover="w10"] #startMenu .slabel { padding:0 11px; margin:6px 0 4px; color:#8a97a8; }
+html[data-cover="w10"] #startMenu .smi { border-radius:7px; padding:9px 11px; margin:0; font-size:12.5px; border-left:0; }
+html[data-cover="w10"] #startMenu .smi:hover { background:rgba(255,255,255,.08); border-left:0; }
 /* --- Win 7: светлое стекло с мягким голубым ховером --- */
 html[data-cover="w7"] #startMenu { left:6px; bottom:56px; width:274px; padding:8px;
   border-radius:10px; border:1px solid rgba(255,255,255,.65);
