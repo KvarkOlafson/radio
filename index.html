@@ -404,6 +404,41 @@ html[data-cover="mac"] #toast { bottom:80px; }
 .pv.pv-mac { background:linear-gradient(160deg,#e8eaee,#f8f9fb); } .pv.pv-mac::after { background:#ffffffd9; border-radius:6px; left:20px; right:20px; }
 .setup-skip { margin-top:14px; color:var(--muted); }
 .setup-skip a { color:var(--accent); }
+
+/* ===== СКИНЫ ОС — НАПОЛНЕНИЕ ===== */
+/* --- Win 10/11: плоская аккуратность --- */
+html[data-cover="w10"] body, html[data-cover="w10"] button,
+html[data-cover="w10"] input, html[data-cover="w10"] select, html[data-cover="w10"] textarea { font-family:'Segoe UI', 'Segoe UI Variable Text', system-ui, sans-serif; }
+html[data-cover="w10"] body { font-size:13px; }
+html[data-cover="w10"] .winbar { padding:5px 6px 5px 11px; }
+html[data-cover="w10"] .winbar .wbtn { border:0; border-radius:0; width:32px; height:20px; font-size:9px; color:#c8d2dd; }
+html[data-cover="w10"] .winbar .wbtn:hover { background:#3a4a5f; color:#fff; }
+html[data-cover="w10"] .winbar .wbtn[data-wclose]:hover { background:#c42b1c; color:#fff; }
+html[data-cover="w10"] ::-webkit-scrollbar { width:10px; height:10px; }
+html[data-cover="w10"] ::-webkit-scrollbar-thumb { background:#4d5c72; border:2px solid #222b38; border-radius:0; }
+html[data-cover="w10"] ::-webkit-scrollbar-track { background:#1a222d; }
+html[data-cover="w10"] .wt { font-weight:600; letter-spacing:0; }
+/* --- Win 7: глянец и скруглённые кнопки --- */
+html[data-cover="w7"] body, html[data-cover="w7"] button,
+html[data-cover="w7"] input, html[data-cover="w7"] select, html[data-cover="w7"] textarea { font-family:'Segoe UI', 'Segoe UI Semilight', system-ui, sans-serif; }
+html[data-cover="w7"] .winbar { position:relative; overflow:hidden; }
+html[data-cover="w7"] .winbar::after { content:''; position:absolute; left:0; right:0; top:0; height:50%; background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0)); pointer-events:none; }
+html[data-cover="w7"] .winbar .wbtn { border-radius:4px; background:linear-gradient(180deg,#eaf4fc,#c6ddf0 45%,#a8c8e4); border:1px solid #7ba7cc; color:#1c3c5c; box-shadow:inset 0 1px 0 rgba(255,255,255,.8); }
+html[data-cover="w7"] .winbar .wbtn:hover { background:linear-gradient(180deg,#fdf3d8,#f7d9a8 45%,#eec581); border-color:#c79a55; color:#5a3c10; }
+html[data-cover="w7"] .wt { text-transform:none; }
+html[data-cover="w7"] ::-webkit-scrollbar { width:13px; height:13px; }
+html[data-cover="w7"] ::-webkit-scrollbar-thumb { border-radius:7px; border:1px solid #6f9dc6; background:linear-gradient(90deg,#dceafd,#b3d3ef); box-shadow:inset 0 0 3px rgba(255,255,255,.8); }
+html[data-cover="w7"] ::-webkit-scrollbar-track { background:rgba(255,255,255,.55); }
+/* --- macOS: практика, а не картинка --- */
+html[data-cover="mac"] .winbar { position:relative; padding:7px 9px 7px 88px; min-height:34px; }
+html[data-cover="mac"] .winbar .wbtn { width:12px; height:12px; border-radius:50%; border:1px solid rgba(0,0,0,.18); background:#febc2e; font-size:0; overflow:hidden; position:relative; flex:none; }
+html[data-cover="mac"] .winbar .wbtn[data-wclose]:hover { background:#ff5f57; }
+html[data-cover="mac"] .winbar .wbtn::after { content:'✕'; position:absolute; inset:0; font-size:9px; line-height:12px; color:rgba(0,0,0,.55); opacity:0; }
+html[data-cover="mac"] .winbar .wbtn:hover::after { opacity:1; }
+html[data-cover="mac"] .wt { text-align:center; font-weight:600; font-size:13px; letter-spacing:0; }
+html[data-cover="mac"] ::-webkit-scrollbar { width:8px; height:8px; }
+html[data-cover="mac"] ::-webkit-scrollbar-thumb { border-radius:4px; background:rgba(0,0,0,.24); }
+html[data-cover="mac"] ::-webkit-scrollbar-track { background:transparent; }
 </style>
 </head>
 <body>
@@ -554,7 +589,7 @@ html[data-cover="mac"] #toast { bottom:80px; }
 </section>
 
 <div id="startMenu" hidden>
-  <div class="slabel">Пуск · Диапазон ОС 4.0</div>
+  <div class="slabel">Пуск · Диапазон ОС 4.3</div>
   <button class="smi" data-win="playerWin">♪ Плеер</button>
   <button class="smi" data-win="stationsWin">📁 Библиотека волн</button>
   <button class="smi" data-win="trkModal">📼 Журнал треков</button>
